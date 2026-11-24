@@ -21,6 +21,7 @@ main{flex:1;position:relative;overflow:hidden}
 .btn{display:block;width:100%;border:0;border-radius:16px;padding:16px;font:800 18px Inter,sans-serif;cursor:pointer}
 .btn.y{background:var(--y);color:#10204a}.btn.g{background:#25D366;color:#fff}.btn.o{background:transparent;color:var(--y);border:2px solid var(--y)}.btn.d{background:#24242d;color:#fff}
 .btn:active{transform:scale(.97)}
+.btn.del{background:transparent;color:#ff9a9a;border:2px solid #5a2a2a}.btn.del.arm{background:#7a1f1f;color:#fff;border-color:#c0392b}
 .row{display:flex;gap:10px;width:100%}
 .row .btn{flex:1;padding:14px 8px;font-size:16px}
 .note{font-size:12px;color:var(--mut);margin-top:8px}
@@ -93,7 +94,7 @@ input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px
   <section class="view" id="vResult">
     <div class="framebox"><img id="shot" alt="Your rally photo"></div>
     <div class="row" style="max-width:360px;margin-top:12px"><button class="btn y" id="saveB">⬇ Save</button><button class="btn g" id="shareB">Share</button></div>
-    <button class="btn o" id="sendB" style="margin-top:10px;max-width:360px">📺 Send to big screen</button>
+    <div class="row" style="max-width:360px;margin-top:10px"><button class="btn o" id="sendB" style="white-space:nowrap">📺 Send to screen</button><button class="btn del" id="delB">🗑 Delete</button></div>
     <p class="note" id="sendNote">Your photo may appear on the big screens and livestream. Photos are checked before they go up, and deleted after the rally.</p>
     <button class="btn d" id="again" style="margin-top:6px;max-width:360px;padding:12px;font-size:15px">Take another</button>
   </section>
@@ -184,6 +185,10 @@ $('shoot').onclick=async()=>{const cd=$('cd');for(const n of ['3','2','1']){cd.t
   const c=$('work'),g=c.getContext('2d');drawFrame(g,c.width,c.height,$('vid'),facing==='user',HOME?CITY:'');
   c.toBlob(b=>{lastBlob=b;if(lastUrl)URL.revokeObjectURL(lastUrl);lastUrl=URL.createObjectURL(b);$('shot').src=lastUrl;$('shot2').src=lastUrl;stopCam();photoView='vResult';show('vResult');ev('photo')},'image/jpeg',.82)};
 $('again').onclick=()=>{show('vCam');photoView='vCam';startCam()};
+// delete: tap twice (like the phone's own Delete Photo), then back to the start
+let delT=null;$('delB').onclick=()=>{const b=$('delB');if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap to delete';clearTimeout(delT);delT=setTimeout(()=>{b.classList.remove('arm');b.textContent='🗑 Delete'},3000);return}
+  clearTimeout(delT);b.classList.remove('arm');b.textContent='🗑 Delete';if(lastUrl)URL.revokeObjectURL(lastUrl);lastUrl=null;lastBlob=null;$('shot').removeAttribute('src');$('shot2').removeAttribute('src');
+  photoView='vPhoto';show('vPhoto');toast('🗑 Photo deleted',2000)};
 function fileOf(){return new File([lastBlob],'ndp-rally-photo.jpg',{type:'image/jpeg'})}
 $('saveB').onclick=async()=>{ev('save');const f=fileOf();if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e.name==='AbortError')return}}const a=document.createElement('a');a.href=lastUrl;a.download='ndp-rally-photo.jpg';document.body.appendChild(a);a.click();a.remove()};
 $('shareB').onclick=async()=>{ev('share');const f=fileOf();const text='#GEHDEMPERFORMANCE 💛💙';if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text});return}catch(e){if(e.name==='AbortError')return}}if(navigator.share){try{await navigator.share({text})}catch(e){}}};
