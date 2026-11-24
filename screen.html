@@ -145,7 +145,9 @@ button:focus-visible{outline:3px solid var(--y);outline-offset:2px}
 
 <style id="live">
 html,body{margin:0!important;padding:0!important;background:#000!important;overflow:hidden!important;width:100%;height:100%;cursor:none}
-body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid){display:none!important}
+body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc){display:none!important}
+#rxg{position:fixed;inset:0;z-index:50000;display:none}#rxg.on{display:block}
+#rxc{position:fixed;inset:0;width:100%;height:100%;z-index:50001;pointer-events:none}
 #scal{position:absolute;left:0;top:0;width:904px;height:508.5px;transform-origin:0 0;overflow:hidden}
 #scal .screen{width:100%!important;height:100%!important;aspect-ratio:auto!important;border:0!important;border-radius:0!important;margin:0!important;max-width:none!important}
 #fitp{position:fixed;right:16px;top:16px;z-index:100000;width:330px;background:rgba(14,14,20,.96);border:1px solid #3a3a46;border-radius:14px;padding:14px 16px;color:#f4f4f6;font:14px/1.4 Inter,system-ui,sans-serif;cursor:default;display:none}
@@ -2770,7 +2772,7 @@ if(sc==='victory'&&autoVictorySeq>=0&&autoVictorySeq===seq-1)return;
 let fails=0,started=false;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),2500);
 const r=await fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:'{"a":"screen"}',signal:ctl.signal});clearTimeout(to);
-if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];
+if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);
 const st=d.state;LIVE.vote=st.vote;LIVE.shake=st.shake;LIVE.at=st.at;LIVE.spotlight=st.spotlight;
 if(started&&st.seq!==LIVE.seq){const prev=LIVE.seq;LIVE.seq=st.seq;LIVE.scene=st.scene;runScene(st.scene,st.seq)}else if(!started){LIVE.seq=st.seq;LIVE.scene=st.scene}
 $('startinfo').textContent='Connected. Current step: '+st.scene}catch(e){fails++;if(!started)$('startinfo').textContent='Connecting to the server…'}
@@ -2778,6 +2780,41 @@ setTimeout(poll,fails?1500:500)}
 if(/[?&]preview/.test(location.search)){started=true;const so=$('startov');if(so)so.remove()}
 poll();
 // backup: if the server is unreachable, the laptop keyboard can run the show locally
+// --- emoji layer: control picks the output: show, show + emojis, or green screen (emojis on green for keying) ---
+(function(){const EMO=['💛','💙','🔥','👏','🙌','🎉','🎺'];
+const RX={mode:'show',open:false,prev:null};const L={rate:8,max:35,side:22,key:'#00B140'};
+try{Object.assign(L,JSON.parse(localStorage.getItem('rally_rx_lim')||'{}'))}catch(e){}
+function saveL(){L.rate=Math.max(1,Math.min(30,Math.round(L.rate)));L.max=Math.max(5,Math.min(120,Math.round(L.max)));L.side=Math.max(10,Math.min(40,Math.round(L.side)));try{localStorage.setItem('rally_rx_lim',JSON.stringify(L))}catch(e){}}
+const gdiv=document.createElement('div');gdiv.id='rxg';document.body.appendChild(gdiv);
+const cv=document.createElement('canvas');cv.id='rxc';document.body.appendChild(cv);const g=cv.getContext('2d');let W=0,H=0;
+function fit(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;g.setTransform(d,0,0,d,0,0)}addEventListener('resize',fit);fit();
+const SPR=EMO.map(e=>{const c=document.createElement('canvas'),z=160;c.width=c.height=z;const x=c.getContext('2d');x.font=Math.round(z*.8)+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,z/2,z/2+z*.04);return c});
+const P=[],Q=[];
+// area emojis rise in: the whole window on green screen, the show picture otherwise
+function area(){if(RX.mode==='green')return{x:0,y:0,w:W,h:H};return{x:Math.max(0,OX),y:Math.max(0,OY),w:Math.min(W,904*KX),h:Math.min(H,508.5*KY)}}
+function spawn(k){if(P.length>=L.max)return false;const a=area(),base=Math.min(a.w,a.h)*.09,s=base*(.75+Math.random()*.6),lw=a.w*L.side/100,m=s*.6,x0=m+Math.random()*Math.max(1,lw-2*m);
+  P.push({k,x:Math.random()<.5?a.x+x0:a.x+a.w-x0,y:a.y+a.h+s,top:a.y,s,vy:a.h*(.16+Math.random()*.1),ph:Math.random()*6.28,wob:s*(.25+Math.random()*.35),t:0,life:4.2+Math.random()*1.6,rot:(Math.random()-.5)*.5});return true}
+let last=performance.now();
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;g.clearRect(0,0,W,H);
+  for(let i=P.length-1;i>=0;i--){const p=P[i];p.t+=dt;if(p.t>p.life){P.splice(i,1);continue}p.y-=p.vy*dt;const x=p.x+Math.sin(p.ph+p.t*2.2)*p.wob;
+    const pop=p.t<.3?.2+.8*(p.t/.3)+.15*Math.sin(p.t/.3*3.14):(p.t>p.life-.6?Math.max(0,(p.life-p.t)/.6):1);const s=p.s*pop;if(s<1||p.y<p.top-p.s)continue;
+    g.save();g.translate(x,p.y);g.rotate(p.rot*Math.sin(p.t*1.5));g.drawImage(SPR[p.k],-s/2,-s/2,s,s);g.restore()}
+  requestAnimationFrame(frame)}requestAnimationFrame(frame);
+let tokens=0,le=performance.now();
+setInterval(()=>{const now=performance.now();tokens=Math.min(L.rate,tokens+L.rate*(now-le)/1000);le=now;if(RX.mode==='show'){Q.length=0;return}
+  while(tokens>=1&&Q.length&&P.length<L.max){if(spawn(Q.shift()))tokens-=1;else break}},100);
+function queue(counts){counts.forEach((n,k)=>{for(let j=0;j<n;j++)Q.push(k)});const keep=Math.max(4,L.rate*2);
+  if(Q.length>keep){for(let i=Q.length-1;i>0;i--){const r=Math.floor(Math.random()*(i+1));[Q[i],Q[r]]=[Q[r],Q[i]]}Q.length=keep}}
+function apply(){gdiv.style.background=L.key;gdiv.classList.toggle('on',RX.mode==='green');if(RX.mode==='show'){P.length=0}
+  const i=document.getElementById('rxinfo');if(i)i.textContent='Output now: '+({show:'Show',emoji:'Show + emojis',green:'Green screen'}[RX.mode])+' · reactions '+(RX.open?'on':'off')+'. Set both from control.'}
+window.__rx=d=>{const m=['show','emoji','green'].includes(d.output)?d.output:'show';const t=(d.rt||[]).slice(0,7);while(t.length<7)t.push(0);
+  if(m!==RX.mode||!!d.react!==RX.open){RX.mode=m;RX.open=!!d.react;apply()}
+  if(RX.prev&&RX.open&&RX.mode!=='show')queue(t.map((v,i)=>Math.max(0,v-RX.prev[i])));RX.prev=t};
+window.__rxPanel=()=>{const $r=id=>document.getElementById(id);if(!$r('rr'))return;
+  function sync(){$r('rr').value=L.rate;$r('rm').value=L.max;$r('rsd').value=L.side;$r('rkc').value=L.key;$r('rrv').textContent=L.rate;$r('rmv').textContent=L.max;$r('rsv').textContent=L.side+'%';saveL();apply()}
+  $r('rr').oninput=e=>{L.rate=+e.target.value;sync()};$r('rm').oninput=e=>{L.max=+e.target.value;sync()};$r('rsd').oninput=e=>{L.side=+e.target.value;sync()};$r('rkc').oninput=e=>{L.key=e.target.value;sync()};
+  $r('rtest').onclick=()=>{const was=RX.mode;if(was==='show'){RX.mode='emoji'}queue([5,5,5,5,5,5,5]);if(was==='show')setTimeout(()=>{RX.mode='show';apply()},6000)};sync()};
+apply()})();
 // --- fit settings panel: press S on the big-screen laptop ---
 (function(){if(PREV)return;const p=document.createElement('div');p.id='fitp';p.innerHTML=`<h3>SCREEN FIT</h3><div class="sz" id="fitsz"></div>
 <div style="font-size:12px;color:#c9c9d0">Mode</div><div class="seg" id="fitm"><button data-m="fit">Fit (bars)</button><button data-m="fill">Fill (crop)</button><button data-m="stretch">Stretch</button></div>
@@ -2786,6 +2823,12 @@ poll();
 <label>Move up / down <b id="fyv"></b></label><input type="range" id="fy" min="-50" max="50" step="0.5">
 <label style="align-items:center">Bar colour <input type="color" id="fbg" style="width:44px;height:24px;border:0;background:none"></label>
 <div class="row"><button id="fgrid">Show edges</button><button id="freset">Reset</button><button id="fclose">Done (S)</button></div>
+<h3 style="margin-top:14px">EMOJI LAYER</h3><div class="sz" id="rxinfo">Output and on/off are set from control.</div>
+<label>New emojis a second <b id="rrv"></b></label><input type="range" id="rr" min="1" max="30" step="1">
+<label>Most on screen <b id="rmv"></b></label><input type="range" id="rm" min="5" max="120" step="5">
+<label>Side lane width <b id="rsv"></b></label><input type="range" id="rsd" min="10" max="40" step="1">
+<label style="align-items:center">Key colour <input type="color" id="rkc" style="width:44px;height:24px;border:0;background:none"></label>
+<div class="row"><button id="rtest">Test burst</button></div>
 <div class="hint">Saved on this laptop. Arrow keys nudge, + / − zoom. If the LED wall cuts off the edges, turn on Show edges and zoom down until the yellow border is fully visible.</div>`;
 document.body.appendChild(p);const g=document.createElement('div');g.id='fitgrid';document.body.appendChild(g);
 const $f=id=>document.getElementById(id);
@@ -2803,7 +2846,7 @@ addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT'&&e.target
   if(k==='ArrowLeft')FIT.x=Math.max(-50,FIT.x-.5);else if(k==='ArrowRight')FIT.x=Math.min(50,FIT.x+.5);else if(k==='ArrowUp')FIT.y=Math.max(-50,FIT.y-.5);else if(k==='ArrowDown')FIT.y=Math.min(50,FIT.y+.5);
   else if(k==='+'||k==='=')FIT.zoom=Math.min(150,FIT.zoom+1);else if(k==='-'||k==='_')FIT.zoom=Math.max(50,FIT.zoom-1);else hit=false;
   if(hit){e.preventDefault();sync()}e.stopImmediatePropagation()},true);
-fitScreen()})();
+fitScreen();if(window.__rxPanel)window.__rxPanel()})();
 addEventListener('keydown',e=>{if(!started||(window.__fitOpen&&window.__fitOpen()))return;const m={'1':'photo','2':'vote','3':'shake','4':'victory','5':'replay','6':'wall','q':'qronly','0':'off'}[e.key.toLowerCase()];if(!m)return;
 LIVE.at=srvNow();runScene(m,LIVE.seq+1000+Math.floor(Math.random()*1e6))});
 const SO=$('startov');if(SO)SO.addEventListener('click',()=>{started=true;init();on=true;try{ctx.resume()}catch(e){}$('startov').remove();try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}catch(e){}runScene(LIVE.scene,LIVE.seq)});
