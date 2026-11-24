@@ -145,7 +145,12 @@ button:focus-visible{outline:3px solid var(--y);outline-offset:2px}
 
 <style id="live">
 html,body{margin:0!important;padding:0!important;background:#000!important;overflow:hidden!important;width:100%;height:100%;cursor:none}
-body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask){display:none!important}
+body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask):not(#annb){display:none!important}
+#annb{position:fixed;z-index:49600;display:flex;align-items:center;gap:1.2em;padding:.55em 1em;border-radius:.45em;font-family:Inter,system-ui,sans-serif;font-weight:800;line-height:1.2;box-shadow:0 .4em 1.6em rgba(0,0,0,.55);transform:translateY(140%);opacity:0;transition:transform .45s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
+#annb.on{transform:none;opacity:1}#annb .al{flex:none;font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.06em;padding:.2em .55em;border-radius:.3em;font-size:.8em}
+#annb.notice{background:#F7D117;color:#10204a}#annb.notice .al{background:#10204a;color:#F7D117}
+#annb.urgent{background:#c8102e;color:#fff;animation:annp 1.4s ease-in-out infinite}#annb.urgent .al{background:#fff;color:#c8102e}
+@keyframes annp{50%{box-shadow:0 0 0 .35em rgba(255,255,255,.55),0 .4em 1.6em rgba(0,0,0,.55)}}
 #fitmask{position:fixed;inset:0;z-index:49000;pointer-events:none}
 #rxg{position:fixed;inset:0;z-index:50000;display:none}#rxg.on{display:block}
 #rxc{position:fixed;inset:0;width:100%;height:100%;z-index:50001;pointer-events:none}
@@ -2723,13 +2728,15 @@ let K=1,KX=1,KY=1,OX=0,OY=0,CA={x:0,y:0,w:innerWidth,h:innerHeight};
 function fitMask(W,H){let m=document.getElementById('fitmask');if(!m){m=document.createElement('div');m.id='fitmask';m.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(m)}
   const [t,b,l,r]=m.children,c=FIT.bg,set=(e,x,y,w,h)=>{e.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${Math.max(0,w)}px;height:${Math.max(0,h)}px;background:${c}`};
   set(t,0,0,W,CA.y);set(b,0,CA.y+CA.h,W,H-CA.y-CA.h);set(l,0,CA.y,CA.x,CA.h);set(r,CA.x+CA.w,CA.y,W-CA.x-CA.w,CA.h)}
-function fitScreen(){const WW=innerWidth,HH=innerHeight;CA={x:WW*FIT.cl/100,y:HH*FIT.ct/100,w:WW*(1-(FIT.cl+FIT.cr)/100),h:HH*(1-(FIT.ct+FIT.cb)/100)};const W=CA.w,H=CA.h,z=FIT.zoom/100;
+function fitScreen(){const WW=innerWidth,HH=innerHeight;if(!WW||!HH){setTimeout(fitScreen,100);return}CA={x:WW*FIT.cl/100,y:HH*FIT.ct/100,w:WW*(1-(FIT.cl+FIT.cr)/100),h:HH*(1-(FIT.ct+FIT.cb)/100)};const W=CA.w,H=CA.h,z=FIT.zoom/100;
   if(FIT.mode==='stretch'){KX=W/904*z;KY=H/508.5*z}else{const k=(FIT.mode==='fill'?Math.max(W/904,H/508.5):Math.min(W/904,H/508.5))*z;KX=KY=k}K=KX;
-  OX=CA.x+(W-904*KX)/2+W*FIT.x/100;OY=CA.y+(H-508.5*KY)/2+H*FIT.y/100;fitMask(WW,HH);scal.style.transform=`translate(${OX}px,${OY}px) scale(${KX},${KY})`;
+  OX=CA.x+(W-904*KX)/2+W*FIT.x/100;OY=CA.y+(H-508.5*KY)/2+H*FIT.y/100;fitMask(WW,HH);if(window.__annPos)window.__annPos();scal.style.transform=`translate(${OX}px,${OY}px) scale(${KX},${KY})`;
   document.documentElement.style.setProperty('background',FIT.bg,'important');document.body.style.setProperty('background',FIT.bg,'important');
   const g=document.getElementById('fitgrid');if(g){g.style.left=OX+'px';g.style.top=OY+'px';g.style.width=904*KX+'px';g.style.height=508.5*KY+'px'}
   const z2=document.getElementById('fitsz');if(z2){const gcd=(a,b)=>b?gcd(b,a%b):a,dp=devicePixelRatio||1,pw=Math.round(WW*dp),ph=Math.round(HH*dp),gg=gcd(pw,ph);z2.textContent=`This output: ${pw} × ${ph} px (ratio ${(pw/ph).toFixed(2)}:1${gg>1&&pw/gg<50?' = '+pw/gg+':'+ph/gg:''}). Show is 16:9.`}}
 addEventListener('resize',fitScreen);fitScreen();
+// Safari can report a 0-size window inside an iframe at load and never fire resize: keep checking
+{let lastWH='';setInterval(()=>{const k=innerWidth+'x'+innerHeight;if(k!==lastWH){lastWH=k;dispatchEvent(new Event('resize'))}},400)}
 const _gbr=Element.prototype.getBoundingClientRect;
 function unscale(r){return new DOMRect(OX+(r.left-OX)/KX,OY+(r.top-OY)/KY,r.width/KX,r.height/KY)}
 Element.prototype.getBoundingClientRect=function(){const r=_gbr.call(this);return (this===scal||scal.contains(this))&&this!==scal?unscale(r):r};
@@ -2780,7 +2787,7 @@ if(sc==='victory'&&autoVictorySeq>=0&&autoVictorySeq===seq-1)return;
 let fails=0,started=false;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),2500);
 const r=await fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(PREV?{a:'screen'}:{a:'screen',out:OUTP}),signal:ctl.signal});clearTimeout(to);
-if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);
+if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann)window.__ann(d.ann);
 const st=d.state;LIVE.vote=st.vote;LIVE.shake=st.shake;LIVE.at=st.at;LIVE.spotlight=st.spotlight;
 if(started&&st.seq!==LIVE.seq){const prev=LIVE.seq;LIVE.seq=st.seq;LIVE.scene=st.scene;runScene(st.scene,st.seq)}else if(!started){LIVE.seq=st.seq;LIVE.scene=st.scene}
 $('startinfo').textContent='Connected as OUTPUT '+OUTP+'. Current step: '+st.scene+'. (Press S to change A / B.)'}catch(e){fails++;if(!started)$('startinfo').textContent='Connecting to the server…'}
@@ -2788,6 +2795,13 @@ setTimeout(poll,fails?1500:500)}
 if(/[?&]preview/.test(location.search)){started=true;const so=$('startov');if(so)so.remove()}
 poll();
 // backup: if the server is unreachable, the laptop keyboard can run the show locally
+// --- announcements: a banner across the bottom of the picture, over whatever scene is running ---
+(function(){const b=document.createElement('div');b.id='annb';b.innerHTML='<span class="al"></span><span class="at"></span>';document.body.appendChild(b);let cur=null;
+function pos(){const fs=Math.max(14,CA.h*.05);b.style.fontSize=fs+'px';b.style.left=(CA.x+CA.w*.03)+'px';b.style.width=(CA.w*.94)+'px';b.style.boxSizing='border-box';b.style.bottom=(innerHeight-(CA.y+CA.h)+CA.h*.01)+'px'}
+window.__annPos=pos;addEventListener('resize',pos);
+window.__ann=a=>{if(!a){if(cur){cur=null;b.classList.remove('on')}return}
+  if(cur&&cur.id===a.id&&cur.text===a.text)return;cur=a;b.className=a.style==='urgent'?'urgent':'notice';
+  b.querySelector('.al').textContent=a.style==='urgent'?'URGENT':'ANNOUNCEMENT';b.querySelector('.at').textContent=a.text;pos();void b.offsetWidth;b.classList.add('on')}})();
 // --- emoji layer: control picks the output: show, show + emojis, or green screen (emojis on green for keying) ---
 (function(){const EMO=['💛','💙','🔥','👏','🙌','🎉','🎺'];
 const RX={mode:'show',open:false,prev:null};const L={rate:8,max:35,side:22,key:'#00B140'};
