@@ -145,7 +145,7 @@ button:focus-visible{outline:3px solid var(--y);outline-offset:2px}
 
 <style id="live">
 html,body{margin:0!important;padding:0!important;background:#000!important;overflow:hidden!important;width:100%;height:100%;cursor:none}
-body>*:not(#scal):not(#startov):not(#pairov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask):not(#annb):not(#fxd):not(.efx){display:none!important}
+body>*:not(#scal):not(#startov):not(#pairov):not(#lphint):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask):not(#annb):not(#fxd):not(.efx){display:none!important}
 #annb{position:fixed;z-index:49600;display:flex;align-items:center;gap:1.2em;padding:.55em 1em;border-radius:.45em;font-family:Inter,system-ui,sans-serif;font-weight:800;line-height:1.2;box-shadow:0 .4em 1.6em rgba(0,0,0,.55);transform:translateY(140%);opacity:0;transition:transform .45s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
 #annb.on{transform:none;opacity:1}#annb .al{flex:none;font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.06em;padding:.2em .55em;border-radius:.3em;font-size:.8em}
 #annb.notice{background:#F7D117;color:#10204a}#annb.notice .al{background:#10204a;color:#F7D117}
@@ -156,7 +156,7 @@ body>*:not(#scal):not(#startov):not(#pairov):not(#fitp):not(#fitgrid):not(#rxg):
 #rxc{position:fixed;inset:0;width:100%;height:100%;z-index:50001;pointer-events:none}
 #scal{position:absolute;left:0;top:0;width:904px;height:508.5px;transform-origin:0 0;overflow:hidden}
 #scal .screen{width:100%!important;height:100%!important;aspect-ratio:auto!important;border:0!important;border-radius:0!important;margin:0!important;max-width:none!important}
-#fitp{position:fixed;right:16px;top:16px;z-index:100000;width:330px;max-height:calc(100vh - 32px);overflow:auto;background:rgba(14,14,20,.96);border:1px solid #3a3a46;border-radius:14px;padding:14px 16px;color:#f4f4f6;font:14px/1.4 Inter,system-ui,sans-serif;cursor:default;display:none}
+#fitp{position:fixed;right:16px;top:16px;z-index:100000;width:min(330px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;background:rgba(14,14,20,.96);border:1px solid #3a3a46;border-radius:14px;padding:14px 16px;color:#f4f4f6;font:14px/1.4 Inter,system-ui,sans-serif;cursor:default;display:none}
 #fitp.on{display:block}body.fitting{cursor:default}
 #fitp h3{margin:0 0 4px;font:800 15px Inter,sans-serif;color:#F7D117;letter-spacing:.5px}
 #fitp .sz{font-size:12px;color:#a3a3ad;margin-bottom:10px}
@@ -2870,10 +2870,24 @@ function show(mode,d){ov.style.display='flex';const c=d.pair.code||'FULL';$('pco
 function start(){if(started)return;started=true;const s=$('startov');if(s)s.remove();runScene(LIVE.scene,LIVE.seq);
  // sound needs a tap or click on this device (browsers block it otherwise)
  document.addEventListener('click',()=>{try{init();on=true;ctx.resume()}catch(e){}},{once:true})}
+let fitSeq=null;
 window.__pair=d=>{const p=d.pair;if(!p)return;
+ if(fitSeq===null){fitSeq=p.fit_seq||0;if(fitSeq>0&&p.fit&&window.__fitSet)window.__fitSet(p.fit);else if(window.__fitReport)window.__fitReport()}
+ else if((p.fit_seq||0)!==fitSeq){fitSeq=p.fit_seq||0;if(p.fit&&window.__fitSet)window.__fitSet(p.fit)}
  if(!p.out){cur='';OUTP='';show('pair',d);return}
  if(p.out!==cur){cur=p.out;OUTP=p.out;if(!idT)ov.style.display='none';if(!started){clearTimeout(autoT);autoT=setTimeout(start,6000)}}
  if(lastId===null)lastId=p.identify;else if(p.identify!==lastId){lastId=p.identify;show('id',d);clearTimeout(idT);idT=setTimeout(()=>{idT=null;if(cur)ov.style.display='none'},6000)}};
+})();
+// --- touch: press and hold the top-left corner for 3 seconds to open the screen settings ---
+(function(){if(PREV)return;const hint=document.createElement('div');hint.id='lphint';hint.style.cssText='position:fixed;left:12px;top:12px;z-index:100002;width:56px;height:56px;border-radius:50%;pointer-events:none;display:none;background:conic-gradient(#F7D117 0deg,rgba(255,255,255,.15) 0deg)';document.body.appendChild(hint);
+let t0=0,raf=0,sx=0,sy=0;const HOLD=3000;
+function inCorner(x,y){return x<Math.max(90,innerWidth*.12)&&y<Math.max(90,innerHeight*.16)}
+function stop(){cancelAnimationFrame(raf);t0=0;hint.style.display='none'}
+addEventListener('pointerdown',e=>{if(window.__fitOpen&&window.__fitOpen())return;if(!inCorner(e.clientX,e.clientY))return;t0=performance.now();sx=e.clientX;sy=e.clientY;
+  const f=()=>{if(!t0)return;const k=(performance.now()-t0)/HOLD;if(k>.15){hint.style.display='block';hint.style.background=`conic-gradient(#F7D117 ${Math.min(1,k)*360}deg,rgba(255,255,255,.15) 0deg)`}
+    if(k>=1){stop();if(window.__fitToggle)window.__fitToggle();return}raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)},{passive:true});
+addEventListener('pointermove',e=>{if(t0&&Math.hypot(e.clientX-sx,e.clientY-sy)>30)stop()},{passive:true});
+['pointerup','pointercancel'].forEach(ev=>addEventListener(ev,stop,{passive:true}));
 })();
 // --- sound sync: hidden tone through the PA so phones without data still fire the light show ---
 (function(){let ac=null,cfg={on:false,hz:18500,test:null};const out=!PREV&&OUTP==='A';
@@ -2942,24 +2956,28 @@ apply()})();
 <label>Left <b id="clv"></b></label><input type="range" id="cl" min="0" max="40" step="0.5">
 <label>Right <b id="crv"></b></label><input type="range" id="cr" min="0" max="40" step="0.5">
 <label style="align-items:center">Bar colour <input type="color" id="fbg" style="width:44px;height:24px;border:0;background:none"></label>
-<div class="row"><button id="fgrid">Show edges</button><button id="freset">Reset</button><button id="fclose">Done (S)</button></div>
+<div class="row"><button id="fgrid">Show edges</button><button id="freset">Reset</button><button id="fclose">Done</button></div>
 <h3 style="margin-top:14px">EMOJI LAYER</h3><div class="sz" id="rxinfo">Output and on/off are set from control.</div>
 <label>New emojis a second <b id="rrv"></b></label><input type="range" id="rr" min="1" max="30" step="1">
 <label>Most on screen <b id="rmv"></b></label><input type="range" id="rm" min="5" max="120" step="5">
 <label>Side lane width <b id="rsv"></b></label><input type="range" id="rsd" min="10" max="40" step="1">
 <label style="align-items:center">Key colour <input type="color" id="rkc" style="width:44px;height:24px;border:0;background:none"></label>
 <div class="row"><button id="rtest">Test burst</button></div>
-<div class="hint">Saved on this laptop. Arrow keys nudge, + / − zoom. If the LED wall cuts off the edges, turn on Show edges and zoom down until the yellow border is fully visible.</div>`;
+<div class="hint">Saved on this device. Open this panel with S on a keyboard, or press and hold the top-left corner of the screen for 3 seconds on a phone or tablet. Paired devices can also be adjusted from the control page (Devices → Fit). Arrow keys nudge, + / − zoom. If the LED wall cuts off the edges, turn on Show edges and zoom down until the yellow border is fully visible.</div>`;
 document.body.appendChild(p);const g=document.createElement('div');g.id='fitgrid';document.body.appendChild(g);
 const $f=id=>document.getElementById(id);
 function sync(){document.querySelectorAll('#outab button').forEach(b=>b.classList.toggle('on',b.dataset.o===OUTP));document.querySelectorAll('#fitm button').forEach(b=>b.classList.toggle('on',b.dataset.m===FIT.mode));$f('fz').value=FIT.zoom;$f('fx').value=FIT.x;$f('fy').value=FIT.y;$f('fbg').value=FIT.bg;
-  ['ct','cb','cl','cr'].forEach(k=>{$f(k).value=FIT[k];$f(k+'v').textContent=FIT[k]+'%'});$f('fzv').textContent=FIT.zoom+'%';$f('fxv').textContent=FIT.x+'%';$f('fyv').textContent=FIT.y+'%';fitScreen();saveFit()}
+  ['ct','cb','cl','cr'].forEach(k=>{$f(k).value=FIT[k];$f(k+'v').textContent=FIT[k]+'%'});$f('fzv').textContent=FIT.zoom+'%';$f('fxv').textContent=FIT.x+'%';$f('fyv').textContent=FIT.y+'%';fitScreen();saveFit();if(PAIR&&!remoteFit)fitReport()}
+let remoteFit=false,repT=null;
+function fitReport(){clearTimeout(repT);repT=setTimeout(()=>{try{fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({a:'display_fit',dev:DEV,fit:Object.assign({},FIT,{grid:g.classList.contains('on')})})}).catch(()=>{})}catch(e){}},700)}
+window.__fitReport=fitReport;
+window.__fitSet=f=>{remoteFit=true;try{['mode','zoom','x','y','bg','ct','cb','cl','cr'].forEach(k=>{if(f[k]!==undefined)FIT[k]=f[k]});if(typeof f.grid==='boolean'){g.classList.toggle('on',f.grid);$f('fgrid').textContent=f.grid?'Hide edges':'Show edges'}sync()}finally{remoteFit=false}};
 if(PAIR){const oa=$f('outab');if(oa){oa.style.display='none';oa.insertAdjacentHTML('afterend','<p style="font-size:12px;color:#9a9aa6;margin:4px 0 10px">Paired device: the screen is assigned from the control page.</p>')}}
 $f('outab').onclick=e=>{const b=e.target.closest('button');if(b){OUTP=b.dataset.o;try{localStorage.setItem('rally_out',OUTP)}catch(x){}sync()}};$f('fitm').onclick=e=>{const b=e.target.closest('button');if(b){FIT.mode=b.dataset.m;sync()}};
 $f('fz').oninput=e=>{FIT.zoom=+e.target.value;sync()};$f('fx').oninput=e=>{FIT.x=+e.target.value;sync()};$f('fy').oninput=e=>{FIT.y=+e.target.value;sync()};$f('fbg').oninput=e=>{FIT.bg=e.target.value;sync()};['ct','cb','cl','cr'].forEach(k=>{$f(k).oninput=e=>{FIT[k]=+e.target.value;sync()}});
-$f('fgrid').onclick=()=>{g.classList.toggle('on');$f('fgrid').textContent=g.classList.contains('on')?'Hide edges':'Show edges'};
+$f('fgrid').onclick=()=>{g.classList.toggle('on');$f('fgrid').textContent=g.classList.contains('on')?'Hide edges':'Show edges';if(PAIR)fitReport()};
 $f('freset').onclick=()=>{Object.assign(FIT,{mode:'fit',zoom:100,x:0,y:0,bg:'#000000',ct:0,cb:0,cl:0,cr:0});sync()};
-function toggle(){const on=!p.classList.contains('on');p.classList.toggle('on',on);document.body.classList.toggle('fitting',on);if(!on){g.classList.remove('on');$f('fgrid').textContent='Show edges'}sync()}
+function toggle(){const on=!p.classList.contains('on');p.classList.toggle('on',on);document.body.classList.toggle('fitting',on);if(!on&&g.classList.contains('on')){g.classList.remove('on');$f('fgrid').textContent='Show edges';if(PAIR)fitReport()}sync()}
 $f('fclose').onclick=toggle;window.__fitToggle=toggle;window.__fitOpen=()=>p.classList.contains('on');
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT'&&e.target.type!=='range')return;const k=e.key;
   if(k==='s'||k==='S'){toggle();e.stopImmediatePropagation();return}

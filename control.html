@@ -197,7 +197,7 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
 .srow .ed button{padding:7px 10px;border-radius:8px;border:0;font:800 11px Inter,sans-serif;cursor:pointer;background:#2c2c36;color:#fff}.srow .ed .rm{background:#5a1a1a}
 .srow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"sn ct" "md md"}.srow .sn{grid-area:sn}.srow select{grid-area:ct;max-width:none}.srow .md{grid-area:md}.srow .md button{flex:1}
 
-.drow{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;gap:6px;align-items:center;padding:5px 0;border-top:1px solid #23232c;font-size:12px}
+.drow{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto auto;gap:6px;align-items:center;padding:5px 0;border-top:1px solid #23232c;font-size:12px}
 .drow .dc{font:400 18px Anton,Impact,sans-serif;letter-spacing:2px;color:var(--y);min-width:54px}.drow .dk{color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
 .drow .dot{width:9px;height:9px;flex:none;border-radius:50%;background:#55555f}.drow .dot.on{background:#4be38a;box-shadow:0 0 6px #4be38a}
 .drow select{padding:6px;border-radius:7px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:700 11px Inter,sans-serif;max-width:130px}.drow select.un{border-color:var(--y);color:var(--y)}
@@ -206,6 +206,13 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
 html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%}
 @media (min-width:1000px){html,body{height:100%;overflow:hidden}#tabShow .col,#tabSetup{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}}
 body{-webkit-user-select:none;user-select:none}input,textarea,select{-webkit-user-select:text;user-select:text}
+
+.fitdlg{max-width:420px;width:calc(100vw - 40px)}.fitdlg::backdrop{background:rgba(0,0,0,.55)}
+.fitdlg .fdh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}.fitdlg .fdh button{border:0;background:#2a2a33;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+.fitdlg label{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--mut);margin-top:6px}.fitdlg label b{color:#fff}.fitdlg input[type=range]{width:100%;accent-color:var(--y)}
+.fitdlg .fd4{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.fitdlg .fseg{display:flex;gap:4px}.fitdlg .fseg button{flex:1;padding:9px 4px;border-radius:9px;border:1px solid #33333d;background:#22222c;color:#fff;font:800 12px Inter,sans-serif;cursor:pointer}.fitdlg .fseg button.on{background:var(--y);color:#10204a;border-color:var(--y)}
+.fitdlg .row button{background:#2a2a33;color:#fff}
 </style>
 <script>
 // stop zooming and page drift on touch screens: no double-tap zoom, no pinch zoom, no rubber-band bounce.
@@ -369,6 +376,17 @@ document.addEventListener('dblclick',function(e){e.preventDefault()},{passive:fa
     </div>
   </div>
 </div>
+<dialog id="fitDlg" class="fitdlg"><div class="fdh"><b>Screen fit · <span id="fdCode"></span></b><button id="fdX" aria-label="Close">✕</button></div>
+<p class="mut" style="margin:0 0 8px;font-size:12px">Changes show on that device within a second.</p>
+<div class="fseg" id="fdM"><button data-m="fit">Fit (bars)</button><button data-m="fill">Fill (crop)</button><button data-m="stretch">Stretch</button></div>
+<label>Zoom <b id="fdZv"></b><input type="range" id="fdZ" min="50" max="150" step="1"></label>
+<label>Move left / right <b id="fdXv"></b><input type="range" id="fdXp" min="-50" max="50" step="0.5"></label>
+<label>Move up / down <b id="fdYv"></b><input type="range" id="fdY" min="-50" max="50" step="0.5"></label>
+<div class="mut" style="font-size:12px;margin-top:6px">Crop edges</div>
+<div class="fd4"><label>Top <b id="fdCTv"></b><input type="range" id="fdCT" min="0" max="40" step="0.5"></label><label>Bottom <b id="fdCBv"></b><input type="range" id="fdCB" min="0" max="40" step="0.5"></label>
+<label>Left <b id="fdCLv"></b><input type="range" id="fdCL" min="0" max="40" step="0.5"></label><label>Right <b id="fdCRv"></b><input type="range" id="fdCR" min="0" max="40" step="0.5"></label></div>
+<label style="flex-direction:row;align-items:center;gap:8px">Bar colour <input type="color" id="fdBG"></label>
+<div class="row"><button id="fdGrid">Show edges</button><button id="fdReset">Reset</button><button id="fdDone" style="background:var(--y);color:#10204a">Done</button></div></dialog>
 <dialog id="dlg"><img id="dimg" alt=""><div class="row"><button id="dSpot" class="op-only" style="background:var(--y);color:#10204a">Spotlight</button><button id="dRem" style="background:#5a1a1a;color:#fff">Take down</button></div><div class="row"><button id="dClose" style="background:#2a2a33;color:#fff">Close</button></div></dialog>
 <script src="config.js"></script>
 <script>
@@ -502,15 +520,30 @@ $('scrAdd').onclick=async()=>{try{const r=await call({a:'screen_add'});scrEdit=r
 
 // ---------- display devices: pair a device by its code, assign it to a screen ----------
 let devKey='';
-function devRender(D,L){const k=JSON.stringify(D)+'|'+L.map(x=>x.out+x.name).join();if(k===devKey)return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#devList select'))return;devKey=k;
+function devRender(D,L){window.__DEVS=D;const k=JSON.stringify(D)+'|'+L.map(x=>x.out+x.name).join();if(k===devKey)return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#devList select'))return;devKey=k;
   $('devList').innerHTML=D.length?D.map(x=>`<div class="drow${x.online?'':' offl'}" data-id="${x.id}"><span class="dc">${esc(x.code)}</span><span class="dk"><i class="dot${x.online?' on':''}"></i>${esc(x.kind||'Device')}${x.online?'':' · offline'}</span>
     <select class="${x.out?'':'un'}"><option value="">Unassigned</option>${L.map(s=>`<option value="${s.out}"${x.out===s.out?' selected':''}>${s.out} · ${esc(s.name||'Screen '+s.out)}</option>`).join('')}${x.out&&!L.some(s=>s.out===x.out)?`<option value="${x.out}" selected>${x.out}</option>`:''}</select>
-    <button data-act="id" title="Show this device's code on its own screen">Identify</button><button data-act="fg" class="fg" title="Remove this device from the list">✕</button></div>`).join(''):'<p class="mut" style="font-size:12px;margin:6px 0">No devices yet. Open the link above on a TV, laptop or phone and its code appears here.</p>'}
+    <button data-act="fit" title="Adjust how the picture fits this device's screen">Fit</button><button data-act="id" title="Show this device's code on its own screen">Identify</button><button data-act="fg" class="fg" title="Remove this device from the list">✕</button></div>`).join(''):'<p class="mut" style="font-size:12px;margin:6px 0">No devices yet. Open the link above on a TV, laptop or phone and its code appears here.</p>'}
 $('devList').addEventListener('change',async e=>{const sel=e.target.closest('select');if(!sel)return;const id=sel.closest('.drow').dataset.id;
   try{await call({a:'display_set',id,out:sel.value||null});devKey='';scrRefresh()}catch(x){alertBar('Couldn\'t assign that device.')}});
 $('devList').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const id=b.closest('.drow').dataset.id;
+  if(b.dataset.act==='fit'){const dv=(window.__DEVS||[]).find(x=>x.id===id);if(dv)fdOpen(dv);return}
   if(b.dataset.act==='id'){try{await call({a:'display_identify',id});b.textContent='Shown ✓';setTimeout(()=>{if(b.isConnected)b.textContent='Identify'},2500)}catch(x){alertBar('Couldn\'t reach that device.')}}
   if(b.dataset.act==='fg'){if(b.textContent!=='Sure?'){b.textContent='Sure?';setTimeout(()=>{if(b.isConnected)b.textContent='✕'},3000);return}try{await call({a:'display_forget',id});devKey='';scrRefresh()}catch(x){alertBar('Couldn\'t remove that device.')}}});
+
+// ---------- remote screen fit for a paired device ----------
+let FD=null,fdId=null,fdT=null;const FDEF={mode:'fit',zoom:100,x:0,y:0,bg:'#000000',ct:0,cb:0,cl:0,cr:0,grid:false};
+function fdSync(){document.querySelectorAll('#fdM button').forEach(b=>b.classList.toggle('on',b.dataset.m===FD.mode));
+  [['fdZ','zoom','%'],['fdXp','x','%'],['fdY','y','%'],['fdCT','ct','%'],['fdCB','cb','%'],['fdCL','cl','%'],['fdCR','cr','%']].forEach(([id,k,u])=>{$(id).value=FD[k];const v=$(id==='fdXp'?'fdXv':id+'v');if(v)v.textContent=FD[k]+u});
+  $('fdBG').value=FD.bg;$('fdGrid').textContent=FD.grid?'Hide edges':'Show edges'}
+function fdSend(){clearTimeout(fdT);fdT=setTimeout(()=>call({a:'display_fit',id:fdId,fit:FD}).catch(()=>alertBar('Couldn\'t reach that device.')),250)}
+function fdOpen(dev){fdId=dev.id;FD=Object.assign({},FDEF,dev.fit||{});$('fdCode').textContent=dev.code+(dev.out?' (Screen '+dev.out+')':'');fdSync();$('fitDlg').showModal()}
+$('fdM').onclick=e=>{const b=e.target.closest('button');if(!b)return;FD.mode=b.dataset.m;fdSync();fdSend()};
+[['fdZ','zoom'],['fdXp','x'],['fdY','y'],['fdCT','ct'],['fdCB','cb'],['fdCL','cl'],['fdCR','cr']].forEach(([id,k])=>{$(id).oninput=e=>{FD[k]=+e.target.value;fdSync();fdSend()}});
+$('fdBG').oninput=e=>{FD.bg=e.target.value;fdSend()};
+$('fdGrid').onclick=()=>{FD.grid=!FD.grid;fdSync();fdSend()};
+$('fdReset').onclick=()=>{FD=Object.assign({},FDEF);fdSync();fdSend()};
+const fdClose=()=>{if(FD&&FD.grid){FD.grid=false;fdSend()}$('fitDlg').close()};$('fdDone').onclick=fdClose;$('fdX').onclick=fdClose;
 // ---------- preview / live ----------
 // Direct: buttons go straight to the LED wall. Preview: buttons cue into PREVIEW; TAKE (cut) or FADE sends it live.
 // Urgent announcements and the one-button sequence always go straight to live.
