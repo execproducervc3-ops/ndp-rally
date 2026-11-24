@@ -150,6 +150,114 @@ body.hwopen{overflow:hidden}
 @keyframes bsap{50%{box-shadow:0 0 0 3px rgba(255,255,255,.5)}}
 .pha{position:absolute;left:4px;right:4px;top:20px;z-index:9;border-radius:7px;padding:4px 6px;font:700 7.5px/1.3 Inter,sans-serif;box-shadow:0 3px 8px rgba(0,0,0,.5);transform:translateY(-130%);opacity:0;transition:transform .35s,opacity .3s}
 .pha.on{transform:none;opacity:1}.pha.n{background:#F7D117;color:#10204a}.pha.u{background:#c8102e;color:#fff}.pha b{display:block;font-family:Anton,Impact,sans-serif;font-weight:400;font-size:7px;letter-spacing:.5px}
+#intro{position:absolute;inset:0;z-index:40;background:radial-gradient(ellipse at 50% 30%,#1c2350 0%,#0b0b14 70%);padding:44px 56px;box-sizing:border-box;opacity:0;pointer-events:none;transition:opacity .5s}
+#intro.on{opacity:1;pointer-events:auto}
+#intro .ih{display:flex;align-items:center;gap:22px}#intro .ih img{width:84px;height:84px}
+#intro h2{margin:0;font:400 56px/1 Anton,Impact,sans-serif;color:var(--y);letter-spacing:1px}
+#intro .il{margin:8px 0 0;font:500 19px/1.4 Inter,sans-serif;color:#e8e8f0;max-width:980px}
+#intro .ig{display:grid;grid-template-columns:1.15fr .85fr 1.15fr;gap:22px;margin-top:26px}
+#intro .gc{background:rgba(255,255,255,.04);border:1px solid #2c3260;border-radius:16px;padding:16px 18px;opacity:.25;transition:opacity .5s,border-color .5s}
+#intro .gc.lit{opacity:1;border-color:var(--y)}
+#intro .gc h3{margin:0 0 10px;font:400 20px Anton,Impact,sans-serif;letter-spacing:1.5px;color:var(--y)}
+#intro .fi{display:flex;gap:10px;align-items:flex-start;padding:6px 0;opacity:.3;transform:translateX(-6px);transition:opacity .4s,transform .4s}
+#intro .fi.lit{opacity:1;transform:none}
+#intro .fi i{font-style:normal;font-size:22px;line-height:1;flex:none;width:28px;text-align:center}
+#intro .fi b{display:block;font:800 15.5px/1.2 Inter,sans-serif;color:#fff}#intro .fi span{display:block;font:500 13px/1.3 Inter,sans-serif;color:#b9bdd6;margin-top:2px}
+#intro .ip{position:absolute;left:56px;bottom:30px;font:800 16px Inter,sans-serif;color:var(--y);letter-spacing:.5px}
+#intro.static .gc,#intro.static .fi{opacity:1;transform:none}
+#intro.anim{background:radial-gradient(ellipse at 50% 15%,#1d2558 0%,#090a14 65%)}
+#intro.anim>.ih,#intro.anim>.ig,#intro.anim>.ip{display:none}
+#icv{position:absolute;inset:0;width:1280px;height:720px;pointer-events:none}
+#ia{position:absolute;inset:0;pointer-events:none}
+#intro:not(.anim) #icv,#intro:not(.anim) #ia{display:none}
+.ie{position:absolute;opacity:0;transition:opacity .6s,transform .8s cubic-bezier(.2,.8,.2,1),left .8s cubic-bezier(.2,.8,.2,1),top .8s cubic-bezier(.2,.8,.2,1),width .8s,height .8s}
+.ie.on{opacity:1}
+#iTitle{left:50%;top:210px;transform:translate(-50%,0) scale(.85);display:flex;align-items:center;gap:26px;white-space:nowrap}
+#iTitle.on{transform:translate(-50%,0) scale(1)}
+#iTitle img{width:130px;height:130px;filter:drop-shadow(0 0 24px rgba(247,209,23,.45))}
+#iTitle h2{margin:0;font:400 78px/0.95 Anton,Impact,sans-serif;color:var(--y);letter-spacing:1px;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+#iTitle p{margin:10px 0 0;font:800 18px Inter,sans-serif;letter-spacing:4px;color:#dfe3ff;text-transform:uppercase}
+#iTitle.top{left:40px;top:24px;transform:scale(.42);transform-origin:0 0}
+#iQR{left:50%;top:150px;transform:translate(-50%,30px) scale(.9);text-align:center}#iQR.on{transform:translate(-50%,0) scale(1)}
+#iQR .qrc{position:relative;width:220px;height:220px;padding:14px;background:#fff;border:6px solid var(--y);border-radius:18px;box-shadow:0 0 60px rgba(247,209,23,.45);overflow:hidden}
+#iQR .scan{position:absolute;left:0;right:0;height:4px;background:linear-gradient(90deg,transparent,#22e37a,transparent);box-shadow:0 0 18px #22e37a;animation:iscan 1.6s ease-in-out infinite}
+@keyframes iscan{0%,100%{top:8%}50%{top:90%}}
+#iQR .qrl{margin-top:14px;font:400 26px Anton,Impact,sans-serif;letter-spacing:2px;color:var(--y)}
+#iJoin,#iShares{right:70px;top:170px;text-align:right;transform:translateX(30px)}#iJoin.on,#iShares.on{transform:none}
+#iJoin small,#iShares small{display:block;font:800 14px Inter,sans-serif;letter-spacing:3px;color:#aeb3d6}
+#iJoin b,#iShares b{font:400 72px/1 Anton,Impact,sans-serif;color:#fff}
+#iPhoto{left:120px;top:110px;width:250px;transform:rotate(-4deg) translateY(40px);filter:drop-shadow(0 20px 40px rgba(0,0,0,.6))}
+#iPhoto.on{transform:rotate(-4deg)}
+#iPhoto.fly{left:760px;top:150px;width:70px;transform:rotate(0);opacity:0;transition-duration:1.1s}
+.ish{left:390px;top:200px;padding:10px 18px;border-radius:999px;font:800 20px Inter,sans-serif;color:#fff;transform:translate(-40px,0) scale(.6)}
+.ish0{background:#1fae5b}.ish1{background:#2f62d8}.ish2{background:linear-gradient(90deg,#c13584,#f77737)}
+.ish.on{transform:none}.ish0.on{left:470px;top:150px}.ish1.on{left:520px;top:235px}.ish2.on{left:480px;top:320px}
+.iscr{width:100%;height:100%;background:#05050a;border:10px solid #202231;border-radius:14px;overflow:hidden;box-shadow:0 0 60px rgba(77,141,255,.25)}
+.iscri{position:relative;width:100%;height:100%;background:radial-gradient(ellipse at 50% 40%,#1b2350,#06060d)}
+.istand{width:90px;height:22px;margin:0 auto;background:#202231}
+#iWall,#iDia,#iAnn{left:660px;top:120px;width:560px;height:315px;transform:translateY(30px)}#iWall.on,#iDia.on,#iAnn.on{transform:none}
+.iwh{padding:12px 14px 6px;text-align:center;font:400 16px Anton,Impact,sans-serif;letter-spacing:.5px;color:var(--y);white-space:nowrap}
+.iwg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:6px 18px}.iwg.idia{grid-template-columns:repeat(5,1fr);padding:14px 18px}
+.iwg i{display:block;position:relative;opacity:0;transform:scale(.4);animation:itile .5s forwards}.iwg i .fr{border-radius:3px}
+.iwg i:nth-child(3n) .pin svg{filter:hue-rotate(35deg)}.iwg i:nth-child(3n+1) .pin svg{filter:hue-rotate(-30deg) brightness(1.1)}
+.iwg i em{position:absolute;left:0;right:0;bottom:-18px;font:700 10px Inter,sans-serif;color:#cfd3ef;font-style:normal;text-align:center;white-space:nowrap}
+@keyframes itile{to{opacity:1;transform:none}}
+.ivote{display:flex;align-items:center;justify-content:center;gap:40px;height:100%}
+.ivr{width:150px;height:150px;border-radius:50%;border:12px solid var(--y);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ivr b{font:400 44px Anton,Impact,sans-serif;color:#fff}.ivr small{font:800 11px Inter,sans-serif;color:#aeb3d6;letter-spacing:2px}
+.ivt{font:400 64px/0.95 Anton,Impact,sans-serif;color:var(--y)}
+.ishk{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:22px}
+.ishm{width:80%;height:30px;border-radius:15px;background:#1e2030;overflow:hidden;border:2px solid #3a3d55}.ishm i{display:block;height:100%;width:0;background:linear-gradient(90deg,#F7D117,#fff3a0);transition:width 4.5s cubic-bezier(.3,.1,.2,1)}
+.isht{font:400 72px Anton,Impact,sans-serif;color:#fff;animation:ijig .12s infinite alternate}
+@keyframes ijig{from{transform:translate(-3px,1px) rotate(-1deg)}to{transform:translate(3px,-1px) rotate(1deg)}}
+.imax{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;animation:ipop .6s cubic-bezier(.2,1.6,.4,1)}
+.imax small{font:400 34px Anton,Impact,sans-serif;color:#fff;letter-spacing:6px}.imax b{font:400 96px/1 Anton,Impact,sans-serif;color:var(--y);text-shadow:0 0 40px rgba(247,209,23,.8),0 0 4px #ff6a00}
+@keyframes ipop{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+#iMap{left:0;top:60px}
+#iMap .arc{stroke-dasharray:900;stroke-dashoffset:900;animation:iarc 1.6s forwards;filter:drop-shadow(0 0 6px #F7D117)}
+@keyframes iarc{to{stroke-dashoffset:0}}
+#iMap .pin{opacity:0;animation:itile .5s forwards}#iMap .pin circle{fill:#4d8dff;stroke:#fff;stroke-width:2}#iMap .pin.home circle{fill:var(--y);animation:ipulse 1.2s infinite}
+#iMap text{fill:#fff;font:800 18px Inter,sans-serif;text-anchor:middle}#iMap .home text{fill:var(--y);font:400 26px Anton,Impact,sans-serif;letter-spacing:1px}
+@keyframes ipulse{50%{r:16}}
+#iTab{left:120px;top:140px;width:340px;padding:18px;background:#15151c;border:8px solid #2a2b38;border-radius:22px;transform:translateX(-40px)}#iTab.on{transform:none}
+.tbh{display:flex;justify-content:space-between;font:400 24px Anton,Impact,sans-serif;color:var(--y);margin-bottom:12px}.tbh span{font:800 13px Inter,sans-serif;color:#4be38a}
+.tbb{margin-top:10px;padding:14px;border-radius:12px;background:#22232e;font:800 17px Inter,sans-serif;color:#fff;text-align:center}
+.tbb.run{border:2px solid #4be38a}.tbb small{display:block;font:600 12px Inter,sans-serif;color:#aeb3d6;margin-top:3px}
+.tbr{display:flex;gap:6px;margin-top:10px}.tbr i{flex:1;font:800 11px Inter,sans-serif;font-style:normal;text-align:center;padding:7px 0;border-radius:8px;background:#1b1c26;color:#777}
+#iTab.go .tbb.run{animation:iglow 1s infinite}@keyframes iglow{50%{box-shadow:0 0 0 6px rgba(75,227,138,.3)}}
+#iTab.go .tbr i{animation:istep 4s forwards}#iTab.go .tbr i:nth-child(2){animation-delay:1s}#iTab.go .tbr i:nth-child(3){animation-delay:2s}#iTab.go .tbr i:nth-child(4){animation-delay:3s}
+@keyframes istep{to{background:var(--y);color:#10204a}}
+#iHelp{left:520px;top:200px;display:flex;flex-direction:column;gap:14px;transform:translateX(30px)}#iHelp.on{transform:none}
+#iHelp div{padding:14px 20px;border-radius:14px;background:#1b1d2c;border:2px solid #3a3d63;min-width:260px}#iHelp b{display:block;font:800 22px Inter,sans-serif;color:#fff}#iHelp span{font:600 15px Inter,sans-serif;color:var(--y)}
+.iannq{position:absolute;left:50%;top:16px;width:150px;height:150px;transform:translateX(-50%);padding:8px;background:#fff;border-radius:8px}
+.iannb{position:absolute;left:3%;right:3%;bottom:4%;padding:12px 14px;border-radius:8px;background:#c8102e;color:#fff;font:800 16px/1.3 Inter,sans-serif;animation:iup .6s .3s both cubic-bezier(.2,.9,.3,1.3)}
+.iannb i{font-style:normal;background:#fff;color:#c8102e;font:400 13px Anton,Impact,sans-serif;padding:2px 7px;border-radius:4px;margin-right:8px}
+@keyframes iup{from{transform:translateY(160%);opacity:0}}
+#iAnnP{left:510px;top:120px;width:150px;height:300px;border:7px solid #2a2b38;border-radius:22px;background:#0b0b10;overflow:hidden;transform:translateY(30px)}#iAnnP.on{transform:none}
+#iAnnP .apb{margin:16px 6px;padding:8px;border-radius:9px;background:#c8102e;color:#fff;font:700 11px/1.3 Inter,sans-serif;animation:idown .5s .6s both}
+#iAnnP .apb small{display:block;font:400 11px Anton,Impact,sans-serif;letter-spacing:1px}@keyframes idown{from{transform:translateY(-140%);opacity:0}}
+#iLed{left:520px;top:140px;width:700px;height:330px}
+.led{position:absolute;border:6px solid #2a2b38;border-radius:8px;background:radial-gradient(ellipse,#1b2350,#06060d);display:flex;align-items:center;justify-content:center;font:400 18px Anton,Impact,sans-serif;letter-spacing:1px;color:var(--y);animation:itile .6s both}
+.led.w{left:0;top:0;width:430px;height:140px}.led.n{left:450px;top:0;width:110px;height:200px;animation-delay:.3s}
+.led.g{left:0;top:170px;width:430px;height:150px;background:#00B140;color:#fff;animation-delay:.6s}.led.g em{position:absolute;font-style:normal;font-size:26px;animation:ifloat 2.4s linear infinite}
+.led.g em:nth-of-type(1){left:6%}.led.g em:nth-of-type(2){left:14%;animation-delay:.8s}.led.g em:nth-of-type(3){right:8%;animation-delay:.4s}.led.g em:nth-of-type(4){right:16%;animation-delay:1.4s}
+@keyframes ifloat{from{bottom:-30px}to{bottom:150px}}
+#iOff{left:640px;top:160px;transform:translateX(-50%);text-align:center}
+#iOff .wf{position:relative;display:inline-block;font-size:90px}#iOff .wf i{position:absolute;left:-6px;right:-6px;top:50%;height:8px;background:#ff4d5e;transform:rotate(-35deg);border-radius:4px}
+#iOff .sh{display:inline-block;font-size:90px;margin-left:30px;opacity:.25;transition:opacity .5s,transform .5s}#iOff.ok .sh{opacity:1;transform:scale(1.15)}
+#iOff b{display:block;margin-top:18px;font:400 42px Anton,Impact,sans-serif;color:var(--y);letter-spacing:1px;opacity:0;transition:opacity .5s}#iOff.ok b{opacity:1}
+#iRep{left:50%;top:120px;width:760px;transform:translate(-50%,30px);background:#12131c;border:2px solid #2c3260;border-radius:18px;padding:22px 26px}#iRep.on{transform:translate(-50%,0)}
+#iRep .rh{font:400 24px Anton,Impact,sans-serif;color:var(--y);letter-spacing:2px}
+#iRep .rn{display:flex;gap:14px;margin:14px 0}#iRep .rn div{flex:1;background:#1b1d2c;border-radius:12px;padding:12px}#iRep .rn b{display:block;font:400 40px Anton,Impact,sans-serif;color:#fff}#iRep .rn small{font:700 12px Inter,sans-serif;color:#aeb3d6;letter-spacing:1px}
+#iRep .rb{display:flex;align-items:flex-end;gap:5px;height:110px}#iRep .rb i{flex:1;background:linear-gradient(#F7D117,#c49a00);border-radius:3px 3px 0 0;transform:scaleY(0);transform-origin:bottom;animation:ibar .6s forwards}
+@keyframes ibar{to{transform:none}}
+#iFin{left:50%;top:200px;transform:translate(-50%,0) scale(.7);text-align:center;white-space:nowrap}#iFin.on{transform:translate(-50%,0) scale(1)}
+#iFin b{display:block;font:400 74px/1.05 Anton,Impact,sans-serif;color:#fff;text-shadow:0 6px 40px rgba(0,0,0,.7)}#iFin b.y{color:var(--y)}
+#iChip{left:50px;bottom:34px;padding:12px 18px;border-radius:14px;background:rgba(10,12,28,.88);border:2px solid var(--y);transform:translateY(20px)}#iChip.on{transform:none}
+#iChip b{display:block;font:800 22px Inter,sans-serif;color:#fff}#iChip span{font:600 15px Inter,sans-serif;color:#cfd3ef}
+
+.introhtml{display:none}
+@media (max-width:700px){.introhtml{display:block;margin:14px 0 0}.introhtml h3{font:400 18px Anton,Impact,sans-serif;color:var(--y);letter-spacing:1px;margin:14px 0 6px}.introhtml li{margin:5px 0;font-size:14px;color:#dcdce4}.introhtml li b{color:#fff}.introhtml ul{padding-left:0;list-style:none;margin:0}}
 .mcap{display:none}
 html.embed .wrap{padding:6px 6px 10px}
 html.embed h1,html.embed .lead,html.embed .notes,html.embed .credit{display:none}
@@ -228,11 +336,13 @@ window.__showErr=show;window.addEventListener('error',function(e){show('ERROR: '
 <div class="crew" id="crew"><span class="ic">🎆</span><div><b>Fireworks crew</b><i>Licensed operator fires on the cue</i></div></div>
 <canvas id="fwc" width="1280" height="720" style="position:absolute;inset:0;pointer-events:none;z-index:28"></canvas>
 <div class="lock" id="lock">🔒 Photos stay on the phone. Nothing is uploaded.</div>
+<div id="intro" class="on static"><canvas id="icv" width="1280" height="720"></canvas><div id="ia"></div><div class="ih"><img src="img/ndp-logo.webp" alt="NDP"><div><h2>THE RALLY, IN EVERY HAND</h2><p class="il">Thousands of supporters, every one holding a phone. On the night, every phone becomes part of the show. No app, no sign-up: one scan and they're in.</p></div></div><div class="ig"><div class="gc" data-g="0"><h3>FOR THE CROWD</h3><div class="fi"><i>📸</i><div><b>Rally photo frame</b><span>Shared to WhatsApp, Facebook and Instagram all night</span></div></div><div class="fi"><i>📺</i><div><b>Send to the big screen</b><span>The crowd's own faces on the big screens</span></div></div><div class="fi"><i>💛</i><div><b>Emoji reactions</b><span>Live energy from every corner, on screen</span></div></div><div class="fi"><i>✔️</i><div><b>Live vote</b><span>Every voice counted, instantly</span></div></div><div class="fi"><i>📳</i><div><b>Shake to win</b><span>The whole crowd powers Maximum Victory</span></div></div><div class="fi"><i>🎆</i><div><b>Fireworks timing</b><span>Phones and fireworks hit together, to the second</span></div></div></div><div class="gc" data-g="1"><h3>FOR THE DIASPORA</h3><div class="fi"><i>🌍</i><div><b>Join from anywhere</b><span>Vincentians abroad, live inside the rally</span></div></div><div class="fi"><i>🖼️</i><div><b>Their own place on the wall</b><span>Their photos on the big screens too</span></div></div></div><div class="gc" data-g="2"><h3>FOR THE ORGANISERS</h3><div class="fi"><i>🎛️</i><div><b>One-tablet control</b><span>One button runs the whole victory sequence</span></div></div><div class="fi"><i>👥</i><div><b>Assistant operators</b><span>Helpers with their own access</span></div></div><div class="fi"><i>📣</i><div><b>Announcements</b><span>A lost child: every screen and phone in seconds</span></div></div><div class="fi"><i>🖥️</i><div><b>Any LED wall, two outputs</b><span>Any venue, and it feeds the livestream</span></div></div><div class="fi"><i>🛡️</i><div><b>Keeps going offline</b><span>The show never stops on screen</span></div></div><div class="fi"><i>📊</i><div><b>Morning-after report</b><span>Turnout, engagement and reach, next morning</span></div></div></div></div><div class="ip" id="introP">▶ Press Play: see how a rally becomes a movement</div></div>
 <div class="cap" id="cap"><div class="n" id="capN"></div><div class="t" id="capT"></div><div class="d" id="capD"></div></div>
 <div class="finger" id="finger"></div>
 </div></div>
 <div class="mcap" aria-live="polite"><div class="n" id="mN"></div><div class="t" id="mT"></div><div class="d" id="mD"></div></div>
 <div class="ctl"><button id="pp">▶ Play</button><button id="nb" aria-pressed="true">🔊 Voice on</button><button id="hwb">🗺 Hardware map</button><span style="flex:1"></span><span id="stepBtns" style="display:flex;flex-wrap:wrap;gap:8px"></span></div>
+<div class="introhtml"><p><b>The rally, in every hand.</b> Every phone in the crowd becomes part of the show. No app to download: one QR code on the big screens opens it in seconds.</p><h3>FOR THE CROWD</h3><ul><li>📸 <b>Rally photo frame</b>: Shared to WhatsApp, Facebook and Instagram all night</li><li>📺 <b>Send to the big screen</b>: The crowd's own faces on the big screens</li><li>💛 <b>Emoji reactions</b>: Live energy from every corner, on screen</li><li>✔️ <b>Live vote</b>: Every voice counted, instantly</li><li>📳 <b>Shake to win</b>: The whole crowd powers Maximum Victory</li><li>🎆 <b>Fireworks timing</b>: Phones and fireworks hit together, to the second</li></ul><h3>FOR THE DIASPORA</h3><ul><li>🌍 <b>Join from anywhere</b>: Vincentians abroad, live inside the rally</li><li>🖼️ <b>Their own place on the wall</b>: Their photos on the big screens too</li></ul><h3>FOR THE ORGANISERS</h3><ul><li>🎛️ <b>One-tablet control</b>: One button runs the whole victory sequence</li><li>👥 <b>Assistant operators</b>: Helpers with their own access</li><li>📣 <b>Announcements</b>: A lost child: every screen and phone in seconds</li><li>🖥️ <b>Any LED wall, two outputs</b>: Any venue, and it feeds the livestream</li><li>🛡️ <b>Keeps going offline</b>: The show never stops on screen</li><li>📊 <b>Morning-after report</b>: Turnout, engagement and reach, next morning</li></ul></div>
 <div class="notes">
 <div><b>1 · Control screen</b>The operator's tablet, behind a PIN. One button per step, or one button that runs the vote, shake, victory and replay by itself. Live numbers, announcements, and alerts if anything drops. The owner can add helpers with their own PIN: a photo assistant who only approves photos, or a full operator. A second tablet on its own hotspot is the backup.</div>
 <div><b>2 · Big screens</b>A laptop feeding the LED walls. It follows the server, and if the connection drops it plays the show by itself, so the crowd never sees an error. Two outputs, A and B: each can show the show, the show with emojis, or a green screen, and B unlocks only when a second screen is connected.</div>
@@ -311,7 +421,7 @@ function mini(h){return `<div class="fr" style="padding:6%"><div class="pin" sty
 function wall(n,newIdx){$('pwg').innerHTML=WALL.slice(0,n).map((w,i)=>`<div class="pwc${i===newIdx?' new':''}">${mini(w[1])}<div class="lb">${w[0].startsWith('Watching')?'🌍 ':'📍 '}${w[0]}</div></div>`).join('')}
 function cap(n,tt,d){$('capN').textContent='STEP '+n;$('capT').textContent=tt;$('capD').textContent=d;$('mN').textContent='STEP '+n;$('mT').textContent=tt;$('mD').textContent=d}
 function energy(arr,id){$(id||'energy').innerHTML=arr.map(v=>`<i style="height:${Math.max(4,v)}%"></i>`).join('')}
-function reset(){upStream(false);document.querySelectorAll('.bsa,.pha').forEach(e=>e.remove());document.querySelectorAll('.fe,.bse').forEach(e=>e.remove());{const g=document.querySelector('.bsg');if(g)g.classList.remove('show')}document.querySelectorAll('.dot').forEach(d=>d.remove());document.querySelectorAll('.cb').forEach(e=>e.className='cb');$('srv').classList.remove('hot');$('alert').className='alert';$('rep').className='rep';$('pill').className='pill';$('pill').textContent='● Live';
+function reset(){upStream(false);introHide();document.querySelectorAll('.bsa,.pha').forEach(e=>e.remove());document.querySelectorAll('.fe,.bse').forEach(e=>e.remove());{const g=document.querySelector('.bsg');if(g)g.classList.remove('show')}document.querySelectorAll('.dot').forEach(d=>d.remove());document.querySelectorAll('.cb').forEach(e=>e.className='cb');$('srv').classList.remove('hot');$('alert').className='alert';$('rep').className='rep';$('pill').className='pill';$('pill').textContent='● Live';
 phs.forEach(p=>{p.classList.remove('shaking');p.querySelector('.off').classList.remove('show')});$('lock').style.opacity=0;$('pcall').classList.remove('show');$('crew').className='crew';$('fwcue').classList.remove('show');$('pq').classList.remove('show');$('pwall').classList.remove('show');$('dia').classList.remove('show');$('scall').classList.remove('show');$('energy').innerHTML='';$('finger').style.opacity=0}
 function base(n){// state at start of step n
 reset();const s=[
@@ -387,16 +497,105 @@ bs('qr');await sl(500,t);phs[2].querySelector('.off').classList.add('show');$('p
 await sl(3200,t);phs[2].querySelector('.off').classList.remove('show');a.className='alert ok show';a.textContent='✓ Phones back online';$('pill').className='pill';$('pill').textContent='● Live';travel('w_p2','up',700);await sl(1800,t);a.className='alert'},
 async t=>{cap(12,'The morning-after report','Counts only, never names, numbers or photos. The party gets a short report: turnout, votes, photos, shares, the crowd\'s energy second by second, and diaspora engagement: how many took part from abroad, and where they were watching from.');
 bs('qr');await sl(600,t);$('rep').className='rep show';count('r1',6240,1500);count('r2',91,1500,v=>v+'%');count('r3',3420,1500);count('r4',1180,1500);const E=[];for(let k=0;k<40;k++){E.push(15+Math.min(80,k*2.2)+Math.random()*12);energy(E,'repE');await sl(45,t)}await sl(3000,t)}];
-const sb=$('stepBtns');['Doors open','Photo','Share','Send to screen','Reactions','Vote','Shake','Victory','Replay + QR','Announce','Offline','Report'].forEach((n,i)=>{const b=document.createElement('button');b.textContent=(i+1)+' '+n;b.onclick=()=>run(i,false);sb.appendChild(b)});
-function mark(i){[...sb.children].forEach((b,k)=>b.classList.toggle('on',k===i));const a=sb.children[i];if(a&&sb.scrollWidth>sb.clientWidth)sb.scrollTo({left:a.offsetLeft-sb.offsetLeft-8,behavior:'smooth'})}
+const sb=$('stepBtns');{const b=document.createElement('button');b.textContent='Intro';b.className='intro-b';b.onclick=async()=>{const t=++tok;playing=false;$('pp').textContent='▶ Play all';try{await intro(t)}catch(e){}introShow(true)};sb.appendChild(b)}['Doors open','Photo','Share','Send to screen','Reactions','Vote','Shake','Victory','Replay + QR','Announce','Offline','Report'].forEach((n,i)=>{const b=document.createElement('button');b.textContent=(i+1)+' '+n;b.onclick=()=>run(i,false);sb.appendChild(b)});
+function mark(i){[...sb.children].forEach((b,k)=>b.classList.toggle('on',k===i+1));const a=sb.children[i+1];if(a&&sb.scrollWidth>sb.clientWidth)sb.scrollTo({left:a.offsetLeft-sb.offsetLeft-8,behavior:'smooth'})}
 const NA=new Audio();NA.preload='auto';let narrOn=true,narrEnd=null;
 function narrStop(){try{NA.pause()}catch(_){}if(narrEnd){narrEnd();narrEnd=null}}
 function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promise(res=>{narrEnd=res;NA.src='audio/step'+n+'.mp3';NA.onended=()=>{narrEnd=null;res()};NA.onerror=()=>{narrEnd=null;res()};const p=NA.play();if(p&&p.catch)p.catch(()=>{narrEnd=null;res()})})}
 $('nb').onclick=()=>{narrOn=!narrOn;$('nb').textContent=narrOn?'🔊 Voice on':'🔇 Voice off';$('nb').setAttribute('aria-pressed',narrOn);if(!narrOn)narrStop()};
+
+// ---------- animated intro (plays before step 1 in Play all) ----------
+const INTRO={"dur": 90096, "c": {"thousands": 3731, "qr": 10893, "g0": 15226, "share": 23833, "i1": 27504, "i2": 30032, "i3": 33041, "i4": 34967, "i5": 40504, "film": 42911, "g1": 46041, "i7": 52842, "g2": 57536, "i8": 60365, "i9": 64939, "i10": 66744, "i11": 72883, "i12": 76013, "i13": 78841, "finale": 85943}};
+function introShow(staticMode){const o=$('intro');o.className='on'+(staticMode?' static':'');o.querySelectorAll('.gc,.fi').forEach(e=>e.classList.toggle('lit',!!staticMode))}
+function introHide(){$('intro').className='';IC.run=false;$('ia').innerHTML=''}
+// --- particle canvas: crowd of phones, light show, fireworks, emojis ---
+const IC={ph:[],pt:[],em:[],mode:'off',t0:0,jig:0,dim:0,run:false};
+const icv=$('icv'),ig=icv.getContext('2d');
+function icInit(){IC.ph=[];for(let r=0;r<7;r++){const s=.5+r*.13,y=455+r*40,gap=30*s;for(let x=-10+Math.random()*gap;x<1300;x+=gap*(1+Math.random()*.6))IC.ph.push({x,y:y+Math.random()*8,s,l:0,tl:0,ph:Math.random()*6.3,d:Math.random()})}IC.pt=[];IC.em=[]}
+function icMode(m){IC.mode=m;IC.t0=performance.now()}
+function icBurst(x,y,n){const C=['#F7D117','#ffffff','#4d8dff','#ffe680'];const c=C[Math.floor(Math.random()*C.length)];for(let i=0;i<(n||80);i++){const a=Math.random()*6.283,v=60+Math.random()*220;IC.pt.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:0,L:1.2+Math.random()*.8,c})}}
+function icEmoji(n){const E=['💛','💙','🔥','👏','🙌','🎉','🎺'];for(let i=0;i<n;i++){const side=Math.random()<.5;IC.em.push({x:side?40+Math.random()*260:980+Math.random()*260,y:740+Math.random()*120,v:90+Math.random()*80,e:E[Math.floor(Math.random()*7)],s:26+Math.random()*16,ph:Math.random()*6})}}
+function icRun(){if(IC.run)return;IC.run=true;let last=performance.now();const f=now=>{if(!IC.run){ig.clearRect(0,0,1280,720);return}const dt=Math.min(.05,(now-last)/1000);last=now;const T=(now-IC.t0)/1000;ig.clearRect(0,0,1280,720);
+  for(const p of IC.ph){let tl=0;if(IC.mode==='sparkle')tl=(Math.sin(now/300+p.ph*7)>.85)?.5:.06;else if(IC.mode==='on')tl=T*1.2>p.d?.45:.06;else if(IC.mode==='wave')tl=Math.max(.2,Math.sin(T*4-p.x/90)*.5+.5);else if(IC.mode==='all')tl=.75+.25*Math.sin(now/90+p.ph);else tl=.05;
+    p.l+=(tl-p.l)*Math.min(1,dt*6);const j=IC.jig?Math.sin(now/45+p.ph)*4*p.s*IC.jig:0;const w=15*p.s,h=26*p.s,x=p.x+j,y=p.y-h-12*p.s,a=1-IC.dim;
+    ig.globalAlpha=a;ig.fillStyle='#0d0f1c';ig.beginPath();ig.arc(p.x,p.y+14*p.s,13*p.s,0,6.283);ig.fill();
+    if(p.l>.35){ig.globalAlpha=a*(p.l-.35)*.9;ig.fillStyle='#F7D117';ig.beginPath();ig.arc(x+w/2,y+h/2,h*.9,0,6.283);ig.fill()}
+    ig.globalAlpha=a;ig.fillStyle='#2a2e44';ig.fillRect(x-1.5*p.s,y-1.5*p.s,w+3*p.s,h+3*p.s);
+    const l=p.l;ig.fillStyle=`rgb(${Math.round(25+l*222)},${Math.round(30+l*179)},${Math.round(60-l*37)})`;ig.fillRect(x,y,w,h)}
+  ig.globalAlpha=1;
+  for(let i=IC.pt.length-1;i>=0;i--){const q=IC.pt[i];q.t+=dt;if(q.t>q.L){IC.pt.splice(i,1);continue}q.vy+=90*dt;q.vx*=.985;q.vy*=.985;q.x+=q.vx*dt;q.y+=q.vy*dt;ig.globalAlpha=Math.max(0,1-q.t/q.L);ig.fillStyle=q.c;ig.fillRect(q.x-1.6,q.y-1.6,3.2,3.2)}
+  ig.globalAlpha=1;ig.textAlign='center';ig.textBaseline='middle';
+  for(let i=IC.em.length-1;i>=0;i--){const e=IC.em[i];e.y-=e.v*dt;if(e.y<-40){IC.em.splice(i,1);continue}ig.font=e.s+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';ig.fillText(e.e,e.x+Math.sin(now/400+e.ph)*14,e.y)}
+  requestAnimationFrame(f)};requestAnimationFrame(f)}
+// --- scene elements ---
+function iel(id,html,css){let e=document.getElementById(id);if(!e){e=document.createElement('div');e.id=id;e.className='ie';$('ia').appendChild(e)}if(html!=null)e.innerHTML=html;if(css!=null)e.style.cssText=css;return e}
+const ion=(e,on)=>{void e.offsetWidth;e.classList.toggle('on',on!==false)};
+const ioff=id=>{const e=document.getElementById(id);if(e)e.classList.remove('on')};
+function ichip(name,desc){const c=iel('iChip',`<b>${name}</b><span>${desc}</span>`);c.classList.remove('on');void c.offsetWidth;c.classList.add('on')}
+function icount(el,to,ms,fmt){const t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/ms),v=Math.round(to*(1-Math.pow(1-k,3)));el.textContent=fmt?fmt(v):v.toLocaleString();if(k<1&&IC.run)requestAnimationFrame(f)};f()}
+function iqr(){let h='';for(let y=0;y<21;y++)for(let x=0;x<21;x++){const fin=(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);const on=fin?((x%20<7&&y%20<7)?([0,6].includes(x%14)||[0,6].includes(y%14)||(x%14>1&&x%14<5&&y%14>1&&y%14<5)):([14,20].includes(x)||[0,6].includes(y)||(x>15&&x<19&&y>1&&y<5))):Math.random()<.5;
+  if(fin){const fx=x>13?x-14:x,fy=y>13?y-14:y;if(!([0,6].includes(fx)||[0,6].includes(fy)||(fx>1&&fx<5&&fy>1&&fy<5)))continue}else if(!on)continue;h+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}
+  return `<svg viewBox="-1 -1 23 23" width="100%" height="100%" shape-rendering="crispEdges"><rect x="-1" y="-1" width="23" height="23" fill="#fff"/><g fill="#0b0b10">${h}</g></svg>`}
+function iscreen(inner){return `<div class="iscr"><div class="iscri">${inner}</div></div><div class="istand"></div>`}
+// --- the timeline ---
+async function intro(t){mark(-1);introShow(false);$('intro').classList.add('anim');$('ia').innerHTML='';icInit();icMode('off');IC.dim=0;IC.jig=0;icRun();
+  const np=narr('intro');const t0=performance.now(),k=narrOn?1:0.5,C=INTRO.c;
+  const at=async ms=>{const w=ms*k-(performance.now()-t0);if(w>0)await sl(w,t);if(t!==tok)throw 'x'};
+  try{
+  // 1 · opening: title over a dark crowd
+  const T=iel('iTitle',`<img src="img/ndp-logo.webp" alt=""><div><h2>THE RALLY,<br>IN EVERY HAND</h2><p>NDP Anniversary Rally</p></div>`);ion(T);icMode('sparkle');
+  await at(C.thousands);icMode('on');
+  // QR scan
+  await at(C.qr);T.classList.add('top');const Q=iel('iQR',`<div class="qrc">${iqr()}<i class="scan"></i></div><div class="qrl">SCAN · NO APP · IN SECONDS</div>`);ion(Q);
+  const J=iel('iJoin',`<small>PHONES IN</small><b id="iJn">0</b>`);ion(J);icount($('iJn'),4812,4200);
+  // 2 · crowd: rally photo
+  await at(C.g0);ioff('iQR');ioff('iJoin');icMode('dim');IC.dim=.55;
+  const P=iel('iPhoto',frame(),'');ion(P);ichip('📸 Rally photo frame','Shared to WhatsApp, Facebook and Instagram all night');
+  await at(C.share);for(const [i,n] of ['WhatsApp','Facebook','Instagram'].entries()){const s=iel('iSh'+i,`↗ ${n}`);s.classList.add('ish','ish'+i);ion(s)}
+  const S=iel('iShares',`<small>SHARES</small><b id="iSn">0</b>`);ion(S);icount($('iSn'),3106,3500);
+  // big screen photo wall
+  await at(C.i1);['iSh0','iSh1','iSh2','iShares'].forEach(ioff);P.classList.add('fly');
+  let tiles='';for(let i=0;i<15;i++)tiles+=`<i style="animation-delay:${.2+i*.12}s">${frame()}</i>`;
+  const W=iel('iWall',iscreen(`<div class="iwh">THANK YOU FOR YOUR VOTE, YOUR VOICE, AND YOUR TRUST.</div><div class="iwg">${tiles}</div>`));ion(W);ichip('📺 Send to the big screen','The crowd\'s own faces on the big screens');
+  // reactions
+  await at(C.i2);ioff('iPhoto');IC.dim=.3;icEmoji(26);const em=setInterval(()=>{if(IC.run)icEmoji(4)},700);ichip('💛 Emoji reactions','Live energy from every corner, on screen');
+  // vote
+  await at(C.i3);clearInterval(em);W.querySelector('.iscri').innerHTML=`<div class="ivote"><div class="ivr"><b id="iVn">0</b><small>VOTES IN</small></div><div class="ivt">VOTE<br>NOW!</div></div>`;icount($('iVn'),4390,2600);ichip('✔️ Live vote','Every voice counted, instantly');
+  // shake → maximum victory
+  await at(C.i4);IC.dim=0;IC.jig=1;icMode('wave');W.querySelector('.iscri').innerHTML=`<div class="ishk"><div class="ishm"><i id="iSm"></i></div><div class="isht">SHAKE!</div></div>`;setTimeout(()=>{const m=$('iSm');if(m)m.style.width='100%'},60);ichip('📳 Shake to win','The whole crowd powers Maximum Victory');
+  await at(C.i5);IC.jig=.4;icMode('all');W.querySelector('.iscri').innerHTML=`<div class="imax"><small>MAXIMUM</small><b>VICTORY!</b></div>`;ichip('🎆 Fireworks timing','Phones and fireworks hit together, to the second');
+  const fw=setInterval(()=>{if(IC.run)icBurst(150+Math.random()*980,90+Math.random()*230,90)},420);
+  await at(C.film);
+  // 3 · diaspora
+  await at(C.g1);clearInterval(fw);IC.jig=0;icMode('dim');IC.dim=.8;ioff('iWall');ioff('iTitle');
+  const cities=[['New York',270,250],['Toronto',250,175],['London',650,150]],svg=[440,430];
+  let dots='';for(let y=60;y<560;y+=16)for(let x=60;x<1220;x+=16){const nx=(x-640)/600,ny=(y-310)/260;if(nx*nx+ny*ny<1&&Math.sin(x*.013)+Math.cos(y*.019)+Math.sin((x+y)*.007)>-.2)dots+=`<circle cx="${x}" cy="${y}" r="1.8"/>`}
+  let arcs='',pins='';cities.forEach(([n,x,y],i)=>{const mx=(x+svg[0])/2,my=Math.min(y,svg[1])-120;arcs+=`<path class="arc" style="animation-delay:${.3+i*.5}s" d="M${x} ${y} Q ${mx} ${my} ${svg[0]} ${svg[1]}"/>`;pins+=`<g class="pin" style="animation-delay:${.1+i*.5}s"><circle cx="${x}" cy="${y}" r="7"/><text x="${x}" y="${y-16}">${n}</text></g>`});
+  pins+=`<g class="pin home"><circle cx="${svg[0]}" cy="${svg[1]}" r="11"/><text x="${svg[0]}" y="${svg[1]+34}">ST VINCENT</text></g>`;
+  const M=iel('iMap',`<svg viewBox="0 0 1280 620" width="1280" height="620"><g fill="#2b3566">${dots}</g><g fill="none" stroke="#F7D117" stroke-width="3">${arcs}</g>${pins}</svg>`);ion(M);ichip('🌍 Join from anywhere','Vincentians abroad, live inside the rally');
+  await at(C.i7);let dt='';['Toronto','New York','London','Miami','Brooklyn'].forEach((c,i)=>dt+=`<i style="animation-delay:${i*.25}s">${frame()}<em>🌍 ${c}</em></i>`);
+  const D=iel('iDia',iscreen(`<div class="iwh">FROM THE DIASPORA</div><div class="iwg idia">${dt}</div>`));ion(D);ichip('🖼️ Their own place on the wall','Their photos on the big screens too');
+  // 4 · organisers
+  await at(C.g2);ioff('iMap');ioff('iDia');IC.dim=.9;
+  const TB=iel('iTab',`<div class="tbh">RALLY CONTROL <span>● Live</span></div><div class="tbb run">▶ Run full sequence<small>vote → shake → victory → replay</small></div><div class="tbr"><i>VOTE</i><i>SHAKE</i><i>VICTORY</i><i>REPLAY</i></div><div class="tbb">📣 Announcements</div><div class="tbb">👥 Team</div>`);ion(TB);
+  await at(C.i8);TB.classList.add('go');ichip('🎛️ One-tablet control','One button runs the whole victory sequence');
+  await at(C.i9);const H=iel('iHelp',`<div><b>Kerry</b><span>Photo assistant</span></div><div><b>Marlon</b><span>Full operator</span></div>`);ion(H);ichip('👥 Assistant operators','Helpers with their own access');
+  await at(C.i10);ioff('iHelp');const A=iel('iAnn',iscreen(`<div class="iannq">${iqr()}</div><div class="iannb"><i>URGENT</i>Parents of a young boy in a yellow NDP shirt, please come to the side of the stage.</div>`));ion(A);
+  const AP=iel('iAnnP',`<div class="apb"><small>URGENT</small>Parents of a young boy in a yellow NDP shirt, please come to the side of the stage.</div>`);ion(AP);ichip('📣 Announcements','A lost child: every screen and phone in seconds');
+  await at(C.i11);ioff('iAnn');ioff('iAnnP');const L=iel('iLed',`<div class="led w"><span>LED WALL</span></div><div class="led n"><span>SIDE SCREEN</span></div><div class="led g"><span>GREEN SCREEN → LIVESTREAM</span><em>💛</em><em>🔥</em><em>🎉</em><em>👏</em></div>`);ion(L);ichip('🖥️ Any LED wall, two outputs','Any venue, and it feeds the livestream');
+  await at(C.i12);ioff('iLed');const O=iel('iOff',`<div class="wf">📶<i></i></div><div class="sh">🛡️</div><b>THE SHOW KEEPS GOING</b>`);ion(O);setTimeout(()=>O.classList.add('ok'),1400);ichip('🛡️ Keeps going offline','The show never stops on screen');
+  await at(C.i13);ioff('iOff');ioff('iTab');const R=iel('iRep',`<div class="rh">MORNING-AFTER REPORT</div><div class="rn"><div><b id="iR1">0</b><small>Phones</small></div><div><b id="iR2">0</b><small>Votes</small></div><div><b id="iR3">0</b><small>Photos</small></div><div><b id="iR4">0</b><small>Diaspora</small></div></div><div class="rb">${Array.from({length:24},(_,i)=>`<i style="height:${20+Math.min(78,i*3.4)+Math.random()*12}%;animation-delay:${i*.05}s"></i>`).join('')}</div>`);ion(R);
+  icount($('iR1'),6240,2200);icount($('iR2'),4390,2200);icount($('iR3'),3420,2200);icount($('iR4'),1180,2200);ichip('📊 Morning-after report','Turnout, engagement and reach, next morning');
+  // 5 · finale
+  await at(C.finale);ioff('iRep');ioff('iChip');IC.dim=0;icMode('all');const F=iel('iFin',`<b>THIS IS HOW A RALLY</b><b class="y">BECOMES A MOVEMENT.</b>`);ion(F);
+  const fw2=setInterval(()=>{if(IC.run)icBurst(150+Math.random()*980,90+Math.random()*200,100)},380);
+  await np;clearInterval(fw2);if(!narrOn)await sl(2500,t);if(t!==tok)throw 'x';
+  }finally{if(t!==tok){IC.run=false}}
+  $('intro').classList.remove('anim');introHide();await sl(400,t)}
 let playing=false;
-async function run(i,all){const t=++tok;playing=all;$('pp').textContent=all?'❚❚ Pause':'▶ Play all';try{for(let k=i;k<STEPS.length;k++){base(k);mark(k);const np=narr(k+1);await STEPS[k](t);await np;if(t!==tok)throw 'x';if(!all)break;await sl(700,t)}}catch(e){if(e!=='x'){console.error(e);window.__showErr&&window.__showErr('STEP: '+(e&&e.stack||e))}}if(t===tok){playing=false;$('pp').textContent='▶ Play again'}}
+async function run(i,all){const t=++tok;playing=all;$('pp').textContent=all?'❚❚ Pause':'▶ Play all';try{if(all&&i===0)await intro(t);else introHide();for(let k=i;k<STEPS.length;k++){base(k);mark(k);const np=narr(k+1);await STEPS[k](t);await np;if(t!==tok)throw 'x';if(!all)break;await sl(700,t)}}catch(e){if(e!=='x'){console.error(e);window.__showErr&&window.__showErr('STEP: '+(e&&e.stack||e))}}if(t===tok){playing=false;$('pp').textContent='▶ Play again'}}
 $('pp').onclick=()=>{if(playing){tok++;playing=false;upStream(false);narrStop();$('pp').textContent='▶ Play';}else run(0,true)};
-base(0);mark(0);cap(1,'Doors open','Press Play to watch the whole night, or pick a step.');bs('qr',true);
+base(0);mark(0);cap(1,'Doors open','Press Play to watch the whole night, or pick a step.');bs('qr',true);introShow(true);
 </script>
 <script>(function(){var m=document.getElementById('hwm'),b=document.getElementById('hwb'),x=document.getElementById('hwx');
 function op(){m.hidden=false;document.body.classList.add('hwopen');x.focus()}function cl(){m.hidden=true;document.body.classList.remove('hwopen');b.focus()}
