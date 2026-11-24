@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the rally system works</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#F7D117;--n:#1f2a55;--bg:#0b0b10;--card:#15151c;--ink:#f4f4f6;--mut:#a3a3ad;--ok:#4be38a;--bad:#ff6b6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 16px 40px}
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:1px;font-size:clamp(28px,4vw,46px);margin:0;color:var(--y)}
+.lead{color:var(--mut);margin:6px 0 16px;font-size:16px}
+.big{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px}
+.vp{position:relative;width:100%;aspect-ratio:16/9;background:radial-gradient(ellipse at 50% 60%,#16161f,#07070b 75%);border:1px solid #23232c;border-radius:18px;overflow:hidden}
+.st{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0}
+.lbl{position:absolute;font-size:13px;font-weight:800;letter-spacing:2px;color:var(--mut);text-transform:uppercase}
+/* control tablet */
+.tab{position:absolute;left:36px;top:150px;width:330px;height:420px;background:#121218;border:10px solid #2a2a33;border-radius:22px;overflow:hidden}
+.tab .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 8px}
+.pill{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;background:#0d3b1e;color:var(--ok)}
+.pill.warn{background:#3b2e05;color:var(--y)}
+.sts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 12px}
+.sts div{background:#1c1c24;border-radius:10px;padding:8px}
+.sts span{display:block;font-size:10px;color:var(--mut)}
+.sts b{font-size:19px}
+.btns{display:flex;flex-direction:column;gap:5px;padding:8px 12px}
+.cb{position:relative;padding:8px 12px;border-radius:10px;background:#22222c;border:1px solid #33333d;font-weight:800;font-size:14px;transition:background .25s,color .25s}
+.cb.on{background:var(--y);color:#10204a}
+.cb.qrc.on{background:var(--y)!important}
+.cb.done{color:#77777f}
+.cb .rip{position:absolute;right:16px;top:50%;width:34px;height:34px;margin-top:-17px;border-radius:50%;border:3px solid #fff;animation:rip .7s ease-out forwards;pointer-events:none}
+@keyframes rip{0%{transform:scale(.2);opacity:1}100%{transform:scale(1.8);opacity:0}}
+.finger{position:absolute;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.8);z-index:30;transition:left .5s ease,top .5s ease,opacity .3s;opacity:0;pointer-events:none}
+.alert{margin:0 12px;border-radius:10px;padding:8px 10px;font-size:12px;font-weight:700;display:none}
+.alert.show{display:block;animation:pop .35s both}
+.alert.warn{background:#4a3a05}.alert.ok{background:#0d3b1e}
+.energy{margin:0 12px;height:34px;display:flex;align-items:flex-end;gap:2px}
+.energy i{flex:1;background:var(--y);border-radius:2px 2px 0 0;opacity:.85}
+/* report card */
+.rep{position:absolute;inset:0;background:#f7f7f2;color:#15151c;padding:16px;display:none;flex-direction:column;gap:8px}
+.rep.show{display:flex;animation:pop .5s both}
+.rep .k{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.rep .k div{background:#fff;border:1px solid #e2e2dc;border-radius:10px;padding:8px}
+.rep .k b{font-size:20px;display:block}.rep .k span{font-size:11px;color:#55555c}
+/* server */
+.srv{position:absolute;left:540px;top:300px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#2b3a7a,#141a3a 70%);border:3px solid #3a4c8f;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 0 0 0 rgba(247,209,23,.0)}
+.srv.hot{animation:srv 1s ease-in-out infinite}
+@keyframes srv{50%{box-shadow:0 0 40px 6px rgba(247,209,23,.35)}}
+.srv b{font-size:15px;letter-spacing:1px}.srv span{font-size:11px;color:#c9d6ff}
+/* big screen */
+.bs{position:absolute;left:770px;top:40px;width:480px;height:277px;background:#000;border:8px solid #2a2a33;border-radius:10px;overflow:hidden}
+.bs .sc{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center}
+.bs .sc.on{display:flex;animation:fade .4s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.legs{position:absolute;left:990px;top:325px;width:40px;height:16px;background:#2a2a33}
+/* phones */
+.ph{position:absolute;top:400px;width:126px;height:258px;background:#0b0b0f;border:6px solid #2a2a33;border-radius:20px;overflow:hidden}
+.ph .in{position:absolute;inset:0}
+.ph.shaking{animation:shk .14s linear infinite}
+@keyframes shk{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(-4px,2px) rotate(-4deg)}50%{transform:translate(3px,-2px) rotate(3deg)}75%{transform:translate(-2px,-3px) rotate(-2deg)}}
+.off{position:absolute;left:4px;right:4px;top:4px;z-index:9;background:#2a1f05;border:2px solid var(--y);border-radius:8px;padding:4px 5px;font-size:8.5px;line-height:1.25;display:none}
+.off.show{display:block;animation:pop .3s both}
+.tg{position:absolute;left:6px;right:6px;bottom:6px;display:flex;gap:2px;padding:2px;background:#1c1c24;border-radius:999px;font-size:8px;font-weight:800}
+.tg div{flex:1;text-align:center;padding:4px 0;border-radius:999px;color:#aaa}.tg .a{background:var(--y);color:#10204a}
+/* frame */
+.fr{position:relative;width:100%;aspect-ratio:4/5;background:var(--y);border-radius:4px;padding:5%}
+.fr .pin{position:relative;width:100%;height:100%;overflow:hidden;border:2px solid var(--n)}
+.fr .lg{position:absolute;left:0;top:0;width:28%;border-radius:50%;box-shadow:0 0 0 2px var(--y)}
+.fr .an{position:absolute;right:6%;top:7%;width:62%;transform:rotate(-4deg)}
+.fr .gd{position:absolute;left:8%;width:84%;bottom:1%}
+/* light show */
+.ls{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:lsf .5s steps(1) infinite}
+@keyframes lsf{0%{background:var(--y)}50%{background:#1f4fa3}}
+.iam{font-family:Anton,Impact,sans-serif;font-size:30px;line-height:.95;color:#fff;-webkit-text-stroke:1.5px var(--n);text-align:center}
+/* meters */
+.mt{position:relative;width:62px;height:170px;background:#141418;border:3px solid #333;border-radius:8px;overflow:hidden}
+.mt i{position:absolute;left:0;right:0;bottom:0;background:repeating-linear-gradient(0deg,var(--c) 0 9px,transparent 9px 12px);transition:height .25s}
+.mt.max{box-shadow:0 0 24px 4px rgba(247,209,23,.7);border-color:var(--y)}
+.smoke{position:absolute;width:30px;height:30px;border-radius:50%;background:radial-gradient(#666,#333 60%,transparent 72%);animation:smk 1.2s ease-out forwards}
+@keyframes smk{to{transform:translateY(-60px) scale(2.4);opacity:0}}
+/* dots */
+.dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;z-index:20;pointer-events:none}
+.dot.cmd{background:#fff;box-shadow:0 0 10px 3px #fff}
+.dot.up{background:var(--y);box-shadow:0 0 8px 2px var(--y);width:7px;height:7px;margin:-3.5px 0 0 -3.5px}
+.app{width:22px;height:22px;border-radius:50%;margin:0 auto 2px;display:flex;align-items:center;justify-content:center;font-size:7.5px;font-weight:800;color:#fff}
+@keyframes shup{from{transform:translateY(100%)}to{transform:none}}
+.chip{position:absolute;z-index:25;padding:3px 8px;border-radius:999px;font-size:11px;font-weight:800;color:#fff;animation:chipup 1.6s ease-out forwards;pointer-events:none}
+@keyframes chipup{0%{opacity:0;transform:translateY(0) scale(.7)}15%{opacity:1;transform:translateY(-8px) scale(1)}100%{opacity:0;transform:translateY(-90px)}}
+.fwcue{position:absolute;left:12px;right:12px;bottom:12px;height:96px;border-radius:12px;background:#3a1500;border:2px solid #ff8a1a;display:none;flex-direction:column;align-items:center;justify-content:center;z-index:5}
+.fwcue.show{display:flex;animation:pop .3s both}.fwcue span{font-size:11px;font-weight:800;letter-spacing:2px;color:#ffb36b}.fwcue b{font-family:Anton,Impact,sans-serif;font-size:44px;line-height:1;color:#fff}
+.pq{position:absolute;left:12px;right:12px;bottom:12px;border-radius:12px;background:#221c05;border:2px solid var(--y);padding:8px 10px;display:none;z-index:5;font-size:11px}
+.pq.show{display:block;animation:pop .3s both}
+.pqt{flex:1;height:40px;border-radius:6px;background:#2a2a33;position:relative;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px}
+.pqt i{font-style:normal;font-size:9px;color:#ccc}.pqt b{position:absolute;top:3px;right:4px;width:16px;height:16px;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;background:#333;color:#888}
+.pqt.ap b{background:#25D366;color:#fff}.pqt.ap{outline:2px solid #25D366}.pqt.gone{opacity:.25}
+.pwall{position:absolute;inset:0;background:#06070f;display:none;flex-direction:column;padding:8px 10px;z-index:3}
+.pwall.show{display:flex;animation:fade .4s both}
+.pwh{display:flex;justify-content:space-between;font-family:Anton,Impact,sans-serif;font-size:16px;color:var(--y);letter-spacing:1px;margin-bottom:6px}
+.pwg{flex:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;align-items:start}
+.pwc{position:relative}.pwc .lb{font-size:8px;text-align:center;margin-top:3px;color:#ddd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pwc.new{animation:pop .5s both}.pwc.new:after{content:'NEW';position:absolute;top:-4px;right:-4px;background:#ff3b3b;color:#fff;font-size:7px;font-weight:800;padding:1px 4px;border-radius:4px}
+.dia{position:absolute;left:392px;top:640px;width:250px;display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:12px;background:#15132a;border:1px solid #3c3489;opacity:0;transition:opacity .4s}
+.dia.show{opacity:1}.dia .ic{font-size:20px}.dia b{display:block;font-size:12px}.dia i{font-style:normal;font-size:10px;color:#a3a3ad}
+.crew{position:absolute;left:36px;top:622px;width:330px;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:#1a1410;border:1px solid #4a3220;opacity:0;transition:opacity .4s}
+.crew.show{opacity:1}.crew.fired{border-color:#ff8a1a;box-shadow:0 0 24px rgba(255,138,26,.5)}
+.crew .ic{font-size:24px}.crew b{display:block;font-size:13px}.crew i{font-style:normal;font-size:11px;color:#a3a3ad}
+.pcall{position:absolute;left:392px;top:462px;width:370px;display:flex;gap:12px;opacity:0;transform:translateY(10px);transition:opacity .4s,transform .4s;pointer-events:none}
+.pcall.show{opacity:1;transform:none}
+.pcall .pcf{flex:none;width:150px;filter:drop-shadow(0 10px 24px #000)}
+.pcall ul{margin:0;padding:0;list-style:none;font-size:11.5px;line-height:1.3;color:#c9c9d0;display:flex;flex-direction:column;gap:5px}
+.pcall li{padding-left:12px;position:relative}.pcall li:before{content:'';position:absolute;left:0;top:5px;width:6px;height:6px;border-radius:50%;background:var(--y)}
+.pcall b{color:#fff}
+.lock{position:absolute;left:770px;top:668px;font-size:13px;font-weight:800;color:var(--ok);opacity:0;transition:opacity .4s}
+.cap{position:absolute;left:400px;right:520px;top:40px;}
+.cap .n{font-family:Anton,Impact,sans-serif;font-size:20px;color:var(--y);letter-spacing:1px}
+.cap .t{font-family:Anton,Impact,sans-serif;font-size:34px;line-height:1.05;margin:2px 0 8px}
+.cap .d{font-size:15px;color:#d4d4da;line-height:1.45}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes pulse{50%{opacity:.55}}
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.ctl button{font:inherit;font-size:14px;font-weight:700;padding:9px 14px;border-radius:10px;border:1px solid #33333d;background:#1c1c24;color:var(--ink);cursor:pointer}
+.ctl button.on{background:var(--y);color:#10204a;border-color:var(--y)}
+.ctl #pp{background:var(--y);color:#10204a;border-color:var(--y)}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:12px;margin-top:20px}
+.notes div{background:var(--card);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--mut)}
+.notes b{color:var(--ink);display:block;margin-bottom:4px}
+
+.mcap{display:none}
+html.embed .wrap{padding:6px 6px 10px}
+html.embed h1,html.embed .lead,html.embed .notes,html.embed .credit{display:none}
+.fullbtn{display:none}html.embed .fullbtn{display:inline-flex;align-items:center;text-decoration:none;font-size:14px;font-weight:700;padding:9px 14px;border-radius:10px;border:1px solid #33333d;background:#1c1c24;color:var(--ink)}
+@media (max-width:700px){
+.wrap{padding:10px 8px 24px}
+h1{font-size:22px}
+.lead{font-size:13px;margin:4px 0 10px}
+.vp{border-radius:12px}
+.cap{display:none}
+.mcap{display:block;background:var(--card);border-radius:12px;padding:12px 14px;margin-top:10px;min-height:118px}
+.mcap .n{font-family:Anton,Impact,sans-serif;color:var(--y);font-size:14px;letter-spacing:1px}
+.mcap .t{font-family:Anton,Impact,sans-serif;font-size:22px;line-height:1.1;margin:2px 0 6px}
+.mcap .d{font-size:14px;line-height:1.45;color:#d4d4da}
+.ctl{margin-top:10px;gap:6px}
+.ctl>span[style*="flex:1"]{display:none}
+.ctl #pp,.ctl #nb{flex:1;font-size:14px;padding:10px}
+html.embed .mcap{min-height:0;padding:10px 12px;margin-top:6px}html.embed .mcap .t{font-size:18px}html.embed .mcap .d{font-size:13px}
+#stepBtns{flex-wrap:nowrap!important;overflow-x:auto;width:100%;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#stepBtns::-webkit-scrollbar{display:none}
+#stepBtns button{flex:none;font-size:13px;padding:8px 11px}
+.notes{gap:8px;margin-top:14px}
+.notes div{font-size:13px;padding:12px}
+}
+@media (prefers-reduced-motion:reduce){.ls{animation:none;background:var(--y)}.ph.shaking{animation:none}}
+</style>
+<script>if(/[?&]embed/.test(location.search))document.documentElement.classList.add('embed')</script>
+<script>(function(){function show(m){var d=document.getElementById('errbox');if(!d){d=document.createElement('div');d.id='errbox';d.style.cssText='position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;background:#b00020;color:#fff;font:12px/1.4 monospace;padding:10px;border-radius:8px;white-space:pre-wrap;max-height:40vh;overflow:auto';(document.body||document.documentElement).appendChild(d)}d.textContent+=m+'\n'}
+window.__showErr=show;window.addEventListener('error',function(e){show('ERROR: '+e.message+' @ '+(e.filename||'').split('/').pop()+':'+e.lineno+':'+e.colno)});window.addEventListener('unhandledrejection',function(e){var r=e.reason;if(r==null||r==='x')return;show('PROMISE: '+(r&&r.stack||r))})})()</script>
+</head>
+<body>
+<div class="wrap">
+<h1>HOW THE RALLY SYSTEM WORKS</h1>
+<p class="lead">Three screens, one live server. The operator's control screen moves the big screens and every phone in the crowd together, one step at a time.</p>
+<div class="vp" id="vp"><div class="st" id="st">
+<svg id="wires" width="1280" height="720" style="position:absolute;inset:0">
+<g fill="none" stroke="#2e3350" stroke-width="3" stroke-dasharray="6 6">
+<path id="w_c" d="M366 360 C 450 360, 470 375, 540 375"/>
+<path id="w_b" d="M690 360 C 740 330, 760 250, 770 200"/>
+<path id="w_p0" d="M640 450 C 660 520, 730 520, 833 528"/>
+<path id="w_p1" d="M615 450 C 640 560, 900 380, 1003 400"/>
+<path id="w_d" d="M560 640 C 560 560, 580 500, 600 450"/>
+<path id="w_f" d="M200 592 C 200 605, 200 610, 200 622"/>
+<path id="w_p2" d="M690 400 C 900 380, 1100 360, 1173 400"/>
+</g></svg>
+<div class="lbl" style="left:36px;top:120px">1 · Control screen</div>
+<div class="lbl" style="left:770px;top:14px">2 · Big screens</div>
+<div class="lbl" style="left:770px;top:372px">3 · Crowd phones</div>
+<div class="tab" id="tab">
+<div class="hd"><b class="big" style="font-size:20px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="pill">● Live</span></div>
+<div class="sts"><div><span>Phones</span><b id="kPh">0</b></div><div><span>Votes</span><b id="kVo">0</b></div><div><span>Photos</span><b id="kPo">0</b></div></div>
+<div class="btns" id="btns"><div class="cb" data-b="0">1 Open photo</div><div class="cb" data-b="1">2 Start vote</div><div class="cb" data-b="2">3 Start shake</div><div class="cb" data-b="3">4 Victory</div><div class="cb" data-b="4">5 Replay</div><div class="cb qrc" data-b="5" style="background:#fff;color:#10204a;text-align:center">▣ Show QR code only</div></div>
+<div class="alert" id="alert"></div>
+<div class="energy" id="energy"></div>
+<div class="pq" id="pq"><div style="display:flex;justify-content:space-between;font-size:10px;font-weight:800;letter-spacing:1px;color:#ffe680"><span>PHOTO QUEUE <b id="pqN">0</b>/20</span><span>LINE <b id="pqL">0</b></span></div>
+<div style="display:flex;gap:6px;margin:6px 0"><div class="pqt" id="pq1"><i>Venue</i><b class="ok">✓</b></div><div class="pqt" id="pq2"><i>Toronto</i><b class="ok">✓</b></div><div class="pqt" id="pq3"><i>Venue</i><b class="ok">✓</b></div></div>
+<div style="display:flex;gap:8px;font-size:10px"><span>📍 Venue <b id="pqV">12</b>/15</span><span>🌍 Diaspora <b id="pqD">4</b>/5</span></div></div>
+<div class="fwcue" id="fwcue"><span>FIREWORKS CUE</span><b id="fwn">3</b></div>
+<div class="rep" id="rep"><b class="big" style="font-size:22px">MORNING-AFTER REPORT</b><span style="font-size:11px;color:#55555c">Counts only. No names, numbers or photos.</span>
+<div class="k"><div><b id="r1">0</b><span>phones joined</span></div><div><b id="r2">0%</b><span>voted</span></div><div><b id="r3">0</b><span>rally photos</span></div><div><b id="r4">0</b><span>diaspora</span></div></div>
+<span style="font-size:11px;font-weight:800">Diaspora by city</span><div style="font-size:11px;line-height:1.5;color:#33333a">Toronto 412 · New York 388 · London 201 · Miami 96</div>
+<span style="font-size:11px;font-weight:800;margin-top:4px">Crowd energy, second by second</span><div class="energy" id="repE" style="margin:0;height:46px"></div></div>
+</div>
+<div class="srv" id="srv"><b class="big" style="font-size:22px">LIVE</b><b>SERVER</b><span>keeps every<br>screen in step</span></div>
+<div class="bs" id="bs"><video id="bsv" muted playsinline webkit-playsinline preload="auto" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>
+<div class="pwall" id="pwall"><div class="pwh" style="justify-content:center;text-align:center;font-size:13px"><span>Thank you for your vote, your voice, and your trust.</span></div><div class="pwg" id="pwg"></div></div></div>
+<div class="legs"></div>
+<div class="ph" id="p0" style="left:770px"><div class="in"></div><div class="off">You're offline. Reconnecting…</div></div>
+<div class="ph" id="p1" style="left:940px"><div class="in"></div><div class="off">You're offline. Reconnecting…</div></div>
+<div class="ph" id="p2" style="left:1110px"><div class="in"></div><div class="off"><b>You're offline.</b> Reconnecting… Photos still work.</div></div>
+<div class="pcall" id="pcall"><div class="pcf" id="pcf"></div><ul>
+<li><b>NDP logo</b> top left</li><li><b>"Anniversary Rally"</b> top right</li><li><b>"Geh Dem Performance"</b> along the bottom</li><li><b>Front camera</b> opens with the frame on, then a 3-2-1 countdown</li><li><b>Save or share</b> to WhatsApp, Facebook or Instagram</li><li><b>Made on the phone</b>, never uploaded</li><li><b>Photo tab stays open</b> all night</li></ul></div>
+<div class="pcall" id="scall"><div class="pcf" id="scf" style="position:relative;height:250px;border-radius:14px;overflow:hidden;border:4px solid #2a2a33"></div><ul>
+<li><b>One tap on Share</b> opens the phone's own share menu</li><li>Works with <b>WhatsApp, Facebook, Instagram, TikTok, X</b> and Status, any app they have</li><li><b>Caption filled in:</b> #GEHDEMPERFORMANCE</li><li><b>Save</b> puts it in their photos to post later</li><li><b>Every share is free reach</b> for the party</li><li>The report counts <b>share taps</b>, not who posted</li></ul></div>
+<div class="dia" id="dia"><span class="ic">🌍</span><div><b>Diaspora link</b><i>Watching from Toronto · photo only</i></div></div>
+<div class="crew" id="crew"><span class="ic">🎆</span><div><b>Fireworks crew</b><i>Licensed operator fires on the cue</i></div></div>
+<canvas id="fwc" width="1280" height="720" style="position:absolute;inset:0;pointer-events:none;z-index:28"></canvas>
+<div class="lock" id="lock">🔒 Photos stay on the phone. Nothing is uploaded.</div>
+<div class="cap" id="cap"><div class="n" id="capN"></div><div class="t" id="capT"></div><div class="d" id="capD"></div></div>
+<div class="finger" id="finger"></div>
+</div></div>
+<div class="mcap" aria-live="polite"><div class="n" id="mN"></div><div class="t" id="mT"></div><div class="d" id="mD"></div></div>
+<div class="ctl"><button id="pp">▶ Play</button><button id="nb" aria-pressed="true">🔊 Voice on</button><span style="flex:1"></span><span id="stepBtns" style="display:flex;flex-wrap:wrap;gap:8px"></span></div>
+<div class="notes">
+<div><b>1 · Control screen</b>The operator's tablet, behind a PIN. One button per step, live numbers, and alerts if anything drops. A second tablet on its own hotspot is the backup.</div>
+<div><b>2 · Big screens</b>A laptop feeding the LED walls. It follows the server, and if the connection drops it plays the show by itself, so the crowd never sees an error.</div>
+<div><b>3 · Crowd phones</b>Opened from one QR code, no app to install. Rally photo first, then a Photo / Vote toggle. Every phone jumps to the next step when the operator taps.</div>
+<div><b>Rally photo frame</b>A selfie in an NDP frame: the logo, "Anniversary Rally" and "Geh Dem Performance". The front camera opens with the frame on and a 3-2-1 countdown. The photo is made on the phone, never uploaded, and shared straight to WhatsApp, Facebook or Instagram. The Photo tab stays open all night.</div>
+<div><b>Share to social media</b>The Share button opens the phone's own share menu, so it works with WhatsApp, Facebook, Instagram, TikTok, X, Status or any app installed. The caption is filled in with #GEHDEMPERFORMANCE. Every share is free reach for the party.</div>
+<div><b>Send to the big screen</b>A third button sends the photo to the big screens; people abroad use their own diaspora link. Photos wait for approval, 20 at a time, with a waiting line that sends automatically. The wall holds 15 venue and 5 diaspora photos. Nothing goes up unapproved, and all photos are deleted after the rally.</div>
+<div><b>Live fireworks (optional)</b>The victory moment is guaranteed by the timer, so it can be matched with real fireworks. The control screen shows the fireworks crew a countdown cue. The licensed crew fires on that cue; the system never sets off fireworks by itself.</div>
+<div><b>QR code, any time</b>The operator can put the QR code back on the big screens whenever they like: before the doors open, between speeches, after the replay. Latecomers get in all night.</div>
+<div><b>Live server</b>Sends the operator's taps out to every screen and adds up votes and shakes. Phones send small batched tallies, so thousands can join at once.</div>
+</div>
+<p class="credit" style="color:#6f6f78;font-size:12px;margin-top:14px">Narration voice: LibriTTS speaker 805 via Piper TTS, licensed CC BY 4.0.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);let tok=0;const sl=(ms,t)=>new Promise((a,b)=>setTimeout(()=>t===tok?a():b('x'),ms));
+function fit(){const vp=$('vp'),st=$('st');st.style.transform=`scale(${vp.clientWidth/1280})`}addEventListener('resize',fit);fit();
+function qr(){let c='';const n=21;for(let y=0;y<n;y++)for(let x=0;x<n;x++){const f=(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);const v=f?((x%14<7&&y%14<7)&&(Math.max(Math.abs((x%14)-3),Math.abs((y%14)-3))!==2)):(((x*7919+y*31)%13)<6);if(v)c+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}return `<svg viewBox="-1 -1 23 23" style="width:100%;height:100%;background:#fff;display:block"><g fill="#000">${c}</g></svg>`}
+const SELFIE=`<svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%"><defs><radialGradient id="sbg" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#3a4c8f"/><stop offset="1" stop-color="#07081a"/></radialGradient></defs><rect width="200" height="250" fill="url(#sbg)"/><circle cx="30" cy="70" r="8" fill="#F7D117" opacity=".7"/><circle cx="165" cy="60" r="10" fill="#4f8cff" opacity=".7"/><path d="M40 250 Q44 196 76 184 Q100 176 124 184 Q156 196 160 250Z" fill="#F7D117"/><rect x="88" y="150" width="24" height="32" rx="8" fill="#6b4a3a"/><ellipse cx="100" cy="128" rx="30" ry="36" fill="#7a5442"/><path d="M70 120 Q72 88 100 88 Q128 88 130 120 Q122 102 100 102 Q78 102 70 120Z" fill="#1a1110"/><path d="M86 140 Q100 152 114 140" fill="none" stroke="#2a1410" stroke-width="3" stroke-linecap="round"/><ellipse cx="89" cy="124" rx="3" ry="3.5" fill="#1a1110"/><ellipse cx="111" cy="124" rx="3" ry="3.5" fill="#1a1110"/></svg>`;
+const frame=()=>`<div class="fr"><div class="pin">${SELFIE}</div><img class="lg" src="img/ndp-logo.webp" alt=""><img class="an" src="img/anniversary-rally.webp" alt=""><img class="gd" src="img/geh-dem-performance.webp" alt=""></div>`;
+const APPS=[['WhatsApp','#25D366','WA'],['Facebook','#1877F2','FB'],['Instagram','linear-gradient(45deg,#f9a825,#e91e63,#7b1fa2)','IG'],['TikTok','#111;border:1px solid #444','TT'],['X','#111;border:1px solid #444','X'],['Status','#25D366','ST']];
+const tg=a=>`<div class="tg"><div class="${a==='p'?'a':''}">📷 PHOTO</div><div class="${a==='v'?'a':''}">✔ VOTE</div></div>`;
+const P={
+off:()=>`<div style="position:absolute;inset:0;background:#050507;display:flex;align-items:center;justify-content:center;color:#444;font-size:30px">⏻</div>`,
+scan:()=>`<div style="position:absolute;inset:8px;border:2px dashed #555;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:10px;color:#bbb;text-align:center"><div style="width:56px;height:56px">${qr()}</div>Scanning the big screen…</div>`,
+photo:()=>`<div style="position:absolute;left:6px;right:6px;top:24px">${frame()}</div><div style="position:absolute;left:0;right:0;top:182px;text-align:center;font-size:10px;font-weight:800">Tap to take your photo</div>${tg('p')}`,
+shot:()=>`<div style="position:absolute;left:6px;right:6px;top:24px">${frame()}</div><div style="position:absolute;left:8px;right:8px;top:178px;display:flex;gap:4px;font-size:9px;font-weight:800"><div style="flex:1;background:var(--y);color:#10204a;border-radius:8px;padding:5px 0;text-align:center">Save</div><div style="flex:1;background:#25D366;border-radius:8px;padding:5px 0;text-align:center">Share</div></div><div class="sendb" style="position:absolute;left:8px;right:8px;top:200px;border:1.5px solid var(--y);color:var(--y);border-radius:8px;padding:3px 0;text-align:center;font-size:8.5px;font-weight:800">📺 Send to big screen</div>${tg('p')}`,
+line:()=>`<div style="position:absolute;left:6px;right:6px;top:24px;opacity:.45">${frame()}</div><div style="position:absolute;left:8px;right:8px;top:70px;background:#1c1c24;border:2px solid var(--y);border-radius:10px;padding:8px 4px;text-align:center"><div style="font-size:8.5px;color:#ccc">You're in line</div><div class="big pqn" style="font-size:30px;color:var(--y);line-height:1">#12</div><div style="font-size:7.5px;color:#aaa">Keep this page open. It sends automatically.</div></div>${tg('p')}`,
+sent:()=>`<div style="position:absolute;left:6px;right:6px;top:24px">${frame()}</div><div style="position:absolute;left:8px;right:8px;top:180px;background:#1f2a55;border:1.5px solid var(--y);border-radius:8px;padding:5px 2px;text-align:center;font-size:8.5px;font-weight:800;animation:pop .35s both">Sent ✓ Waiting for approval</div>${tg('p')}`,
+vote:()=>`<div style="position:absolute;inset:18px 8px 40px;background:var(--y);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#2a2400"><div class="big" style="font-size:30px">VOTE</div><img src="img/ndp-logo.webp" alt="" style="width:62px;margin-top:4px"></div>${tg('v')}`,
+voted:()=>`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center"><div style="width:52px;height:52px;border-radius:50%;background:var(--y);display:flex;align-items:center;justify-content:center;animation:pop .35s both"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#2a2400" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div><div class="big" style="font-size:18px">VOTE COUNTED!</div></div>${tg('v')}`,
+shake:()=>`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,#3a3000,#0b0b0f 70%)"><div class="big" style="font-size:34px;color:var(--y)">SHAKE!</div><div style="font-size:9px;color:#ccc">Every shake counts</div></div>`,
+share:()=>`<div style="position:absolute;inset:0;background:#0b0b0f"><div style="position:absolute;left:10px;right:10px;top:22px;opacity:.5">${frame()}</div><div style="position:absolute;left:0;right:0;bottom:0;background:#1f1f27;border-radius:12px 12px 0 0;padding:7px 6px 8px;animation:shup .35s both"><div style="width:26px;height:3px;border-radius:2px;background:#555;margin:0 auto 5px"></div><div style="font-size:7.5px;color:#ddd;background:#2c2c36;border-radius:6px;padding:3px 5px;margin-bottom:6px">#GEHDEMPERFORMANCE 💛💙</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px 2px;text-align:center;font-size:6.5px;color:#ccc">${APPS.map(a=>`<div><div class="app" style="background:${a[1]}">${a[2]}</div>${a[0]}</div>`).join('')}</div></div></div>`,
+shared:()=>`<div style="position:absolute;left:6px;right:6px;top:24px">${frame()}</div><div style="position:absolute;left:10px;right:10px;top:180px;background:#25D366;border-radius:10px;padding:6px;text-align:center;font-size:10px;font-weight:800;animation:pop .35s both">Shared ✓</div>${tg('p')}`,
+iam:()=>`<div class="ls"><img src="img/ndp-logo.webp" alt="" style="width:58px"><div class="iam" style="margin-top:6px">I AM<br>NDP!</div></div>`,
+pulse:()=>`<div style="position:absolute;inset:0;background:var(--y);display:flex;align-items:center;justify-content:center;animation:pulse 1s infinite"><img src="img/ndp-logo.webp" alt="" style="width:60px"></div>`
+};
+const phs=[0,1,2].map(i=>$('p'+i));$('pcf').innerHTML=frame();$('scf').innerHTML=P.share();
+function setP(i,k){phs[i].querySelector('.in').innerHTML=P[k]()}
+function setAll(k){phs.forEach((_,i)=>setP(i,k))}
+const SC={idle:'photo',qr:'photo',vote:'vote',shake:'shake',victory:'victory',replay:'replay',qronly:'qronly'};let bsCur=null,bsWait=null;
+const BV=$('bsv');BV.addEventListener('ended',()=>{if(bsWait){const w=bsWait;bsWait=null;w()}});
+function bsOff(){bsCur=null;bsWait=null;BV.removeAttribute('src');BV.load()}
+function bs(k,force){const n=SC[k];if(n==null)return;if(!force&&bsCur===n)return;bsCur=n;BV.src='video/'+n+'.mp4';BV.currentTime=0;const p=BV.play();if(p&&p.catch)p.catch(()=>{})}
+function bsDone(t,max){return new Promise((a,b)=>{bsWait=a;setTimeout(()=>{if(bsWait===a)bsWait=null;if(t===tok)a();else b('x')},max)})}
+// dots along paths
+const st=$('st');
+function travel(pathId,cls,dur,rev){const p=$(pathId),L=p.getTotalLength(),d=document.createElement('i');d.className='dot '+cls;st.appendChild(d);const t0=performance.now();
+return new Promise(res=>{(function f(n){const k=Math.min(1,(n-t0)/dur),pt=p.getPointAtLength((rev?1-k:k)*L);d.style.left=pt.x+'px';d.style.top=pt.y+'px';if(k<1&&d.isConnected)requestAnimationFrame(f);else{d.remove();res()}})(t0)})}
+async function command(b,t,target){await tap(b,t);await travel('w_c','cmd',600);$('srv').classList.add('hot');const ps=[travel('w_b','cmd',500)];if(target!=='bs')[0,1,2].forEach(i=>ps.push(travel('w_p'+i,'cmd',650,true)));await Promise.all(ps)}
+let upIv=null;function upStream(on,rate){clearInterval(upIv);upIv=null;if(on)upIv=setInterval(()=>{const i=Math.floor(Math.random()*3);if(!phs[i].querySelector('.off.show'))travel('w_p'+i,'up',700)},rate||180)}
+async function tap(b,t){const btn=document.querySelector(`.cb[data-b="${b}"]`),f=$('finger');const r=btn.getBoundingClientRect(),s=st.getBoundingClientRect(),sc=s.width/1280;
+f.style.opacity=1;f.style.left=((r.right-s.left)/sc-46)+'px';f.style.top=((r.top-s.top)/sc+(r.height/sc-46)/2)+'px';await sl(550,t);
+document.querySelectorAll('.cb').forEach(e=>{if(e.classList.contains('on')){e.classList.remove('on');e.classList.add('done')}});btn.classList.add('on');btn.insertAdjacentHTML('beforeend','<i class="rip"></i>');setTimeout(()=>{const r=btn.querySelector('.rip');r&&r.remove()},700);await sl(250,t);f.style.opacity=0}
+function count(id,to,ms,fmt){const e=$(id),from=parseInt((e.textContent||'0').replace(/\D/g,''))||0,t0=performance.now();(function f(n){const k=Math.min(1,(n-t0)/ms),v=Math.round(from+(to-from)*k);e.textContent=fmt?fmt(v):v.toLocaleString();if(k<1)requestAnimationFrame(f)})(t0)}
+function fireworks(t,ms){const c=$('fwc'),g=c.getContext('2d'),P=[],t0=performance.now();const cols=['#F7D117','#ffe680','#4f8cff','#ffffff','#2f6bff'];let nb=0;
+function burst(){const x=120+Math.random()*1040,y=60+Math.random()*200,col=cols[Math.floor(Math.random()*cols.length)],n=70;for(let i=0;i<n;i++){const a=Math.PI*2*i/n,v=2+Math.random()*3.2;P.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:1,c:col})}}
+(function f(now){if(t!==tok){g.clearRect(0,0,1280,720);return}const el=now-t0;if(el<ms&&el/380>nb){nb++;burst();if(Math.random()<.5)burst()}
+g.globalCompositeOperation='destination-out';g.fillStyle='rgba(0,0,0,.25)';g.fillRect(0,0,1280,720);g.globalCompositeOperation='lighter';
+for(const p of P){p.x+=p.vx;p.y+=p.vy;p.vy+=.045;p.vx*=.985;p.vy*=.985;p.l-=.013;if(p.l>0){g.globalAlpha=p.l;g.fillStyle=p.c;g.beginPath();g.arc(p.x,p.y,2,0,6.283);g.fill()}}
+g.globalAlpha=1;for(let i=P.length-1;i>=0;i--)if(P[i].l<=0)P.splice(i,1);if(el<ms+2500)requestAnimationFrame(f);else g.clearRect(0,0,1280,720)})(t0)}
+const WALL=[['At the rally',0],['Watching from Toronto',200],['At the rally',40],['At the rally',300],['Watching from London',120],['At the rally',260]];
+function mini(h){return `<div class="fr" style="padding:6%"><div class="pin" style="filter:hue-rotate(${h}deg)">${SELFIE}</div><img class="lg" src="img/ndp-logo.webp" alt=""><img class="gd" src="img/geh-dem-performance.webp" alt=""></div>`}
+function wall(n,newIdx){$('pwg').innerHTML=WALL.slice(0,n).map((w,i)=>`<div class="pwc${i===newIdx?' new':''}">${mini(w[1])}<div class="lb">${w[0].startsWith('Watching')?'🌍 ':'📍 '}${w[0]}</div></div>`).join('')}
+function cap(n,tt,d){$('capN').textContent='STEP '+n;$('capT').textContent=tt;$('capD').textContent=d;$('mN').textContent='STEP '+n;$('mT').textContent=tt;$('mD').textContent=d}
+function energy(arr,id){$(id||'energy').innerHTML=arr.map(v=>`<i style="height:${Math.max(4,v)}%"></i>`).join('')}
+function reset(){upStream(false);document.querySelectorAll('.dot').forEach(d=>d.remove());document.querySelectorAll('.cb').forEach(e=>e.className='cb');$('srv').classList.remove('hot');$('alert').className='alert';$('rep').className='rep';$('pill').className='pill';$('pill').textContent='● Live';
+phs.forEach(p=>{p.classList.remove('shaking');p.querySelector('.off').classList.remove('show')});$('lock').style.opacity=0;$('pcall').classList.remove('show');$('crew').className='crew';$('fwcue').classList.remove('show');$('pq').classList.remove('show');$('pwall').classList.remove('show');$('dia').classList.remove('show');$('scall').classList.remove('show');$('energy').innerHTML='';$('finger').style.opacity=0}
+function base(n){// state at start of step n
+reset();const s=[
+()=>{['kPh','kVo','kPo'].forEach(k=>$(k).textContent='0');bsOff();setAll('off')},
+()=>{$('kPh').textContent='4,812';$('kVo').textContent='0';$('kPo').textContent='0';setAll('photo');document.querySelector('.cb[data-b="0"]').classList.add('on')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='0';setAll('shot');document.querySelector('.cb[data-b="0"]').classList.add('on')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='0';setAll('shot');document.querySelector('.cb[data-b="0"]').classList.add('on')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='0';setAll('shot');document.querySelector('.cb[data-b="0"]').classList.add('on')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';setAll('voted');['0'].forEach(b=>document.querySelector(`.cb[data-b="${b}"]`).classList.add('done'));document.querySelector('.cb[data-b="1"]').classList.add('on')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';setAll('shake');['0','1'].forEach(b=>document.querySelector(`.cb[data-b="${b}"]`).classList.add('done'));document.querySelector('.cb[data-b="2"]').classList.add('on');},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';setAll('iam');['0','1','2'].forEach(b=>document.querySelector(`.cb[data-b="${b}"]`).classList.add('done'));document.querySelector('.cb[data-b="3"]').classList.add('on')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';bs('idle');setAll('photo')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,420';$('kVo').textContent='4,390';bs('idle');setAll('photo')}];s[n]()}
+const STEPS=[
+async t=>{cap(1,'Doors open','The operator taps Open photo. The big screens show one QR code. The crowd scans it: no app, the page opens in the phone\'s browser.');
+await sl(600,t);await command(0,t,'bs');bs('qr',true);await sl(900,t);
+for(let i=0;i<3;i++){setP(i,'scan');await sl(350,t)}await sl(700,t);
+for(let i=0;i<3;i++){setP(i,'photo');travel('w_p'+i,'up',700);await sl(300,t)}upStream(true,260);count('kPh',4812,2600);await sl(2800,t);upStream(false);await sl(900,t)},
+async t=>{cap(2,'Rally photo first','Each phone opens straight on the NDP photo frame. The front camera opens with the frame on, and a 3-2-1 countdown takes the shot. The photo never leaves the phone.');
+bs('qr');$('lock').style.opacity=1;$('pcall').classList.add('show');await sl(900,t);for(let i=0;i<3;i++){phs[i].insertAdjacentHTML('beforeend','<div style="position:absolute;inset:0;background:#fff;z-index:20;animation:fade .5s reverse forwards"></div>');const l=phs[i].lastElementChild;setTimeout(()=>l.remove(),500);setP(i,'shot');await sl(500,t)}
+count('kPo',3106,2200);await sl(2600,t)},
+async t=>{cap(3,'Share it','One tap on Share opens the phone\'s own share menu: WhatsApp, Facebook, Instagram, TikTok, X or Status. The caption comes filled in with #GEHDEMPERFORMANCE.');
+bs('qr');$('scall').classList.add('show');await sl(900,t);for(let i=0;i<3;i++){setP(i,'share');await sl(350,t)}await sl(2200,t);
+const cols=['#25D366','#1877F2','#e91e63'],names=['WhatsApp','Facebook','Instagram'];for(let i=0;i<3;i++){setP(i,'shared');const r=phs[i];const c=document.createElement('div');c.className='chip';c.style.background=cols[i];c.textContent='+ '+names[i];c.style.left=(parseInt(r.style.left)+14)+'px';c.style.top='395px';st.appendChild(c);setTimeout(()=>c.remove(),1700);await sl(500,t)}
+await sl(1800,t)},
+async t=>{cap(4,'Send to the big screen','Next to Save and Share: Send to big screen. People at home use their own diaspora link. Every photo waits for approval, 20 at a time, with a waiting line that sends automatically. The wall holds 15 from the venue and 5 from the diaspora.');
+bs('qr');await sl(500,t);document.querySelectorAll('.sendb').forEach(b=>{b.style.background='var(--y)';b.style.color='#10204a'});await sl(700,t);
+$('pq').classList.add('show');$('pqN').textContent='17';$('pqL').textContent='0';
+setP(0,'sent');travel('w_p0','up',700);await sl(400,t);setP(1,'line');$('pqL').textContent='12';await sl(400,t);setP(2,'sent');travel('w_p2','up',700);$('pqN').textContent='19';
+$('dia').classList.add('show');await sl(500,t);await travel('w_d','up',700);$('pqN').textContent='20';await sl(500,t);
+for(const [id,ix] of [['pq1',0],['pq2',1]]){const f=$('finger'),r=$(id).getBoundingClientRect(),S=st.getBoundingClientRect(),sc=S.width/1280;f.style.opacity=1;f.style.left=((r.right-S.left)/sc-34)+'px';f.style.top=((r.top-S.top)/sc-8)+'px';await sl(500,t);$(id).classList.add('ap');$('pqN').textContent=String(+$('pqN').textContent-1);await sl(300,t);f.style.opacity=0;
+await travel('w_c','cmd',500);await travel('w_b','cmd',450);if(id==='pq1'){$('pqV').textContent='13';$('pwall').classList.add('show');wall(5,4)}else{$('pqD').textContent='5';wall(6,5)}await sl(500,t)}
+let n=12;const L=phs[1].querySelector('.pqn');while(n>1){await sl(160,t);n--;const e=phs[1].querySelector('.pqn');if(e)e.textContent='#'+n}setP(1,'sent');travel('w_p1','up',700);await sl(2000,t)},
+async t=>{cap(5,'Start the vote','One tap. The big screens switch to the 60-second countdown and every phone jumps to VOTE at the same moment. Each tap is counted.');
+$('lock').style.opacity=0;await sl(400,t);await command(1,t);bs('vote',true);const d=bsDone(t,9000);setAll('vote');await sl(700,t);
+for(let i=0;i<3;i++){await sl(450,t);setP(i,'voted');travel('w_p'+i,'up',700)}upStream(true,200);count('kVo',4390,2600);await d;upStream(false);await sl(300,t)},
+async t=>{cap(6,'Shake!','The phones send their shakes up in small batches. The server adds them up and the big-screen meter climbs live. Near the top: the final surge.');
+await command(2,t);bs('shake',true);let done=false;bsDone(t,30000).then(()=>done=true,()=>{});setAll('shake');phs.forEach(p=>p.classList.add('shaking'));upStream(true,70);
+const E=[];let k=0;while(!done){await sl(160,t);k++;E.push(Math.min(95,25+k*1.1+Math.random()*12));energy(E.slice(-26))}
+phs.forEach(p=>p.classList.remove('shaking'));upStream(false);await sl(200,t)},
+async t=>{cap(7,'Maximum victory','The meter smashes through MAX and the ULP gauge fails. Every phone joins the light show. Because the timing is guaranteed, it can be matched with live fireworks: the control screen gives the fireworks crew a countdown cue so the sky lights up on the same moment.');
+$('crew').classList.add('show');await sl(900,t);const cue=$('fwcue');cue.classList.add('show');
+for(const n of ['3','2','1']){$('fwn').textContent=n;$('fwn').style.animation='none';void $('fwn').offsetWidth;$('fwn').style.animation='pop .4s both';await sl(800,t)}
+$('fwn').textContent='FIRE!';travel('w_f','cmd',500);await sl(500,t);$('crew').classList.add('fired');
+await command(3,t);bs('victory',true);setAll('iam');cue.classList.remove('show');fireworks(t,5200);await bsDone(t,20000);await sl(400,t)},
+async t=>{cap(8,'Replay, then the QR code again','The replay shows the meter maxing out in slow motion. Then the operator can send the QR code back to the big screens at any point in the night, so latecomers can scan and get their rally photo.');
+await command(4,t);bs('replay',true);setAll('pulse');await bsDone(t,20000);setAll('photo');await sl(700,t);
+await tap(5,t);await travel('w_c','cmd',600);await travel('w_b','cmd',500);bs('qronly',true);await sl(1200,t);
+for(let i=0;i<2;i++){travel('w_p'+(i+1),'up',700);await sl(400,t)}count('kPh',5390,2000);await sl(2600,t)},
+async t=>{cap(9,'If a connection drops','A phone that loses signal shows a banner and keeps working. It catches up when it\'s back. The control screen warns the operator; the big screens never show an error.');
+bs('qr');await sl(500,t);phs[2].querySelector('.off').classList.add('show');$('pill').className='pill warn';$('pill').textContent='● 12% offline';const a=$('alert');a.className='alert warn show';a.textContent='⚠ 12% of phones offline. Give the MC a moment or press Skip to victory.';
+await sl(3200,t);phs[2].querySelector('.off').classList.remove('show');a.className='alert ok show';a.textContent='✓ Phones back online';$('pill').className='pill';$('pill').textContent='● Live';travel('w_p2','up',700);await sl(1800,t);a.className='alert'},
+async t=>{cap(10,'The morning-after report','Counts only, never names, numbers or photos. The party gets a short report: turnout, votes, photos, shares, the crowd\'s energy second by second, and diaspora engagement: how many took part from abroad, and where they were watching from.');
+bs('qr');await sl(600,t);$('rep').className='rep show';count('r1',6240,1500);count('r2',91,1500,v=>v+'%');count('r3',3420,1500);count('r4',1180,1500);const E=[];for(let k=0;k<40;k++){E.push(15+Math.min(80,k*2.2)+Math.random()*12);energy(E,'repE');await sl(45,t)}await sl(3000,t)}];
+const sb=$('stepBtns');['Doors open','Photo','Share','Send to screen','Vote','Shake','Victory','Replay + QR','Offline','Report'].forEach((n,i)=>{const b=document.createElement('button');b.textContent=(i+1)+' '+n;b.onclick=()=>run(i,false);sb.appendChild(b)});
+function mark(i){[...sb.children].forEach((b,k)=>b.classList.toggle('on',k===i));const a=sb.children[i];if(a&&sb.scrollWidth>sb.clientWidth)sb.scrollTo({left:a.offsetLeft-sb.offsetLeft-8,behavior:'smooth'})}
+const NA=new Audio();NA.preload='auto';let narrOn=true,narrEnd=null;
+function narrStop(){try{NA.pause()}catch(_){}if(narrEnd){narrEnd();narrEnd=null}}
+function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promise(res=>{narrEnd=res;NA.src='audio/step'+n+'.mp3';NA.onended=()=>{narrEnd=null;res()};NA.onerror=()=>{narrEnd=null;res()};const p=NA.play();if(p&&p.catch)p.catch(()=>{narrEnd=null;res()})})}
+$('nb').onclick=()=>{narrOn=!narrOn;$('nb').textContent=narrOn?'🔊 Voice on':'🔇 Voice off';$('nb').setAttribute('aria-pressed',narrOn);if(!narrOn)narrStop()};
+let playing=false;
+async function run(i,all){const t=++tok;playing=all;$('pp').textContent=all?'❚❚ Pause':'▶ Play all';try{for(let k=i;k<STEPS.length;k++){base(k);mark(k);const np=narr(k+1);await STEPS[k](t);await np;if(t!==tok)throw 'x';if(!all)break;await sl(700,t)}}catch(e){if(e!=='x'){console.error(e);window.__showErr&&window.__showErr('STEP: '+(e&&e.stack||e))}}if(t===tok){playing=false;$('pp').textContent='▶ Play again'}}
+$('pp').onclick=()=>{if(playing){tok++;playing=false;upStream(false);narrStop();$('pp').textContent='▶ Play';}else run(0,true)};
+base(0);mark(0);cap(1,'Doors open','Press Play to watch the whole night, or pick a step.');bs('qr',true);
+</script>
+</body>
+</html>
