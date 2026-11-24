@@ -181,6 +181,21 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
 .prf .pfx{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:12px}.prf .pfx label{display:flex;gap:6px;align-items:center;color:#fff}.prf .pfx input{width:auto}
 .prf .go2{padding:10px;border-radius:9px;border:0;background:var(--y);color:#10204a;font:800 13px Inter,sans-serif;cursor:pointer}
 .prf[hidden],.pane[hidden]{display:none!important}
+
+.scrs{margin-top:10px}.scrh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.scrh span{font:800 12px Inter,sans-serif;letter-spacing:1px;color:var(--mut);text-transform:uppercase}
+.scrh .lo{padding:5px 10px;font-size:11px}
+.srow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;align-items:center;padding:5px 0;border-top:1px solid #23232c}
+.srow .sn{display:flex;align-items:center;gap:6px;min-width:0;font:800 12px Inter,sans-serif;color:#fff}.srow .sn b{color:var(--y)}.srow .sn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.srow .sn button{border:0;background:transparent;color:var(--mut);cursor:pointer;font-size:12px;padding:2px}
+.srow .dot{width:9px;height:9px;flex:none;border-radius:50%;background:#55555f}.srow .dot.on{background:#4be38a;box-shadow:0 0 6px #4be38a}
+.srow .md{display:flex;gap:3px}.srow .md button{padding:6px 7px;border-radius:7px;border:1px solid #33333d;background:#22222c;color:#fff;font:800 11px Inter,sans-serif;cursor:pointer}
+.srow .md button.on{background:var(--y);color:#10204a;border-color:var(--y)}.srow .md button[data-mode=green].on{background:#00B140;color:#fff;border-color:#00B140}.srow .md button.arm{background:#5a4a05;border-color:var(--y)}
+.srow.off .md{opacity:.35;pointer-events:none}
+.srow select{padding:6px;border-radius:7px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:700 11px Inter,sans-serif;max-width:118px}
+.srow select.own{border-color:#4be38a;color:#c8ffd9}
+.srow .ed{grid-column:1/-1;display:flex;gap:6px}.srow .ed input{flex:1;min-width:0;padding:7px;border-radius:8px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:700 12px Inter,sans-serif}
+.srow .ed button{padding:7px 10px;border-radius:8px;border:0;font:800 11px Inter,sans-serif;cursor:pointer;background:#2c2c36;color:#fff}.srow .ed .rm{background:#5a1a1a}
+.srow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"sn ct" "md md"}.srow .sn{grid-area:sn}.srow select{grid-area:ct;max-width:none}.srow .md{grid-area:md}.srow .md button{flex:1}
 </style>
 </head>
 <body>
@@ -232,19 +247,17 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
         <div class="mon ml"><span>LIVE <i>on the LED wall</i></span><div class="pv" id="pv"><iframe id="pvf" title="Live: what's on the big screen" src="screen.html?preview"></iframe></div></div>
       </div>
       <div class="takes" id="takes"><button id="tkCut" disabled>TAKE</button><button id="tkFade" disabled>FADE</button><button id="tkClr" disabled>Clear</button></div>
-      <div class="op-only"><div class="outsel"><span>Big screen outputs</span>
-      <div class="orow" data-o="A"><div class="olab"><i class="dot" id="dotA"></i>Output A</div><div class="seg" id="outsel"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
-      <div class="orow" data-o="B" id="rowB"><div class="olab"><i class="dot" id="dotB"></i>Output B</div><div class="seg" id="outselB"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
-      <small id="outnote">Green screen shows emojis on green for the AV crew to key over the camera. Output B unlocks when a big screen marked B is connected (press S on that screen).</small></div></div>
+      <div class="op-only scrs"><div class="scrh"><span>Big screens</span><button id="scrAdd" class="lo">+ Add screen</button></div><div id="scrList"></div></div>
+
+    </div>
+    <div class="card col">
+      <h2>Photo queue · approve before it goes up</h2>
+      <div class="q" id="q"><p class="mut">No photos waiting.</p></div>
       <div class="onbig">      <h2 style="margin-top:12px">On the big screen</h2>
       <div class="mut">📍 Venue <b id="wv">0</b>/15</div><div class="slots" id="slv"></div>
       <div class="mut">🌍 Diaspora <b id="wd">0</b>/5</div><div class="slots" id="sld"></div>
       <div class="wall" id="wall"></div>
       <p class="mut">Tap a photo to spotlight it or take it down.</p></div>
-    </div>
-    <div class="card col">
-      <h2>Photo queue · approve before it goes up</h2>
-      <div class="q" id="q"><p class="mut">No photos waiting.</p></div>
 
     </div>
     <div class="card col ann op-only">
@@ -359,10 +372,7 @@ function render(d){ST=d.state;try{autoTick(d)}catch(e){}try{annRender()}catch(e)
  $('sVo').textContent=(s.votes||0).toLocaleString();$('sSh').textContent=(s.shakes||0).toLocaleString();$('sQ').textContent=(s.queue||0)+'/20';$('sL').textContent=s.line||0;
  $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
  if(!settingsDirty){$('voteS').value=ST.vote_seconds;$('shakeS').value=ST.shake_seconds;$('paused').checked=ST.sending_paused;$('reacts').checked=!!ST.reactions_open;$('sonic').checked=!!ST.sonic_on;$('sonicHz').value=String(ST.sonic_hz||18500)}
- document.querySelectorAll('#outsel button').forEach(b=>{b.classList.toggle('on',b.dataset.out===(ST.output_mode||'show'));if(b.classList.contains('on'))b.classList.remove('arm')});
- document.querySelectorAll('#outselB button').forEach(b=>{b.classList.toggle('on',b.dataset.out===(ST.output_mode_b||'show'));if(b.classList.contains('on'))b.classList.remove('arm')});
- {const sc=d.screens||{};$('dotA').classList.toggle('on',!!sc.A);$('dotB').classList.toggle('on',!!sc.B);$('rowB').classList.toggle('off',!sc.B);
-  if(window.__bWas&&!sc.B)alertBar('Output B disconnected. It keeps its last setting and picks up again when it reconnects.');if(window.__aWas&&!sc.A)alertBar('Output A (main big screen) is not connected!');window.__bWas=!!sc.B;window.__aWas=!!sc.A}
+ try{scrRender(d)}catch(e){console.error(e)}
  // fireworks cue: counts down to the moment the meter smashes MAX
  const end=Date.parse(ST.scene_started_at)+ST.shake_seconds*1000,left=(end-d.now)/1000;
  if(ST.scene==='shake'&&left>-3){$('cue').classList.add('show');$('cueN').textContent=left>10?Math.ceil(left)+'s':left>0?Math.ceil(left):'FIRE!'}else $('cue').classList.remove('show');
@@ -439,6 +449,33 @@ $('aList').addEventListener('click',async e=>{const sh=e.target.dataset.show,dl=
 function annRender(){const t=ST&&ST.ann_text;const lv=$('aLive');if(t){lv.className='live show '+(ST.ann_style==='urgent'?'urgent':'notice');$('aLiveT').textContent='Showing now ('+({both:'screens + phones',screens:'screens',phones:'phones'}[ST.ann_where]||'')+'): '+t}else lv.className='live'}
 
 
+
+// ---------- big screens: up to 8 (A–H), each follows the show or runs its own content ----------
+const OWN={wall:'Photo wall',qronly:'QR code only',photo:'Open photo',replay:'Replay',off:'Screens off'};
+async function scrRefresh(){try{render(await call({a:'overview'}))}catch(e){}}
+let SCR=[],scrKey='',scrEdit=null,scrWas={};
+function scrRender(d){const L=d.screen_list||[];SCR=L;
+  L.forEach(x=>{if(scrWas[x.out]&&!x.online)alertBar((x.out==='A'?'The main big screen':'Screen '+x.out+' ('+x.name+')')+' disconnected. It keeps its settings and picks up again when it reconnects.');scrWas[x.out]=x.online});
+  const k=JSON.stringify(L)+'|'+scrEdit;if(k===scrKey)return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#scrList')&&scrEdit)return;scrKey=k;
+  $('scrList').innerHTML=L.map(x=>{const cur=x.follow||!x.scene?'follow':(OWN[x.scene]?x.scene:'follow');
+    return `<div class="srow${x.online||x.out==='A'?'':' off'}" data-out="${x.out}"><div class="sn"><i class="dot${x.online?' on':''}"></i><b>${x.out}</b><span title="${esc(x.name)}">${esc(x.name||'Screen '+x.out)}</span><button data-act="ed" aria-label="Rename">✎</button></div>
+    <div class="md">${['show','emoji','green'].map(m=>`<button data-mode="${m}" class="${x.mode===m?'on':''}">${{show:'Show',emoji:'Emojis',green:'Green'}[m]}</button>`).join('')}</div>
+    <select data-act="ct" class="${cur==='follow'?'':'own'}"><option value="follow">Follows show</option>${Object.keys(OWN).map(o=>`<option value="${o}"${cur===o?' selected':''}>${OWN[o]}</option>`).join('')}</select>
+    ${scrEdit===x.out?`<div class="ed"><input value="${esc(x.name)}" maxlength="30" aria-label="Screen name"><button data-act="sv">Save</button>${x.out!=='A'?'<button data-act="rm" class="rm">Remove</button>':''}<button data-act="cx">Cancel</button></div>`:''}</div>`}).join('')||'<p class="mut">No screens yet.</p>'}
+let scrArm=null;
+$('scrList').addEventListener('click',async e=>{const row=e.target.closest('.srow');if(!row)return;const out=row.dataset.out,b=e.target.closest('button');if(!b)return;
+  if(b.dataset.mode){if(b.classList.contains('on'))return;
+    if(b.dataset.mode==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(scrArm);scrArm=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green'},3000);return}
+    try{await call({a:'screen_set',out,mode:b.dataset.mode});row.querySelectorAll('.md button').forEach(x=>{x.classList.toggle('on',x===b);x.classList.remove('arm');if(x.dataset.mode==='green')x.textContent='Green'})}catch(x){alertBar(x===409?'Screen '+out+' is not connected yet.':'Couldn\'t switch that screen.')}return}
+  const act=b.dataset.act;
+  if(act==='ed'){scrEdit=out;scrKey='';scrRender({screen_list:SCR});const i=row.parentNode.querySelector('.srow[data-out="'+out+'"] input');if(i)i.focus();return}
+  if(act==='cx'){scrEdit=null;scrKey='';scrRender({screen_list:SCR});return}
+  if(act==='sv'){const v=row.querySelector('input').value.trim();try{await call({a:'screen_set',out,name:v});scrEdit=null;scrRefresh()}catch(x){alertBar('Couldn\'t rename that screen.')}return}
+  if(act==='rm'){if(b.textContent!=='Sure?'){b.textContent='Sure?';setTimeout(()=>{if(b.isConnected)b.textContent='Remove'},3000);return}try{await call({a:'screen_remove',out});scrEdit=null;scrRefresh()}catch(x){alertBar('Couldn\'t remove that screen.')}}});
+$('scrList').addEventListener('change',async e=>{const sel=e.target.closest('select[data-act=ct]');if(!sel)return;const out=sel.closest('.srow').dataset.out,v=sel.value;
+  try{await call(v==='follow'?{a:'screen_set',out,follow:true}:{a:'screen_set',out,scene:v});sel.classList.toggle('own',v!=='follow');scrRefresh()}catch(x){alertBar('Couldn\'t change that screen.')}});
+$('scrList').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.ed input')){e.preventDefault();e.target.closest('.srow').querySelector('[data-act=sv]').click()}});
+$('scrAdd').onclick=async()=>{try{const r=await call({a:'screen_add'});scrEdit=r.out;scrRefresh()}catch(x){alertBar('All 8 screens are in use, or the server didn\'t answer.')}};
 // ---------- preview / live ----------
 // Direct: buttons go straight to the LED wall. Preview: buttons cue into PREVIEW; TAKE (cut) or FADE sends it live.
 // Urgent announcements and the one-button sequence always go straight to live.
@@ -543,11 +580,6 @@ $('prD').onclick=()=>{if(!PR)return;const r=PR,L=[['Photo report','generated '+n
   const csv=L.map(a=>a.map(v=>{v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')).join('\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='rally-photo-report-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};
 setInterval(photoReport,15000);
-let armT=null;function outClick(sel,key){return e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
- if(b.dataset.out==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green screen'},3000);return}
- clearTimeout(armT);document.querySelectorAll(sel+' button').forEach(x=>{x.classList.remove('arm');if(x.dataset.out==='green')x.textContent='Green screen'});
- call({a:'settings',[key]:b.dataset.out}).then(()=>{document.querySelectorAll(sel+' button').forEach(x=>x.classList.toggle('on',x===b))}).catch(x=>alertBar(x===409?'Output B is not connected yet.':'Couldn\'t switch that output.'))}}
-$('outsel').onclick=outClick('#outsel','output');$('outselB').onclick=outClick('#outselB','output_b');
 $('reacts').onchange=()=>call({a:'settings',reactions:$('reacts').checked}).catch(()=>{});
 $('sonic').onchange=()=>call({a:'settings',sonic:$('sonic').checked}).catch(()=>{});
 $('sonicHz').onchange=()=>call({a:'settings',sonic_hz:+$('sonicHz').value}).catch(()=>{});
