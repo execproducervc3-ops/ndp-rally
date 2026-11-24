@@ -154,8 +154,8 @@ body>*:not(#scal):not(#startov){display:none!important}
 .pw{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,#1f2a55,#05060c 70%);display:flex;flex-direction:column;padding:2.2% 3%}
 .pwh{display:flex;justify-content:space-between;align-items:baseline;font-family:Anton,Impact,sans-serif;color:#F7D117;font-size:34px;letter-spacing:1px}
 .pwh span:last-child{color:#c9d6ff;font-size:24px}
-.pwg{flex:1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px;align-items:center;margin-top:8px}
-.pwt{position:relative;transition:transform .5s}
+.pwg{flex:1;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:18px;margin-top:8px}
+.pwt{position:relative;flex:none}
 .pwt img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:6px;display:block;box-shadow:0 10px 24px #000}
 .pwt .lb{margin-top:6px;font-size:12px;font-weight:800;text-align:center;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pwt.new:after{content:'NEW';position:absolute;top:-8px;right:-8px;background:#ff3b3b;color:#fff;font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;animation:pulse .6s infinite}
@@ -2716,7 +2716,7 @@ async function sWall(t){lightShow(false);beat(false);scr.innerHTML=`<div class="
 let off=0,shownIds='';while(true){const W=LIVE.wall;const g=$('pwg');if(!g)return;
 if(!W.length){g.innerHTML='<div style="grid-column:1/-1;text-align:center;font-size:28px;color:#c9c9d0">Send your rally photo to the big screen!</div>';await sl(1500,t);continue}
 const n=Math.min(6,W.length),pick=[];for(let k=0;k<n;k++)pick.push(W[(off+k)%W.length]);const ids=pick.map(p=>p.id).join();
-if(ids!==shownIds){g.innerHTML=pick.map((p,k)=>wallTile(p,(srvNow()-p.at<20000?'new ':'')+(shownIds.indexOf(p.id)<0?'in':''))).join('');shownIds=ids}
+if(ids!==shownIds){const tw=n<=1?'30%':n<=2?'27%':n<=3?'24%':n<=4?'20%':'14.5%';g.innerHTML=pick.map((p,k)=>wallTile(p,(srvNow()-p.at<20000?'new ':'')+(shownIds.indexOf(p.id)<0?'in':''))).join('');g.querySelectorAll('.pwt').forEach(e=>e.style.width=tw);shownIds=ids}
 await sl(4500,t);if(W.length>6)off=(off+1)%W.length}}
 async function sSpot(t){lightShow(false);const p=LIVE.wall.find(x=>x.id===LIVE.spotlight)||LIVE.wall[0];if(!p){return sWall(t)}
 const where=p.grp==='diaspora'?('Watching from '+(p.city||'abroad')):'At the rally';
@@ -2745,7 +2745,7 @@ poll();
 // backup: if the server is unreachable, the laptop keyboard can run the show locally
 addEventListener('keydown',e=>{if(!started)return;const m={'1':'photo','2':'vote','3':'shake','4':'victory','5':'replay','6':'wall','q':'qronly','0':'off'}[e.key.toLowerCase()];if(!m)return;
 LIVE.at=srvNow();runScene(m,LIVE.seq+1000+Math.floor(Math.random()*1e6))});
-$('startov').addEventListener('click',()=>{started=true;init();on=true;try{ctx.resume()}catch(e){}$('startov').remove();try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}catch(e){}runScene(LIVE.scene,LIVE.seq)});
+const SO=$('startov');if(SO)SO.addEventListener('click',()=>{started=true;init();on=true;try{ctx.resume()}catch(e){}$('startov').remove();try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}catch(e){}runScene(LIVE.scene,LIVE.seq)});
 
 const S=[s0,s1,s2,s3,s4];
 async function all(){const t=++tok;try{await s4(t);await s0(t);await s1(t);await s2(t);await s3(t)}catch(e){if(e&&window.__showErr)window.__showErr('SCENE: '+(e.stack||e))}}
