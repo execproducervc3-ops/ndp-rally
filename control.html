@@ -196,6 +196,13 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
 .srow .ed{grid-column:1/-1;display:flex;gap:6px}.srow .ed input{flex:1;min-width:0;padding:7px;border-radius:8px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:700 12px Inter,sans-serif}
 .srow .ed button{padding:7px 10px;border-radius:8px;border:0;font:800 11px Inter,sans-serif;cursor:pointer;background:#2c2c36;color:#fff}.srow .ed .rm{background:#5a1a1a}
 .srow{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"sn ct" "md md"}.srow .sn{grid-area:sn}.srow select{grid-area:ct;max-width:none}.srow .md{grid-area:md}.srow .md button{flex:1}
+
+.drow{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;gap:6px;align-items:center;padding:5px 0;border-top:1px solid #23232c;font-size:12px}
+.drow .dc{font:400 18px Anton,Impact,sans-serif;letter-spacing:2px;color:var(--y);min-width:54px}.drow .dk{color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.drow .dot{width:9px;height:9px;flex:none;border-radius:50%;background:#55555f}.drow .dot.on{background:#4be38a;box-shadow:0 0 6px #4be38a}
+.drow select{padding:6px;border-radius:7px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:700 11px Inter,sans-serif;max-width:130px}.drow select.un{border-color:var(--y);color:var(--y)}
+.drow button{padding:6px 8px;border-radius:7px;border:1px solid #3a3a46;background:#22222c;color:#fff;font:800 11px Inter,sans-serif;cursor:pointer}.drow button.fg{background:#3a1a1a}
+.drow.offl{opacity:.55}
 </style>
 </head>
 <body>
@@ -247,7 +254,8 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
         <div class="mon ml"><span>LIVE <i>on the LED wall</i></span><div class="pv" id="pv"><iframe id="pvf" title="Live: what's on the big screen" src="screen.html?preview"></iframe></div></div>
       </div>
       <div class="takes" id="takes"><button id="tkCut" disabled>TAKE</button><button id="tkFade" disabled>FADE</button><button id="tkClr" disabled>Clear</button></div>
-      <div class="op-only scrs"><div class="scrh"><span>Big screens</span><button id="scrAdd" class="lo">+ Add screen</button></div><div id="scrList"></div></div>
+      <div class="op-only scrs"><div class="scrh"><span>Big screens</span><button id="scrAdd" class="lo">+ Add screen</button></div><div id="scrList"></div>
+        <div class="scrh" style="margin-top:10px"><span>Devices</span><small class="mut" style="font-size:11px">open <b style="color:#fff">…/ndp-rally/tv/</b> on each display</small></div><div id="devList"></div></div>
 
     </div>
     <div class="card col">
@@ -454,7 +462,7 @@ function annRender(){const t=ST&&ST.ann_text;const lv=$('aLive');if(t){lv.classN
 const OWN={wall:'Photo wall',qronly:'QR code only',photo:'Open photo',replay:'Replay',off:'Screens off'};
 async function scrRefresh(){try{render(await call({a:'overview'}))}catch(e){}}
 let SCR=[],scrKey='',scrEdit=null,scrWas={};
-function scrRender(d){const L=d.screen_list||[];SCR=L;
+function scrRender(d){const L=d.screen_list||[];SCR=L;try{devRender(d.displays||[],L)}catch(e){console.error(e)}
   L.forEach(x=>{if(scrWas[x.out]&&!x.online)alertBar((x.out==='A'?'The main big screen':'Screen '+x.out+' ('+x.name+')')+' disconnected. It keeps its settings and picks up again when it reconnects.');scrWas[x.out]=x.online});
   const k=JSON.stringify(L)+'|'+scrEdit;if(k===scrKey)return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#scrList')&&scrEdit)return;scrKey=k;
   $('scrList').innerHTML=L.map(x=>{const cur=x.follow||!x.scene?'follow':(OWN[x.scene]?x.scene:'follow');
@@ -476,6 +484,18 @@ $('scrList').addEventListener('change',async e=>{const sel=e.target.closest('sel
   try{await call(v==='follow'?{a:'screen_set',out,follow:true}:{a:'screen_set',out,scene:v});sel.classList.toggle('own',v!=='follow');scrRefresh()}catch(x){alertBar('Couldn\'t change that screen.')}});
 $('scrList').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('.ed input')){e.preventDefault();e.target.closest('.srow').querySelector('[data-act=sv]').click()}});
 $('scrAdd').onclick=async()=>{try{const r=await call({a:'screen_add'});scrEdit=r.out;scrRefresh()}catch(x){alertBar('All 8 screens are in use, or the server didn\'t answer.')}};
+
+// ---------- display devices: pair a device by its code, assign it to a screen ----------
+let devKey='';
+function devRender(D,L){const k=JSON.stringify(D)+'|'+L.map(x=>x.out+x.name).join();if(k===devKey)return;if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#devList select'))return;devKey=k;
+  $('devList').innerHTML=D.length?D.map(x=>`<div class="drow${x.online?'':' offl'}" data-id="${x.id}"><span class="dc">${esc(x.code)}</span><span class="dk"><i class="dot${x.online?' on':''}"></i>${esc(x.kind||'Device')}${x.online?'':' · offline'}</span>
+    <select class="${x.out?'':'un'}"><option value="">Unassigned</option>${L.map(s=>`<option value="${s.out}"${x.out===s.out?' selected':''}>${s.out} · ${esc(s.name||'Screen '+s.out)}</option>`).join('')}${x.out&&!L.some(s=>s.out===x.out)?`<option value="${x.out}" selected>${x.out}</option>`:''}</select>
+    <button data-act="id" title="Show this device's code on its own screen">Identify</button><button data-act="fg" class="fg" title="Remove this device from the list">✕</button></div>`).join(''):'<p class="mut" style="font-size:12px;margin:6px 0">No devices yet. Open the link above on a TV, laptop or phone and its code appears here.</p>'}
+$('devList').addEventListener('change',async e=>{const sel=e.target.closest('select');if(!sel)return;const id=sel.closest('.drow').dataset.id;
+  try{await call({a:'display_set',id,out:sel.value||null});devKey='';scrRefresh()}catch(x){alertBar('Couldn\'t assign that device.')}});
+$('devList').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const id=b.closest('.drow').dataset.id;
+  if(b.dataset.act==='id'){try{await call({a:'display_identify',id});b.textContent='Shown ✓';setTimeout(()=>{if(b.isConnected)b.textContent='Identify'},2500)}catch(x){alertBar('Couldn\'t reach that device.')}}
+  if(b.dataset.act==='fg'){if(b.textContent!=='Sure?'){b.textContent='Sure?';setTimeout(()=>{if(b.isConnected)b.textContent='✕'},3000);return}try{await call({a:'display_forget',id});devKey='';scrRefresh()}catch(x){alertBar('Couldn\'t remove that device.')}}});
 // ---------- preview / live ----------
 // Direct: buttons go straight to the LED wall. Preview: buttons cue into PREVIEW; TAKE (cut) or FADE sends it live.
 // Urgent announcements and the one-button sequence always go straight to live.

@@ -145,7 +145,7 @@ button:focus-visible{outline:3px solid var(--y);outline-offset:2px}
 
 <style id="live">
 html,body{margin:0!important;padding:0!important;background:#000!important;overflow:hidden!important;width:100%;height:100%;cursor:none}
-body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask):not(#annb):not(#fxd):not(.efx){display:none!important}
+body>*:not(#scal):not(#startov):not(#pairov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask):not(#annb):not(#fxd):not(.efx){display:none!important}
 #annb{position:fixed;z-index:49600;display:flex;align-items:center;gap:1.2em;padding:.55em 1em;border-radius:.45em;font-family:Inter,system-ui,sans-serif;font-weight:800;line-height:1.2;box-shadow:0 .4em 1.6em rgba(0,0,0,.55);transform:translateY(140%);opacity:0;transition:transform .45s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
 #annb.on{transform:none;opacity:1}#annb .al{flex:none;font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.06em;padding:.2em .55em;border-radius:.3em;font-size:.8em}
 #annb.notice{background:#F7D117;color:#10204a}#annb.notice .al{background:#10204a;color:#F7D117}
@@ -2719,6 +2719,9 @@ const scal=document.createElement('div');scal.id='scal';document.body.appendChil
 const PREV=/[?&]preview/.test(location.search);const CUE=/[?&]cue\b/.test(location.search);
 // which output this window is: A (main) or B (second display / laptop). From the link (?out=B) or saved on this laptop.
 let OUTP=(new URLSearchParams(location.search).get('out')||(()=>{try{return localStorage.getItem('rally_out')}catch(e){return null}})()||'A').toUpperCase();if(!/^[A-H]$/.test(OUTP))OUTP='A';
+const PAIR=/[?&]pair\b/.test(location.search)&&!PREV;if(PAIR)OUTP='';
+const DEV=(()=>{if(!PAIR)return null;let d=null;try{d=localStorage.getItem('rally_dev')}catch(e){}if(!d||!/^[0-9a-f-]{36}$/.test(d)){d=(crypto.randomUUID?crypto.randomUUID():'10000000-1000-4000-8000-100000000000'.replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16)));try{localStorage.setItem('rally_dev',d)}catch(e){}}return d})();
+const KIND=(()=>{const u=navigator.userAgent;return /iPhone/.test(u)?'iPhone':/iPad/.test(u)||(/Macintosh/.test(u)&&navigator.maxTouchPoints>1)?'iPad':/Android/.test(u)?(/Mobile/.test(u)?'Android phone':'Android TV/tablet'):/AFT|Silk/.test(u)?'Fire TV':/SMART-TV|Tizen|Web0S|webOS/.test(u)?'Smart TV':/Mac/.test(u)?'Mac':/Windows/.test(u)?'Windows PC':/CrOS/.test(u)?'Chromebook':/Linux/.test(u)?'Linux PC':'Browser'})();
 const FIT=(()=>{const d={mode:'fit',zoom:100,x:0,y:0,bg:'#000000',ct:0,cb:0,cl:0,cr:0};if(PREV)return d;try{Object.assign(d,JSON.parse(localStorage.getItem('rally_fit')||'{}'))}catch(e){}
   const q=new URLSearchParams(location.search);if(q.get('fit'))d.mode=q.get('fit');if(q.get('zoom'))d.zoom=+q.get('zoom');if(q.get('x'))d.x=+q.get('x');if(q.get('y'))d.y=+q.get('y');if(q.get('bars'))d.bg='#'+q.get('bars').replace('#','');
   if(!['fit','fill','stretch'].includes(d.mode))d.mode='fit';d.zoom=Math.max(50,Math.min(150,+d.zoom||100));d.x=Math.max(-50,Math.min(50,+d.x||0));d.y=Math.max(-50,Math.min(50,+d.y||0));['ct','cb','cl','cr'].forEach(k=>{if(q.get(k))d[k]=+q.get(k);d[k]=Math.max(0,Math.min(40,+d[k]||0))});return d})();
@@ -2786,11 +2789,11 @@ if(sc==='victory'&&autoVictorySeq>=0&&autoVictorySeq===seq-1)return;
 // polling the server (big screens are few, so they read it directly, several times a second)
 let fails=0,started=false;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),2500);
-const r=await fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(PREV?{a:'screen'}:{a:'screen',out:OUTP}),signal:ctl.signal});clearTimeout(to);
-if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann&&!CUE)window.__ann(d.ann);if(window.__sonic)window.__sonic(d.sonic);if(window.__efx&&!CUE)window.__efx(d.efx);
+const r=await fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(PREV?{a:'screen'}:PAIR?{a:'screen',dev:DEV,kind:KIND}:{a:'screen',out:OUTP}),signal:ctl.signal});clearTimeout(to);
+if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann&&!CUE)window.__ann(d.ann);if(window.__sonic)window.__sonic(d.sonic);if(window.__efx&&!CUE)window.__efx(d.efx);if(PAIR&&window.__pair)window.__pair(d);
 const st=d.state;LIVE.vote=st.vote;LIVE.shake=st.shake;if(!CUE){LIVE.at=st.at;LIVE.spotlight=st.spotlight}
 if(CUE){}else if(started&&st.seq!==LIVE.seq){const prev=LIVE.seq;LIVE.seq=st.seq;LIVE.scene=st.scene;if(st.fx==='fade'&&window.__fade)window.__fade(()=>runScene(st.scene,st.seq));else runScene(st.scene,st.seq)}else if(!started){LIVE.seq=st.seq;LIVE.scene=st.scene}
-$('startinfo').textContent='Connected as SCREEN '+OUTP+(d.screen&&d.screen.name?' ('+d.screen.name+')':'')+'. '+(d.screen&&d.screen.own?'Own content: ':'Current step: ')+st.scene+'. (Press S to pick a different screen letter.)'}catch(e){fails++;if(!started)$('startinfo').textContent='Connecting to the server…'}
+if(PAIR&&!OUTP)$('startinfo').textContent='Waiting to be assigned on the control page…';else $('startinfo').textContent=(PAIR?'Paired as SCREEN ':'Connected as SCREEN ')+OUTP+(d.screen&&d.screen.name?' ('+d.screen.name+')':'')+'. '+(d.screen&&d.screen.own?'Own content: ':'Current step: ')+st.scene+'. (Press S to pick a different screen letter.)'}catch(e){fails++;if(!started)$('startinfo').textContent='Connecting to the server…'}
 setTimeout(poll,fails?1500:500)}
 if(/[?&]preview/.test(location.search)){started=true;const so=$('startov');if(so)so.remove()}
 poll();
@@ -2843,12 +2846,29 @@ window.__fire=fire;
 let last=null;window.__efx=d=>{if(!d)return;if(last===null){last=d.seq;return}if(d.seq!==last){last=d.seq;fire(String(d.list||'').split(',').filter(Boolean),d.text)}};
 if(CUE)addEventListener('message',e=>{if(e.origin!==location.origin)return;const m=e.data||{};if(m.t==='fx')fire(m.fx||[],m.text)});
 })();
+// --- pairing: a display device opened with ?pair (or /tv/) shows a code; the control page assigns it to a screen ---
+(function(){if(!PAIR)return;
+const ov=document.createElement('div');ov.id='pairov';ov.style.cssText='position:fixed;inset:0;z-index:100001;background:#06070f;color:#fff;display:none;flex-direction:column;align-items:center;justify-content:center;gap:2vh;font-family:Inter,system-ui,sans-serif;text-align:center;padding:4vw';
+ov.innerHTML='<small id="phd" style="font:800 2.2vh Inter,sans-serif;letter-spacing:.4em;color:#9a9aa6">PAIR THIS SCREEN</small><b id="pcode" style="font:400 22vh Anton,Impact,sans-serif;letter-spacing:.08em;color:#F7D117;line-height:1">····</b><span id="ptxt" style="font-size:2.6vh;color:#c9c9d0;max-width:70vw;line-height:1.5">On the control page, open <b>Big screens → Devices</b> and assign this code to a screen.</span><span id="pkind" style="font-size:1.8vh;color:#6d6d78"></span>';
+document.body.appendChild(ov);let lastId=null,idT=null,autoT=null,cur='';
+const so=$('startov');
+function show(mode,d){ov.style.display='flex';const c=d.pair.code||'FULL';$('pcode').textContent=c;$('pkind').textContent=KIND;
+ $('phd').textContent=mode==='pair'?'PAIR THIS SCREEN':'THIS DEVICE';if(mode==='pair'){$('ptxt').innerHTML='On the control page, open <b>Big screens → Devices</b> and assign this code to a screen.';ov.style.background='#06070f'}
+ else{$('ptxt').innerHTML='This is <b style="color:#fff">SCREEN '+(d.screen?d.screen.out:'')+'</b>'+(d.screen&&d.screen.name?' · '+d.screen.name.replace(/</g,'&lt;'):'');ov.style.background='rgba(6,7,15,.92)'}}
+function start(){if(started)return;started=true;const s=$('startov');if(s)s.remove();runScene(LIVE.scene,LIVE.seq);
+ // sound needs a tap or click on this device (browsers block it otherwise)
+ document.addEventListener('click',()=>{try{init();on=true;ctx.resume()}catch(e){}},{once:true})}
+window.__pair=d=>{const p=d.pair;if(!p)return;
+ if(!p.out){cur='';OUTP='';show('pair',d);return}
+ if(p.out!==cur){cur=p.out;OUTP=p.out;if(!idT)ov.style.display='none';if(!started){clearTimeout(autoT);autoT=setTimeout(start,6000)}}
+ if(lastId===null)lastId=p.identify;else if(p.identify!==lastId){lastId=p.identify;show('id',d);clearTimeout(idT);idT=setTimeout(()=>{idT=null;if(cur)ov.style.display='none'},6000)}};
+})();
 // --- sound sync: hidden tone through the PA so phones without data still fire the light show ---
 (function(){let ac=null,cfg={on:false,hz:18500,test:null};const out=!PREV&&OUTP==='A';
 function code(t0,a,b){const g=ac.createGain(),o=ac.createOscillator();g.gain.value=0;o.connect(g).connect(ac.destination);
  for(let i=0;i<8;i++){const t=t0+i*.15;o.frequency.setValueAtTime(i%2?b:a,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.setValueAtTime(.35,t+.14);g.gain.linearRampToValueAtTime(0,t+.15)}
  o.start(t0);o.stop(t0+1.25)}
-function play(){if(!out)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume();const t=ac.currentTime+.05;for(let r=0;r<3;r++)code(t+r*2,cfg.hz,cfg.hz+500)}catch(e){}}
+function play(){if(PREV||OUTP!=='A')return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume();const t=ac.currentTime+.05;for(let r=0;r<3;r++)code(t+r*2,cfg.hz,cfg.hz+500)}catch(e){}}
 document.addEventListener('click',()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}},{once:true});
 window.__sonic=d=>{if(!d)return;const first=cfg.test===null;cfg.on=!!d.on;cfg.hz=+d.hz||18500;if(!first&&d.test!==cfg.test)play();cfg.test=d.test};
 window.__sonicFire=()=>{if(cfg.on)play()};
@@ -2922,6 +2942,7 @@ document.body.appendChild(p);const g=document.createElement('div');g.id='fitgrid
 const $f=id=>document.getElementById(id);
 function sync(){document.querySelectorAll('#outab button').forEach(b=>b.classList.toggle('on',b.dataset.o===OUTP));document.querySelectorAll('#fitm button').forEach(b=>b.classList.toggle('on',b.dataset.m===FIT.mode));$f('fz').value=FIT.zoom;$f('fx').value=FIT.x;$f('fy').value=FIT.y;$f('fbg').value=FIT.bg;
   ['ct','cb','cl','cr'].forEach(k=>{$f(k).value=FIT[k];$f(k+'v').textContent=FIT[k]+'%'});$f('fzv').textContent=FIT.zoom+'%';$f('fxv').textContent=FIT.x+'%';$f('fyv').textContent=FIT.y+'%';fitScreen();saveFit()}
+if(PAIR){const oa=$f('outab');if(oa){oa.style.display='none';oa.insertAdjacentHTML('afterend','<p style="font-size:12px;color:#9a9aa6;margin:4px 0 10px">Paired device: the screen is assigned from the control page.</p>')}}
 $f('outab').onclick=e=>{const b=e.target.closest('button');if(b){OUTP=b.dataset.o;try{localStorage.setItem('rally_out',OUTP)}catch(x){}sync()}};$f('fitm').onclick=e=>{const b=e.target.closest('button');if(b){FIT.mode=b.dataset.m;sync()}};
 $f('fz').oninput=e=>{FIT.zoom=+e.target.value;sync()};$f('fx').oninput=e=>{FIT.x=+e.target.value;sync()};$f('fy').oninput=e=>{FIT.y=+e.target.value;sync()};$f('fbg').oninput=e=>{FIT.bg=e.target.value;sync()};['ct','cb','cl','cr'].forEach(k=>{$f(k).oninput=e=>{FIT[k]=+e.target.value;sync()}});
 $f('fgrid').onclick=()=>{g.classList.toggle('on');$f('fgrid').textContent=g.classList.contains('on')?'Hide edges':'Show edges'};
