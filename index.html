@@ -135,7 +135,13 @@ function api(body,tries){tries=tries||2;return fetch(FN,{method:'POST',headers:{
 const ev=k=>api({a:'event',kind:k}).catch(()=>{});
 
 // ---------- views ----------
-let cur='';function show(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id===v));cur=v}
+let cur='';function show(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id===v));cur=v;requestAnimationFrame(fitFrame)}
+// size the photo frame so the whole screen fits without scrolling
+function fitFrame(){const v=document.querySelector('.view.on');if(!v)return;const fb=v.querySelector('.framebox');if(!fb)return;
+  const cs=getComputedStyle(v);const avail=v.clientHeight-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom);let other=0;
+  for(const c of v.children){if(c===fb||getComputedStyle(c).display==='none')continue;const m=getComputedStyle(c);other+=c.getBoundingClientRect().height+parseFloat(m.marginTop)+parseFloat(m.marginBottom)}
+  const w=Math.max(160,Math.min(360,v.clientWidth-36,(avail-other-2)*0.8));fb.style.width=w+'px'}
+addEventListener('resize',()=>requestAnimationFrame(fitFrame));addEventListener('orientationchange',()=>setTimeout(fitFrame,300));
 let tab='photo';let photoView='vPhoto';
 function setTab(t){tab=t;$('tPhoto').classList.toggle('a',t==='photo');$('tVote').classList.toggle('a',t==='vote');if(t==='photo'){show(photoView)}else{renderVote();show(gameView())}}
 $('tPhoto').onclick=()=>{setTab('photo')};$('tVote').onclick=()=>setTab('vote');
@@ -237,7 +243,7 @@ setInterval(()=>{if(!HOME&&S.scene==='shake'&&shakeOver()&&!$('ls').classList.co
 
 // ---------- emoji reactions (positive set only) ----------
 const RX=[0,0,0,0,0,0,0];let rxTaps=[];const RXSEED=parseInt(DEV.slice(9,13),16)/0xffff;
-function rxShow(){const hide=['vCam','vShake','vCity'].includes(cur)||$('ls').classList.contains('on')||(S.scene==='vote'&&voted!=String(S.seq)&&cur==='vVote');$('rx').classList.toggle('on',!!S.react&&!hide)}
+function rxShow(){const was=$('rx').classList.contains('on');const hide=['vCam','vShake','vCity'].includes(cur)||$('ls').classList.contains('on')||(S.scene==='vote'&&voted!=String(S.seq)&&cur==='vVote');$('rx').classList.toggle('on',!!S.react&&!hide);if(was!==$('rx').classList.contains('on'))requestAnimationFrame(fitFrame)}
 $('rx').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!S.react)return;const now=Date.now();rxTaps=rxTaps.filter(t=>now-t<1000);if(rxTaps.length>=8)return;rxTaps.push(now);
   const k=+b.dataset.k;RX[k]++;try{navigator.vibrate&&navigator.vibrate(12)}catch(err){}
   const r=b.getBoundingClientRect(),f=document.createElement('div');f.className='fly';f.textContent=b.textContent;f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top-10)+'px';f.style.setProperty('--dx',((Math.random()-.5)*80)+'px');document.body.appendChild(f);setTimeout(()=>f.remove(),1400)});
