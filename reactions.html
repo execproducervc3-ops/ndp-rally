@@ -25,16 +25,20 @@ var EMO=['💛','💙','🔥','👏','🙌','🎉','🎺'];
 var q=new URLSearchParams(location.search);
 var BG={green:'#00B140',blue:'#0047BB',black:'#000000',transparent:'transparent'}[q.get('bg')||'green']||'#00B140';
 document.documentElement.style.setProperty('--key',BG);
-var LANE=q.get('lane')||'full';var SIZE=Math.max(.4,Math.min(3,parseFloat(q.get('size'))||1));
+var LANE=q.get('lane')||'full';
+// rate limits (keep the key clean): saved on this laptop, or ?rate=8&max=35 in the link; [ ] change rate, - = change max
+var LIM={rate:8,max:35};try{var sv=JSON.parse(localStorage.getItem('rally_rx_lim')||'{}');if(sv.rate)LIM.rate=sv.rate;if(sv.max)LIM.max=sv.max}catch(e){}
+if(q.get('rate'))LIM.rate=+q.get('rate');if(q.get('max'))LIM.max=+q.get('max');
+function clampLim(){LIM.rate=Math.max(1,Math.min(30,Math.round(LIM.rate)));LIM.max=Math.max(5,Math.min(120,Math.round(LIM.max)));try{localStorage.setItem('rally_rx_lim',JSON.stringify(LIM))}catch(e){}}clampLim();var SIZE=Math.max(.4,Math.min(3,parseFloat(q.get('size'))||1));
 var cv=document.getElementById('cv'),g=cv.getContext('2d'),W=0,H=0,DPR=1;
 function fit(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;g.setTransform(DPR,0,0,DPR,0,0)}
 addEventListener('resize',fit);fit();
 // pre-render each emoji once (sharp and fast)
 var SPR=EMO.map(function(e){var c=document.createElement('canvas'),s=160;c.width=c.height=s;var x=c.getContext('2d');x.font=Math.round(s*.8)+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,s/2,s/2+s*.04);return c});
-var P=[];var MAXP=260;
+var P=[];var QUEUE=[];var dropped=0;
 function laneX(){var r=Math.random();if(LANE==='left')return W*(.03+r*.27);if(LANE==='right')return W*(.70+r*.27);if(LANE==='center')return W*(.35+r*.30);return W*(.04+r*.92)}
-function spawn(k,delay){if(P.length>=MAXP)return;var base=Math.min(W,H)*.09*SIZE;var s=base*(.75+Math.random()*.6);
-  P.push({k:k,x:laneX(),y:H+s,s:s,vy:(H*(.16+Math.random()*.10)),ph:Math.random()*6.28,wob:s*(.25+Math.random()*.35),t:-(delay||0),life:4.2+Math.random()*1.6,rot:(Math.random()-.5)*.5})}
+function spawn(k,delay,force){if(!force&&P.length>=LIM.max)return false;var base=Math.min(W,H)*.09*SIZE;var s=base*(.75+Math.random()*.6);
+  P.push({k:k,x:laneX(),y:H+s,s:s,vy:(H*(.16+Math.random()*.10)),ph:Math.random()*6.28,wob:s*(.25+Math.random()*.35),t:-(delay||0),life:4.2+Math.random()*1.6,rot:(Math.random()-.5)*.5});return true}
 var last=performance.now();
 function frame(now){var dt=Math.min(.05,(now-last)/1000);last=now;g.clearRect(0,0,W,H);
   for(var i=P.length-1;i>=0;i--){var p=P[i];p.t+=dt;if(p.t<0)continue;if(p.t>p.life){P.splice(i,1);continue}
@@ -43,14 +47,16 @@ function frame(now){var dt=Math.min(.05,(now-last)/1000);last=now;g.clearRect(0,
     g.save();g.globalAlpha=a;g.translate(x,p.y);g.rotate(p.rot*Math.sin(p.t*1.5));var s=p.s*pop;g.drawImage(SPR[p.k],-s/2,-s/2,s,s);g.restore()}
   requestAnimationFrame(frame)}
 requestAnimationFrame(frame);
-// release a batch smoothly over the next poll interval
-function release(counts){var tot=counts.reduce(function(a,b){return a+b},0);if(!tot)return;
-  var cap=Math.min(tot,40),scale=cap/tot;
-  counts.forEach(function(n,k){var m=n*scale;var c=Math.floor(m)+(Math.random()<m-Math.floor(m)?1:0);if(n>0&&c===0)c=1;
-    for(var j=0;j<c;j++)spawn(k,Math.random()*.5)})}
+// queue what arrives; a steady emitter lets out at most LIM.rate a second and never more than LIM.max on screen
+function release(counts){counts.forEach(function(n,k){for(var j=0;j<n;j++)QUEUE.push(k)});
+  // keep the queue short (about 2 seconds' worth); drop extras evenly so every emoji type still shows
+  var keep=Math.max(4,LIM.rate*2);if(QUEUE.length>keep){for(var i=QUEUE.length-1;i>0;i--){var r=Math.floor(Math.random()*(i+1)),t=QUEUE[i];QUEUE[i]=QUEUE[r];QUEUE[r]=t}dropped+=QUEUE.length-keep;QUEUE.length=keep}}
+var tokens=0,lastEmit=performance.now();
+setInterval(function(){var now=performance.now();tokens=Math.min(LIM.rate,tokens+LIM.rate*(now-lastEmit)/1000);lastEmit=now;
+  while(tokens>=1&&QUEUE.length&&P.length<LIM.max){var k=QUEUE.shift();if(spawn(k,Math.random()*.08))tokens-=1;else break}},100);
 // poll the server
 var prev=null,open=false,fails=0,seen=0,lastOk=0;
-function hud(){var h=document.getElementById('hud');h.textContent='Reactions: '+(open?'ON':'OFF (turn on in control)')+'\nConnection: '+(fails>=2?'OFFLINE, retrying':'ok')+'\nShown so far: '+seen+'\nKeys: F full screen · H hide · T test';}
+function hud(){var h=document.getElementById('hud');h.textContent='Reactions: '+(open?'ON':'OFF (turn on in control)')+'\nConnection: '+(fails>=2?'OFFLINE, retrying':'ok')+'\nReceived: '+seen+'  ·  skipped to keep it clean: '+dropped+'\nLimit: '+LIM.rate+' a second, '+LIM.max+' on screen at once\nKeys: F full screen · H hide · T test · [ ] rate · - = on screen';}
 function poll(){var ctl=new AbortController();var to=setTimeout(function(){ctl.abort()},3000);
   fetch(FN,{method:'POST',headers:{'content-type':'application/json'},body:'{"a":"reacts"}',signal:ctl.signal}).then(function(r){return r.ok?r.json():Promise.reject(r.status)}).then(function(d){clearTimeout(to);fails=0;lastOk=Date.now();open=!!d.open;var t=(d.t||[]).slice(0,7);while(t.length<7)t.push(0);
     if(prev){var dl=t.map(function(v,i){return Math.max(0,v-prev[i])});if(open){release(dl);seen+=dl.reduce(function(a,b){return a+b},0)}}
@@ -60,7 +66,9 @@ poll();hud();
 addEventListener('keydown',function(e){var k=e.key.toLowerCase();
   if(k==='f'){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(function(){});else document.exitFullscreen()}
   if(k==='h')document.body.classList.toggle('hud');
-  if(k==='t'){for(var i=0;i<30;i++)spawn(i%7,Math.random()*1.5)}});
+  if(k==='t'){release([5,5,5,5,5,5,5])}
+  if(k==='['){LIM.rate--;clampLim();hud()}if(k===']'){LIM.rate++;clampLim();hud()}
+  if(k==='-'){LIM.max-=5;clampLim();hud()}if(k==='='||k==='+'){LIM.max+=5;clampLim();hud()}});
 addEventListener('dblclick',function(){if(!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(function(){})});
 document.body.classList.add('hud');setTimeout(function(){document.body.classList.remove('hud')},6000);
 })();
