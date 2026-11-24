@@ -144,6 +144,12 @@ body.hwopen{overflow:hidden}
 @keyframes bseu{0%{transform:translateY(0) scale(.3)}10%{transform:translateY(-34px) scale(1)}85%{transform:translateY(-250px) scale(1)}100%{transform:translateY(-290px) scale(0)}}
 .bsg{position:absolute;inset:0;background:#00B140;z-index:5;opacity:0;transition:opacity .4s}.bsg.show{opacity:1}
 .bsg b{position:absolute;left:50%;top:10px;transform:translateX(-50%);white-space:nowrap;background:rgba(0,0,0,.72);color:#fff;font-size:11px;padding:4px 10px;border-radius:999px;letter-spacing:1px}
+.bsa{position:absolute;left:3%;right:3%;bottom:2%;z-index:8;border-radius:6px;padding:7px 10px;font:800 12.5px/1.3 Inter,sans-serif;display:flex;gap:8px;align-items:center;transform:translateY(160%);opacity:0;transition:transform .45s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
+.bsa.on{transform:none;opacity:1}.bsa.n{background:#F7D117;color:#10204a}.bsa.u{background:#c8102e;color:#fff;animation:bsap 1.4s ease-in-out infinite}
+.bsa i{font-style:normal;font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px;font-size:10px;padding:2px 6px;border-radius:3px;flex:none}.bsa.n i{background:#10204a;color:#F7D117}.bsa.u i{background:#fff;color:#c8102e}
+@keyframes bsap{50%{box-shadow:0 0 0 3px rgba(255,255,255,.5)}}
+.pha{position:absolute;left:4px;right:4px;top:20px;z-index:9;border-radius:7px;padding:4px 6px;font:700 7.5px/1.3 Inter,sans-serif;box-shadow:0 3px 8px rgba(0,0,0,.5);transform:translateY(-130%);opacity:0;transition:transform .35s,opacity .3s}
+.pha.on{transform:none;opacity:1}.pha.n{background:#F7D117;color:#10204a}.pha.u{background:#c8102e;color:#fff}.pha b{display:block;font-family:Anton,Impact,sans-serif;font-weight:400;font-size:7px;letter-spacing:.5px}
 .mcap{display:none}
 html.embed .wrap{padding:6px 6px 10px}
 html.embed h1,html.embed .lead,html.embed .notes,html.embed .credit{display:none}
@@ -228,8 +234,8 @@ window.__showErr=show;window.addEventListener('error',function(e){show('ERROR: '
 <div class="mcap" aria-live="polite"><div class="n" id="mN"></div><div class="t" id="mT"></div><div class="d" id="mD"></div></div>
 <div class="ctl"><button id="pp">▶ Play</button><button id="nb" aria-pressed="true">🔊 Voice on</button><button id="hwb">🗺 Hardware map</button><span style="flex:1"></span><span id="stepBtns" style="display:flex;flex-wrap:wrap;gap:8px"></span></div>
 <div class="notes">
-<div><b>1 · Control screen</b>The operator's tablet, behind a PIN. One button per step, or one button that runs the vote, shake, victory and replay by itself. Live numbers, and alerts if anything drops. A second tablet on its own hotspot is the backup.</div>
-<div><b>2 · Big screens</b>A laptop feeding the LED walls. It follows the server, and if the connection drops it plays the show by itself, so the crowd never sees an error.</div>
+<div><b>1 · Control screen</b>The operator's tablet, behind a PIN. One button per step, or one button that runs the vote, shake, victory and replay by itself. Live numbers, announcements, and alerts if anything drops. The owner can add helpers with their own PIN: a photo assistant who only approves photos, or a full operator. A second tablet on its own hotspot is the backup.</div>
+<div><b>2 · Big screens</b>A laptop feeding the LED walls. It follows the server, and if the connection drops it plays the show by itself, so the crowd never sees an error. Two outputs, A and B: each can show the show, the show with emojis, or a green screen, and B unlocks only when a second screen is connected.</div>
 <div><b>3 · Crowd phones</b>Opened from one QR code, no app to install. Rally photo first, then a Photo / Vote toggle. Every phone jumps to the next step when the operator taps.</div>
 <div><b>Rally photo frame</b>A selfie in an NDP frame: the logo, "Anniversary Rally" and "Geh Dem Performance". The front camera opens with the frame on and a 3-2-1 countdown. The photo is made on the phone, never uploaded, and shared straight to WhatsApp, Facebook or Instagram. The Photo tab stays open all night.</div>
 <div><b>Share to social media</b>The Share button opens the phone's own share menu, so it works with WhatsApp, Facebook, Instagram, TikTok, X, Status or any app installed. The caption is filled in with #GEHDEMPERFORMANCE. Every share is free reach for the party.</div>
@@ -237,7 +243,8 @@ window.__showErr=show;window.addEventListener('error',function(e){show('ERROR: '
 <div><b>Live fireworks (optional)</b>The victory moment is guaranteed by the timer, so it can be matched with real fireworks. The control screen shows the fireworks crew a countdown cue. The licensed crew fires on that cue; the system never sets off fireworks by itself.</div>
 <div><b>QR code, any time</b>The operator can put the QR code back on the big screens whenever they like: before the doors open, between speeches, after the replay. Latecomers get in all night.</div>
 <div><b>Emoji reactions</b>Seven positive emojis on every phone, at the venue and at home: 💛 💙 🔥 👏 🙌 🎉 🎺. They float up the sides of the big screen so the speaker stays clear, and a rate limit keeps it clean. Control switches the big screen output between the show, the show with emojis, or a green screen for the AV crew to key over the camera on the livestream.</div>
-<div><b>Fits any LED wall</b>One HDMI cable from the laptop. Press S on the big-screen laptop to fit, fill or stretch the picture, zoom and move it, and check the edges, so it suits whatever LED walls the venue has.</div>
+<div><b>Fits any LED wall</b>One HDMI cable from the laptop. Press S on the big-screen laptop to fit, fill or stretch the picture, zoom and move it, crop any edge hidden by the stage, and check the edges, so it suits whatever LED walls the venue has.</div>
+<div><b>Announcements</b>Lost child, lost items, timings: typed on the control screen and shown at once as a banner on the big screens and on phones at the venue, without stopping the show. Urgent ones flash red and vibrate phones. Common messages are saved ready to go.</div>
 <div><b>Live server</b>Sends the operator's taps out to every screen and adds up votes and shakes. Phones send small batched tallies, so thousands can join at once.</div>
 </div>
 <div class="hwm" id="hwm" role="dialog" aria-modal="true" aria-label="Hardware map" hidden><div class="hw"><button class="hwx" id="hwx" aria-label="Close">✕ Close</button>
@@ -304,7 +311,7 @@ function mini(h){return `<div class="fr" style="padding:6%"><div class="pin" sty
 function wall(n,newIdx){$('pwg').innerHTML=WALL.slice(0,n).map((w,i)=>`<div class="pwc${i===newIdx?' new':''}">${mini(w[1])}<div class="lb">${w[0].startsWith('Watching')?'🌍 ':'📍 '}${w[0]}</div></div>`).join('')}
 function cap(n,tt,d){$('capN').textContent='STEP '+n;$('capT').textContent=tt;$('capD').textContent=d;$('mN').textContent='STEP '+n;$('mT').textContent=tt;$('mD').textContent=d}
 function energy(arr,id){$(id||'energy').innerHTML=arr.map(v=>`<i style="height:${Math.max(4,v)}%"></i>`).join('')}
-function reset(){upStream(false);document.querySelectorAll('.fe,.bse').forEach(e=>e.remove());{const g=document.querySelector('.bsg');if(g)g.classList.remove('show')}document.querySelectorAll('.dot').forEach(d=>d.remove());document.querySelectorAll('.cb').forEach(e=>e.className='cb');$('srv').classList.remove('hot');$('alert').className='alert';$('rep').className='rep';$('pill').className='pill';$('pill').textContent='● Live';
+function reset(){upStream(false);document.querySelectorAll('.bsa,.pha').forEach(e=>e.remove());document.querySelectorAll('.fe,.bse').forEach(e=>e.remove());{const g=document.querySelector('.bsg');if(g)g.classList.remove('show')}document.querySelectorAll('.dot').forEach(d=>d.remove());document.querySelectorAll('.cb').forEach(e=>e.className='cb');$('srv').classList.remove('hot');$('alert').className='alert';$('rep').className='rep';$('pill').className='pill';$('pill').textContent='● Live';
 phs.forEach(p=>{p.classList.remove('shaking');p.querySelector('.off').classList.remove('show')});$('lock').style.opacity=0;$('pcall').classList.remove('show');$('crew').className='crew';$('fwcue').classList.remove('show');$('pq').classList.remove('show');$('pwall').classList.remove('show');$('dia').classList.remove('show');$('scall').classList.remove('show');$('energy').innerHTML='';$('finger').style.opacity=0}
 function base(n){// state at start of step n
 reset();const s=[
@@ -317,6 +324,7 @@ reset();const s=[
 ()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';setAll('voted');['0'].forEach(b=>document.querySelector(`.cb[data-b="${b}"]`).classList.add('done'));document.querySelector('.cb[data-b="1"]').classList.add('on')},
 ()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';setAll('shake');['0','1'].forEach(b=>document.querySelector(`.cb[data-b="${b}"]`).classList.add('done'));document.querySelector('.cb[data-b="2"]').classList.add('on');},
 ()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';setAll('iam');['0','1','2'].forEach(b=>document.querySelector(`.cb[data-b="${b}"]`).classList.add('done'));document.querySelector('.cb[data-b="3"]').classList.add('on')},
+()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';bs('idle');setAll('photo')},
 ()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,106';$('kVo').textContent='4,390';bs('idle');setAll('photo')},
 ()=>{$('kPh').textContent='4,812';$('kPo').textContent='3,420';$('kVo').textContent='4,390';bs('idle');setAll('photo')}];s[n]()}
 const STEPS=[
@@ -331,7 +339,7 @@ async t=>{cap(3,'Share it','One tap on Share opens the phone\'s own share menu: 
 bs('qr');$('scall').classList.add('show');await sl(900,t);for(let i=0;i<3;i++){setP(i,'share');await sl(350,t)}await sl(2200,t);
 const cols=['#25D366','#1877F2','#e91e63'],names=['WhatsApp','Facebook','Instagram'];for(let i=0;i<3;i++){setP(i,'shared');const r=phs[i];const c=document.createElement('div');c.className='chip';c.style.background=cols[i];c.textContent='+ '+names[i];c.style.left=(parseInt(r.style.left)+14)+'px';c.style.top='395px';st.appendChild(c);setTimeout(()=>c.remove(),1700);await sl(500,t)}
 await sl(1800,t)},
-async t=>{cap(4,'Send to the big screen','Next to Save and Share: Send to big screen. People at home use their own diaspora link. Every photo waits for approval, 20 at a time, with a waiting line that sends automatically. The wall holds 15 from the venue and 5 from the diaspora. After sending, the phone goes straight back to the camera.');
+async t=>{cap(4,'Send to the big screen','Next to Save and Share: Send to big screen. People at home use their own diaspora link. Every photo waits for approval, 20 at a time, with a waiting line that sends automatically. The wall holds 15 from the venue and 5 from the diaspora. After sending, the phone goes straight back to the camera. Delete removes a photo from the phone.');
 bs('qr');await sl(500,t);document.querySelectorAll('.sendb').forEach(b=>{b.style.background='var(--y)';b.style.color='#10204a'});await sl(700,t);
 $('pq').classList.add('show');$('pqN').textContent='17';$('pqL').textContent='0';
 setP(0,'sent');travel('w_p0','up',700);await sl(400,t);setP(1,'line');$('pqL').textContent='12';await sl(400,t);setP(2,'sent');travel('w_p2','up',700);$('pqN').textContent='19';
@@ -364,12 +372,22 @@ async t=>{cap(9,'Replay, then the QR code again','The replay shows the meter max
 await command(4,t);bs('replay',true);setAll('pulse');await bsDone(t,20000);setAll('photo');await sl(700,t);
 await tap(5,t);await travel('w_c','cmd',600);await travel('w_b','cmd',500);bs('qronly',true);await sl(1200,t);
 for(let i=0;i<2;i++){travel('w_p'+(i+1),'up',700);await sl(400,t)}count('kPh',5390,2000);await sl(2600,t)},
-async t=>{cap(10,'If a connection drops','A phone that loses signal shows a banner and keeps working. It catches up when it\'s back. The control screen warns the operator; the big screens never show an error.');
+async t=>{cap(10,'Announcements','Anything the crowd needs to know, typed on the control screen and shown at once: a reminder to collect lost items, or a lost child. It runs as a banner on the big screens and on phones at the venue, without stopping the show. Urgent ones flash red and vibrate phones. Common ones can be saved in advance.');
+bs('qr');setAll('photo');const a=$('alert');
+const show=(cls,lab,txt)=>{document.querySelectorAll('.bsa,.pha').forEach(e=>e.remove());$('bs').insertAdjacentHTML('beforeend',`<div class="bsa ${cls}"><i>${lab}</i><span>${txt}</span></div>`);
+  phs.forEach(p=>p.insertAdjacentHTML('beforeend',`<div class="pha ${cls}"><b>${lab}</b>${txt}</div>`));for(let i=0;i<3;i++)travel('w_p'+i,'cmd',600,true);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll('.bsa,.pha').forEach(e=>e.classList.add('on'))))};
+a.className='alert ok show';a.textContent='📣 Showing: Lost and found is at the gate. Please collect your items.';
+show('n','ANNOUNCEMENT','Lost and found is at the gate. Please collect your items.');await sl(6500,t);
+a.className='alert warn show';a.textContent='📣 URGENT showing on screens + phones';
+show('u','URGENT','Parents of a young boy in a yellow NDP shirt, please come to the side of the stage.');await sl(8500,t);
+document.querySelectorAll('.bsa,.pha').forEach(e=>e.classList.remove('on'));a.className='alert';await sl(800,t)},
+async t=>{cap(11,'If a connection drops','A phone that loses signal shows a banner and keeps working. It catches up when it\'s back. The control screen warns the operator; the big screens never show an error.');
 bs('qr');await sl(500,t);phs[2].querySelector('.off').classList.add('show');$('pill').className='pill warn';$('pill').textContent='● 12% offline';const a=$('alert');a.className='alert warn show';a.textContent='⚠ 12% of phones offline. Give the MC a moment or press Skip to victory.';
 await sl(3200,t);phs[2].querySelector('.off').classList.remove('show');a.className='alert ok show';a.textContent='✓ Phones back online';$('pill').className='pill';$('pill').textContent='● Live';travel('w_p2','up',700);await sl(1800,t);a.className='alert'},
-async t=>{cap(11,'The morning-after report','Counts only, never names, numbers or photos. The party gets a short report: turnout, votes, photos, shares, the crowd\'s energy second by second, and diaspora engagement: how many took part from abroad, and where they were watching from.');
+async t=>{cap(12,'The morning-after report','Counts only, never names, numbers or photos. The party gets a short report: turnout, votes, photos, shares, the crowd\'s energy second by second, and diaspora engagement: how many took part from abroad, and where they were watching from.');
 bs('qr');await sl(600,t);$('rep').className='rep show';count('r1',6240,1500);count('r2',91,1500,v=>v+'%');count('r3',3420,1500);count('r4',1180,1500);const E=[];for(let k=0;k<40;k++){E.push(15+Math.min(80,k*2.2)+Math.random()*12);energy(E,'repE');await sl(45,t)}await sl(3000,t)}];
-const sb=$('stepBtns');['Doors open','Photo','Share','Send to screen','Reactions','Vote','Shake','Victory','Replay + QR','Offline','Report'].forEach((n,i)=>{const b=document.createElement('button');b.textContent=(i+1)+' '+n;b.onclick=()=>run(i,false);sb.appendChild(b)});
+const sb=$('stepBtns');['Doors open','Photo','Share','Send to screen','Reactions','Vote','Shake','Victory','Replay + QR','Announce','Offline','Report'].forEach((n,i)=>{const b=document.createElement('button');b.textContent=(i+1)+' '+n;b.onclick=()=>run(i,false);sb.appendChild(b)});
 function mark(i){[...sb.children].forEach((b,k)=>b.classList.toggle('on',k===i));const a=sb.children[i];if(a&&sb.scrollWidth>sb.clientWidth)sb.scrollTo({left:a.offsetLeft-sb.offsetLeft-8,behavior:'smooth'})}
 const NA=new Audio();NA.preload='auto';let narrOn=true,narrEnd=null;
 function narrStop(){try{NA.pause()}catch(_){}if(narrEnd){narrEnd();narrEnd=null}}
