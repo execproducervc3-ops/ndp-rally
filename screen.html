@@ -145,9 +145,20 @@ button:focus-visible{outline:3px solid var(--y);outline-offset:2px}
 
 <style id="live">
 html,body{margin:0!important;padding:0!important;background:#000!important;overflow:hidden!important;width:100%;height:100%;cursor:none}
-body>*:not(#scal):not(#startov){display:none!important}
+body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid){display:none!important}
 #scal{position:absolute;left:0;top:0;width:904px;height:508.5px;transform-origin:0 0;overflow:hidden}
 #scal .screen{width:100%!important;height:100%!important;aspect-ratio:auto!important;border:0!important;border-radius:0!important;margin:0!important;max-width:none!important}
+#fitp{position:fixed;right:16px;top:16px;z-index:100000;width:330px;background:rgba(14,14,20,.96);border:1px solid #3a3a46;border-radius:14px;padding:14px 16px;color:#f4f4f6;font:14px/1.4 Inter,system-ui,sans-serif;cursor:default;display:none}
+#fitp.on{display:block}body.fitting{cursor:default}
+#fitp h3{margin:0 0 4px;font:800 15px Inter,sans-serif;color:#F7D117;letter-spacing:.5px}
+#fitp .sz{font-size:12px;color:#a3a3ad;margin-bottom:10px}
+#fitp .seg{display:flex;gap:4px;margin:4px 0 12px}#fitp .seg button{flex:1;padding:8px 0;border-radius:8px;border:1px solid #3a3a46;background:#22222c;color:#fff;font:700 13px Inter,sans-serif;cursor:pointer}
+#fitp .seg button.on{background:#F7D117;color:#10204a;border-color:#F7D117}
+#fitp label{display:flex;justify-content:space-between;font-size:12px;color:#c9c9d0;margin-top:6px}#fitp input[type=range]{width:100%}
+#fitp .row{display:flex;gap:6px;margin-top:12px}#fitp .row button{flex:1;padding:8px 0;border-radius:8px;border:1px solid #3a3a46;background:#22222c;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer}
+#fitp .hint{font-size:11px;color:#8a8a94;margin-top:10px}
+#fitgrid{position:fixed;z-index:99998;pointer-events:none;display:none;box-sizing:border-box;border:4px solid #F7D117;background:linear-gradient(#F7D11755,#F7D11755) center/2px 100% no-repeat,linear-gradient(#F7D11755,#F7D11755) center/100% 2px no-repeat}
+#fitgrid.on{display:block}
 #startov{position:fixed;inset:0;z-index:99999;background:#06070f;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;font-family:Inter,system-ui,sans-serif;cursor:pointer;text-align:center;padding:20px}
 #startov b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:44px;color:#F7D117;letter-spacing:1px}
 #startov span{font-size:18px;color:#c9c9d0;max-width:620px;line-height:1.5}
@@ -2696,10 +2707,21 @@ const LIVE={seq:-1,scene:'off',at:Date.now(),vote:60,shake:40,stats:{},wall:[],s
 const srvNow=()=>Date.now()+LIVE.off;
 // scaling + rect correction so effect positions stay right inside the scaled box
 const scal=document.createElement('div');scal.id='scal';document.body.appendChild(scal);scal.appendChild(scr);
-let K=1,OX=0,OY=0;function fitScreen(){const W=innerWidth,H=innerHeight;K=Math.min(W/904,H/508.5);OX=(W-904*K)/2;OY=(H-508.5*K)/2;scal.style.transform=`translate(${OX}px,${OY}px) scale(${K})`}
+// fit settings for odd-shaped LED walls: saved on this laptop, or set in the link (?fit=fill&zoom=95&x=0&y=0)
+const PREV=/[?&]preview/.test(location.search);
+const FIT=(()=>{const d={mode:'fit',zoom:100,x:0,y:0,bg:'#000000'};if(PREV)return d;try{Object.assign(d,JSON.parse(localStorage.getItem('rally_fit')||'{}'))}catch(e){}
+  const q=new URLSearchParams(location.search);if(q.get('fit'))d.mode=q.get('fit');if(q.get('zoom'))d.zoom=+q.get('zoom');if(q.get('x'))d.x=+q.get('x');if(q.get('y'))d.y=+q.get('y');if(q.get('bars'))d.bg='#'+q.get('bars').replace('#','');
+  if(!['fit','fill','stretch'].includes(d.mode))d.mode='fit';d.zoom=Math.max(50,Math.min(150,+d.zoom||100));d.x=Math.max(-50,Math.min(50,+d.x||0));d.y=Math.max(-50,Math.min(50,+d.y||0));return d})();
+function saveFit(){try{localStorage.setItem('rally_fit',JSON.stringify(FIT))}catch(e){}}
+let K=1,KX=1,KY=1,OX=0,OY=0;function fitScreen(){const W=innerWidth,H=innerHeight,z=FIT.zoom/100;
+  if(FIT.mode==='stretch'){KX=W/904*z;KY=H/508.5*z}else{const k=(FIT.mode==='fill'?Math.max(W/904,H/508.5):Math.min(W/904,H/508.5))*z;KX=KY=k}K=KX;
+  OX=(W-904*KX)/2+W*FIT.x/100;OY=(H-508.5*KY)/2+H*FIT.y/100;scal.style.transform=`translate(${OX}px,${OY}px) scale(${KX},${KY})`;
+  document.documentElement.style.setProperty('background',FIT.bg,'important');document.body.style.setProperty('background',FIT.bg,'important');
+  const g=document.getElementById('fitgrid');if(g){g.style.left=OX+'px';g.style.top=OY+'px';g.style.width=904*KX+'px';g.style.height=508.5*KY+'px'}
+  const z2=document.getElementById('fitsz');if(z2){const gcd=(a,b)=>b?gcd(b,a%b):a,dp=devicePixelRatio||1,pw=Math.round(W*dp),ph=Math.round(H*dp),gg=gcd(pw,ph);z2.textContent=`This output: ${pw} × ${ph} px (ratio ${(pw/ph).toFixed(2)}:1${gg>1&&pw/gg<50?' = '+pw/gg+':'+ph/gg:''}). Show is 16:9.`}}
 addEventListener('resize',fitScreen);fitScreen();
 const _gbr=Element.prototype.getBoundingClientRect;
-function unscale(r){return new DOMRect(OX+(r.left-OX)/K,OY+(r.top-OY)/K,r.width/K,r.height/K)}
+function unscale(r){return new DOMRect(OX+(r.left-OX)/KX,OY+(r.top-OY)/KY,r.width/KX,r.height/KY)}
 Element.prototype.getBoundingClientRect=function(){const r=_gbr.call(this);return (this===scal||scal.contains(this))&&this!==scal?unscale(r):r};
 const _rbr=Range.prototype.getBoundingClientRect;Range.prototype.getBoundingClientRect=function(){return unscale(_rbr.call(this))};
 // live vote scene
@@ -2756,7 +2778,33 @@ setTimeout(poll,fails?1500:500)}
 if(/[?&]preview/.test(location.search)){started=true;const so=$('startov');if(so)so.remove()}
 poll();
 // backup: if the server is unreachable, the laptop keyboard can run the show locally
-addEventListener('keydown',e=>{if(!started)return;const m={'1':'photo','2':'vote','3':'shake','4':'victory','5':'replay','6':'wall','q':'qronly','0':'off'}[e.key.toLowerCase()];if(!m)return;
+// --- fit settings panel: press S on the big-screen laptop ---
+(function(){if(PREV)return;const p=document.createElement('div');p.id='fitp';p.innerHTML=`<h3>SCREEN FIT</h3><div class="sz" id="fitsz"></div>
+<div style="font-size:12px;color:#c9c9d0">Mode</div><div class="seg" id="fitm"><button data-m="fit">Fit (bars)</button><button data-m="fill">Fill (crop)</button><button data-m="stretch">Stretch</button></div>
+<label>Zoom <b id="fzv"></b></label><input type="range" id="fz" min="50" max="150" step="1">
+<label>Move left / right <b id="fxv"></b></label><input type="range" id="fx" min="-50" max="50" step="0.5">
+<label>Move up / down <b id="fyv"></b></label><input type="range" id="fy" min="-50" max="50" step="0.5">
+<label style="align-items:center">Bar colour <input type="color" id="fbg" style="width:44px;height:24px;border:0;background:none"></label>
+<div class="row"><button id="fgrid">Show edges</button><button id="freset">Reset</button><button id="fclose">Done (S)</button></div>
+<div class="hint">Saved on this laptop. Arrow keys nudge, + / − zoom. If the LED wall cuts off the edges, turn on Show edges and zoom down until the yellow border is fully visible.</div>`;
+document.body.appendChild(p);const g=document.createElement('div');g.id='fitgrid';document.body.appendChild(g);
+const $f=id=>document.getElementById(id);
+function sync(){document.querySelectorAll('#fitm button').forEach(b=>b.classList.toggle('on',b.dataset.m===FIT.mode));$f('fz').value=FIT.zoom;$f('fx').value=FIT.x;$f('fy').value=FIT.y;$f('fbg').value=FIT.bg;
+  $f('fzv').textContent=FIT.zoom+'%';$f('fxv').textContent=FIT.x+'%';$f('fyv').textContent=FIT.y+'%';fitScreen();saveFit()}
+$f('fitm').onclick=e=>{const b=e.target.closest('button');if(b){FIT.mode=b.dataset.m;sync()}};
+$f('fz').oninput=e=>{FIT.zoom=+e.target.value;sync()};$f('fx').oninput=e=>{FIT.x=+e.target.value;sync()};$f('fy').oninput=e=>{FIT.y=+e.target.value;sync()};$f('fbg').oninput=e=>{FIT.bg=e.target.value;sync()};
+$f('fgrid').onclick=()=>{g.classList.toggle('on');$f('fgrid').textContent=g.classList.contains('on')?'Hide edges':'Show edges'};
+$f('freset').onclick=()=>{Object.assign(FIT,{mode:'fit',zoom:100,x:0,y:0,bg:'#000000'});sync()};
+function toggle(){const on=!p.classList.contains('on');p.classList.toggle('on',on);document.body.classList.toggle('fitting',on);if(!on){g.classList.remove('on');$f('fgrid').textContent='Show edges'}sync()}
+$f('fclose').onclick=toggle;window.__fitToggle=toggle;window.__fitOpen=()=>p.classList.contains('on');
+addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT'&&e.target.type!=='range')return;const k=e.key;
+  if(k==='s'||k==='S'){toggle();e.stopImmediatePropagation();return}
+  if(!p.classList.contains('on'))return;let hit=true;
+  if(k==='ArrowLeft')FIT.x=Math.max(-50,FIT.x-.5);else if(k==='ArrowRight')FIT.x=Math.min(50,FIT.x+.5);else if(k==='ArrowUp')FIT.y=Math.max(-50,FIT.y-.5);else if(k==='ArrowDown')FIT.y=Math.min(50,FIT.y+.5);
+  else if(k==='+'||k==='=')FIT.zoom=Math.min(150,FIT.zoom+1);else if(k==='-'||k==='_')FIT.zoom=Math.max(50,FIT.zoom-1);else hit=false;
+  if(hit){e.preventDefault();sync()}e.stopImmediatePropagation()},true);
+fitScreen()})();
+addEventListener('keydown',e=>{if(!started||(window.__fitOpen&&window.__fitOpen()))return;const m={'1':'photo','2':'vote','3':'shake','4':'victory','5':'replay','6':'wall','q':'qronly','0':'off'}[e.key.toLowerCase()];if(!m)return;
 LIVE.at=srvNow();runScene(m,LIVE.seq+1000+Math.floor(Math.random()*1e6))});
 const SO=$('startov');if(SO)SO.addEventListener('click',()=>{started=true;init();on=true;try{ctx.resume()}catch(e){}$('startov').remove();try{document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen()}catch(e){}runScene(LIVE.scene,LIVE.seq)});
 
