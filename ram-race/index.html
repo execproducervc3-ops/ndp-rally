@@ -95,18 +95,38 @@ tr.tot td{font-weight:800;border-top:2px solid var(--gold)}
 @media(max-width:600px){.steps,.score,.kpis{grid-template-columns:minmax(0,1fr)}.bars div.r{grid-template-columns:100px minmax(0,1fr) 70px}.time{grid-template-columns:1fr}table{font-size:13px}.hero:after{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 html{scroll-behavior:smooth;scroll-padding-top:64px}
+
+/* poster elements: logo badge, RAM RACE title, charging rams, grand prize */
+.hbrand{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.hbrand img{width:clamp(110px,14vw,160px);height:auto;border-radius:12px;box-shadow:0 8px 24px #0006;flex:none}
+.hero h1.rr{font-style:italic;text-shadow:none;line-height:.95}
+.hero h1.rr span{display:inline-block;transform:skewX(-8deg);-webkit-text-stroke:3px #6d0014;paint-order:stroke fill;text-shadow:5px 6px 0 #000}
+.hero h1.rr .t1{color:#ffe000}.hero h1.rr .t2{color:#fff}
+.tag{font-family:Anton,Impact,sans-serif;font-style:italic;font-size:clamp(20px,2.6vw,30px);line-height:1.15;margin-top:12px;text-shadow:2px 2px 0 #000}
+.tag b{font-weight:400;color:#ffe000;white-space:nowrap}
+.ramband{position:relative;background:#0b0b0f;padding:0}
+.ramband:before,.ramband:after{content:"";display:block;height:16px;background:conic-gradient(#fff 25%,#111 0 50%,#fff 0 75%,#111 0) 0 0/16px 16px}
+.ramband img{display:block;width:100%;max-width:900px;height:auto;margin:0 auto}
+.prize{background:linear-gradient(180deg,#0b0b0f 0%,#16161c 100%)}
+.pgrid{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(20px,4vw,48px);align-items:center}
+.prize img{width:100%;height:auto;display:block;border-radius:14px}
+.prize h2 span{color:#ffe000;white-space:nowrap}
+.flags{display:flex;gap:8px;margin-top:18px}
+.flags i{width:44px;height:30px;background:conic-gradient(#fff 25%,#111 0 50%,#fff 0 75%,#111 0) 0 0/11px 11px;border-radius:3px;transform:skewY(-6deg)}
+@media (max-width:820px){.pgrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <nav class="top" aria-label="Sections"><div class="in">
 <img src="img/ram-head.png" alt="Village Ram">
-<a href="#screens">How to play</a><a href="#benefits">Benefits</a><a href="#sales">Sales calculator</a><a href="#demos">Full race</a><a href="#rollout">Rollout</a><a href="#investment">Investment</a><a href="#ask">Our ask</a>
+<a href="#screens">How to play</a><a href="#prize">Grand prize</a><a href="#benefits">Benefits</a><a href="#sales">Sales calculator</a><a href="#demos">Full race</a><a href="#rollout">Rollout</a><a href="#investment">Investment</a><a href="#ask">Our ask</a>
 </div></nav>
 
 <header class="band hero"><div class="in hgrid">
 <div>
-<div class="kick">A partnership proposal for ECGC from Restaurant Pal</div>
-<h1>Ram Race</h1>
+<div class="hbrand"><img src="img/logo-badge.webp" alt="Village Ram Energy Drink" width="334" height="208"><div class="kick">A partnership proposal for ECGC from Restaurant Pal</div></div>
+<h1 class="rr" aria-label="Ram Race"><span class="t1">RAM</span> <span class="t2">RACE</span></h1>
+<p class="tag">Feed your ram. Race to win a <b>Swift Sport.</b></p>
 <p class="lead">A national bar game where every player raises their own ram, keeps it home by buying Village Ram, and races it on bar TVs. The season ends in a national final at the bar that sells the most Village Ram, with a 2022 Suzuki Swift Sport as the grand prize.</p>
 <div class="score">
 <div><b>4,320</b><span>cases of ECGC drinks in 6 months</span></div>
@@ -118,6 +138,7 @@ html{scroll-behavior:smooth;scroll-padding-top:64px}
 <img class="shot" src="img/tv-race.webp" alt="Bar TV screen showing six customised rams racing in the Kingstown zone, the leader on a Zess Boost" width="1600" height="900">
 </div></header>
 
+<div class="ramband"><img src="img/rams.webp" alt="Two charging rams kicking up dust" width="632" height="267"></div>
 <section class="band" id="screens" style="background:#121217"><div class="in">
 <h2>How a player plays</h2>
 <p class="lead">Playing means buying: a ram is fed only when the bar completes a Village Ram sale on its till. Here is everything a player does, from tapping the ram on the bar wall to racing on the bar TV. No app to download, no sign-up forms.</p>
@@ -162,6 +183,16 @@ html{scroll-behavior:smooth;scroll-padding-top:64px}
 <p class="lead">A salesman on every bar wall. An NFC tag in the nose opens a Village Ram order. Every 30 minutes the bar is open, the ram baas and its eyes flash green until someone buys: up to 14 scheduled sales a night, about 44 a week per bar.</p>
 <p class="note">Linked to Restaurant Pal at the till, so every sale is counted and reported to ECGC.</p>
 </div>
+</div>
+</div></section>
+<section class="band prize" id="prize"><div class="in pgrid">
+<img src="img/swift-prize.webp" alt="Yellow Suzuki Swift Sport doing a burnout under a Grand Prize: Suzuki Swift Sport banner" width="1135" height="580" loading="lazy">
+<div>
+<div class="kick">The national final</div>
+<h2>Race to win a <span>Swift Sport</span></h2>
+<p class="lead">The season ends with a national final at the bar that sells the most Village Ram. The fastest ram takes home a 2022 Suzuki Swift Sport. Every feed and every race night through the season builds toward that one race.</p>
+<p class="note">ECGC provides the grand prize directly. It is budgeted at EC$55,000 in every tier of the <a href="#investment">investment table</a>.</p>
+<div class="flags" aria-hidden="true"><i></i><i></i></div>
 </div>
 </div></section>
 <section class="band" id="benefits"><div class="in">
