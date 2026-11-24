@@ -94,6 +94,60 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
 .prep table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}.prep td,.prep th{padding:5px 6px;text-align:right;border-bottom:1px solid #23232c}.prep th{color:var(--mut);font-weight:700}.prep td:first-child,.prep th:first-child{text-align:left}
 .prep .tl{display:flex;align-items:flex-end;gap:3px;height:60px;margin-top:8px}.prep .tl i{flex:1;min-width:4px;background:#F7D117;border-radius:2px 2px 0 0;position:relative}.prep .tl i.a{background:#4be38a}
 .prep .acts{display:flex;gap:6px;margin-top:10px}.prep .acts button{flex:1;padding:10px;border-radius:10px;border:1px solid #3a3a46;background:#22222c;color:#fff;font:800 13px Inter,sans-serif;cursor:pointer}
+
+/* one-screen layout (MacBook / tablet landscape) */
+.wrap{max-width:none}
+.tabs{display:flex;gap:4px;background:#15151c;border:1px solid var(--line);border-radius:10px;padding:3px}
+.tabs button{padding:7px 14px;border-radius:8px;border:0;background:transparent;color:var(--mut);font:800 13px Inter,sans-serif;cursor:pointer}
+.tabs button.on{background:#2a2a35;color:#fff}
+.sg{display:grid;gap:10px;grid-template-columns:minmax(250px,1fr) minmax(330px,1.55fr) minmax(250px,1.15fr) minmax(250px,1fr)}
+body[data-role=assistant] .sg{grid-template-columns:1.5fr 1.2fr}
+.card h2 .nowl{float:right;text-transform:none;letter-spacing:0;font-size:12px;font-weight:600}.card h2 .nowl b{color:#fff}
+.quick{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.tg{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#fff;cursor:pointer}
+.tg input{width:18px;height:18px;accent-color:var(--y)}
+.sel{padding:7px 8px;border-radius:8px;border:1px solid #3a3a44;background:#1c1c24;color:#fff;font:700 13px Inter,sans-serif}
+@media (min-width:1000px){
+  .wrap{height:100dvh;display:flex;flex-direction:column;padding:10px 12px}
+  .top{margin-bottom:8px}.tab{flex:1;min-height:0}
+  #tabShow .sg{height:100%}
+  #tabShow .col{min-height:0;overflow:auto;padding:12px}
+  #tabSetup{overflow:auto}
+  #tabShow .card h2{margin-bottom:8px;font-size:12px}
+  #tabShow .steps{gap:6px}#tabShow .st{padding:11px 8px;font-size:15px}#tabShow .st.hold small{font-size:10px}
+  #tabShow .stats{grid-template-columns:repeat(6,1fr);gap:5px}#tabShow .stats div{padding:5px 7px}#tabShow .stats span{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#tabShow .stats b{font-size:17px}
+  #tabShow .pv{margin-top:8px}
+  #tabShow .outsel{margin-top:8px}#tabShow .outsel button{padding:8px 4px;font-size:12px}#tabShow .outsel small{display:none}
+  #tabShow .q{grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:8px}#tabShow .qi .ab button{padding:9px 0}
+  #tabShow .slots i{width:16px;height:16px}
+  #tabShow .wall{grid-template-columns:repeat(auto-fill,minmax(52px,1fr))}
+  #tabShow .ann textarea{min-height:60px;font-size:14px}#tabShow .ann .acts button{padding:10px}
+  #tabShow .cue b{font-size:36px}
+}
+@media (max-width:999px){.sg{grid-template-columns:1fr}}
+
+@media (min-width:1000px){
+  #tabShow .stats{grid-template-columns:repeat(3,1fr)}
+  #tabShow .q{grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:6px}
+  #tabShow .qi .tag{font-size:10px;padding:4px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #tabShow .qi .ab button{padding:7px 0;font-size:15px}
+  #tabShow .onbig .mut{font-size:12px}#tabShow .onbig .slots{margin:4px 0 6px}
+  #tabShow .onbig .wall{grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:4px}
+  #tabShow .ann .si{flex-wrap:wrap;gap:6px}#tabShow .ann .si span{flex:1 1 calc(100% - 20px)}#tabShow .ann .si button{flex:1}
+  #tabShow .ann .opts select{min-width:0}
+}
+
+@media (min-width:1000px){
+  #tabShow .q{grid-template-columns:repeat(auto-fill,minmax(68px,1fr))}
+  #tabShow .stats div{padding:4px 7px}#tabShow .stats b{font-size:15px}
+  #tabShow .onbig .wall{grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:3px}
+  #tabShow .onbig .wall div span{display:none}
+  #tabShow .onbig .slots i{width:12px;height:12px}
+  #tabShow .onbig>p.mut{display:none}
+}
+@media (min-width:1000px) and (max-height:720px){#tabShow .pv{width:88%;margin-left:auto;margin-right:auto}}
+@media (min-width:1000px){body[data-role=assistant] #tabShow .q{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}}
+@media (max-width:999px){.top{flex-wrap:wrap}.top>.big{font-size:22px!important}.tabs{order:3;width:100%}.tabs button{flex:1}}
 </style>
 </head>
 <body>
@@ -105,10 +159,11 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
   <p class="mut" id="lerr" style="color:#ff9a9a"></p>
 </div>
 <div class="wrap" id="ui" hidden>
-  <div class="top"><b class="big" style="font-size:26px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="conn">● Connected</span><div class="me"><span id="who"></span><button class="lo" id="logout">Log out</button></div></div>
+  <div class="top"><b class="big" style="font-size:26px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="conn">● Connected</span><nav class="tabs"><button data-tab="tabShow" class="on">Show</button><button data-tab="tabSetup">Setup &amp; reports</button></nav><div class="me"><span id="who"></span><button class="lo" id="logout">Log out</button></div></div>
   <div class="bar" id="bar"></div>
-  <div class="grid">
-    <div class="card op-only">
+  <div class="tab" id="tabShow">
+    <div class="sg">
+    <div class="card col op-only">
       <h2>Show</h2>
       <div class="steps">
         <button class="st full hold auto" id="autoB"><span class="fill"></span>▶ Run full sequence<small>hold to start · vote → shake → victory → replay</small></button>
@@ -124,24 +179,13 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
         <button class="st" data-scene="photo">Back to photo</button>
       </div>
       <div class="cue" id="cue"><span>FIREWORKS CUE</span><b id="cueN">–</b></div>
-      <div class="set">
-        <label class="sw">Vote <input type="number" id="voteS" min="10" max="120"> s</label>
-        <label class="sw">Shake <input type="number" id="shakeS" min="15" max="90"> s</label>
-        <label class="sw">Victory hold <input type="number" id="vicS" min="5" max="60"> s</label>
-        <label class="sw"><input type="checkbox" id="paused"> Pause photo sending</label>
-        <label class="sw"><input type="checkbox" id="reacts"> Emoji reactions on</label>
-        <label class="sw"><input type="checkbox" id="sonic"> Sound sync</label>
-        <label class="sw"><select id="sonicHz"><option value="17500">17.5 kHz</option><option value="18500">18.5 kHz</option><option value="19500">19.5 kHz</option></select></label>
-        <label class="sw"><button type="button" id="sonicT">Test tone</button></label>
+      <div class="quick">
+        <label class="tg"><input type="checkbox" id="paused"><span>Pause photo sending</span></label>
+        <label class="tg"><input type="checkbox" id="reacts"><span>Emoji reactions</span></label>
       </div>
-      <small id="sonicN" style="display:block;margin:-2px 0 8px">Sound sync: when Victory starts, Output A plays a hidden code through the PA. Phones that have lost signal can tap “sync with the stage sound” and still fire the light show. Test tone plays it once now on Output A.</small>
-      <div class="outsel"><span>Big screen outputs</span>
-      <div class="orow" data-o="A"><div class="olab"><i class="dot" id="dotA"></i>Output A</div><div class="seg" id="outsel"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
-      <div class="orow" data-o="B" id="rowB"><div class="olab"><i class="dot" id="dotB"></i>Output B</div><div class="seg" id="outselB"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
-      <small id="outnote">Green screen shows emojis on green for the AV crew to key over the camera. Output B unlocks when a big screen marked B is connected (press S on that screen).</small></div>
     </div>
-    <div class="card">
-      <h2>Live</h2>
+    <div class="card col">
+      <h2>Live <span class="nowl">Now showing: <b id="now">–</b></span></h2>
       <div class="stats">
         <div><span>Phones</span><b id="sPh">0</b></div>
         <div><span>Venue / diaspora</span><b id="sVD">0 / 0</b></div>
@@ -150,19 +194,57 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
         <div><span>Photo queue</span><b id="sQ">0/20</b></div>
         <div><span>Waiting line</span><b id="sL">0</b></div>
       </div>
-      <p class="mut" style="margin:10px 0 6px">Now showing: <b id="now" style="color:#fff">–</b></p>
       <div class="pv" id="pv"><iframe id="pvf" title="Big screen preview" src="screen.html?preview"></iframe></div>
-    </div>
-    <div class="card">
-      <h2>Photo queue · approve before it goes up</h2>
-      <div class="q" id="q"><p class="mut">No photos waiting.</p></div>
-    </div>
-    <div class="card">
-      <h2>On the big screen</h2>
+      <div class="op-only"><div class="outsel"><span>Big screen outputs</span>
+      <div class="orow" data-o="A"><div class="olab"><i class="dot" id="dotA"></i>Output A</div><div class="seg" id="outsel"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
+      <div class="orow" data-o="B" id="rowB"><div class="olab"><i class="dot" id="dotB"></i>Output B</div><div class="seg" id="outselB"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
+      <small id="outnote">Green screen shows emojis on green for the AV crew to key over the camera. Output B unlocks when a big screen marked B is connected (press S on that screen).</small></div></div>
+      <div class="onbig">      <h2 style="margin-top:12px">On the big screen</h2>
       <div class="mut">📍 Venue <b id="wv">0</b>/15</div><div class="slots" id="slv"></div>
       <div class="mut">🌍 Diaspora <b id="wd">0</b>/5</div><div class="slots" id="sld"></div>
       <div class="wall" id="wall"></div>
-      <p class="mut">Tap a photo to spotlight it or take it down.</p>
+      <p class="mut">Tap a photo to spotlight it or take it down.</p></div>
+    </div>
+    <div class="card col">
+      <h2>Photo queue · approve before it goes up</h2>
+      <div class="q" id="q"><p class="mut">No photos waiting.</p></div>
+
+    </div>
+    <div class="card col ann op-only">
+      <h2>Announcements</h2>
+      <textarea id="aT" maxlength="160" placeholder="e.g. Parents of a young boy in a yellow NDP shirt, please come to the side of the stage."></textarea>
+      <div class="cnt"><span id="aC">0</span>/160</div>
+      <div class="opts"><select id="aS"><option value="notice">Notice (yellow)</option><option value="urgent">Urgent (red)</option></select><select id="aW"><option value="both">Big screens + phones</option><option value="screens">Big screens only</option><option value="phones">Phones only</option></select></div>
+      <div class="acts"><button class="go" id="aGo">📣 Show now</button><button class="sv" id="aSv">Save</button></div>
+      <div class="live" id="aLive"><span id="aLiveT"></span><button id="aClr">Clear</button></div>
+      <div class="sl" id="aList"></div>
+      <p class="mut" style="margin:8px 0 0">Describe, don't name children. Phones get it at the venue only, not the diaspora link.</p>
+    </div>
+    </div>
+  </div>
+  <div class="tab" id="tabSetup" hidden>
+    <div class="grid">
+    <div class="card op-only">
+      <h2>Show settings</h2>
+      <div class="set">
+        <label class="sw">Vote <input type="number" id="voteS" min="10" max="120"> s</label>
+        <label class="sw">Shake <input type="number" id="shakeS" min="15" max="90"> s</label>
+        <label class="sw">Victory hold <input type="number" id="vicS" min="5" max="60"> s</label>
+      </div>
+      <h2 style="margin-top:16px">Sound sync</h2>
+      <div class="set">
+        <label class="tg"><input type="checkbox" id="sonic"><span>Sound sync on</span></label>
+        <select id="sonicHz" class="sel"><option value="17500">17.5 kHz</option><option value="18500">18.5 kHz</option><option value="19500">19.5 kHz</option></select>
+        <button type="button" id="sonicT" class="lo">Test tone</button>
+      </div>
+      <p class="mut" id="sonicN" style="font-size:12px;margin:8px 0 0">When Victory starts, Output A plays a hidden code through the PA. Phones that have lost signal can tap “sync with the stage sound” and still fire the light show. Test tone plays it once now on Output A.</p>
+    </div>
+    <div class="card team owner-only">
+      <h2>Team · assistant operators</h2>
+      <p class="mut" style="margin:0">Add a helper with their own PIN. <b style="color:#fff">Photo assistant</b>: approves photos and takes them down; can't change the show. <b style="color:#fff">Full operator</b>: runs the show too, but can't manage the team. Remove someone and they're signed out straight away.</p>
+      <div class="tl" id="tl"><p class="mut">No assistants yet.</p></div>
+      <form id="tf"><input id="tn" maxlength="40" placeholder="Name, e.g. Kerry" autocomplete="off"><select id="tr"><option value="assistant">Photo assistant</option><option value="operator">Full operator</option></select><button type="submit">Add</button></form>
+      <div class="newpin" id="np"></div>
     </div>
     <div class="card prep">
       <h2>Photo report</h2>
@@ -175,26 +257,10 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
       <div class="acts"><button id="prR">Refresh</button><button id="prD">⬇ Download CSV</button></div>
       <p class="mut" style="margin:8px 0 0;font-size:12px">Counts only: no names, phone numbers or photos.</p>
     </div>
-    <div class="card ann op-only">
-      <h2>Announcements</h2>
-      <textarea id="aT" maxlength="160" placeholder="e.g. Parents of a young boy in a yellow NDP shirt, please come to the side of the stage."></textarea>
-      <div class="cnt"><span id="aC">0</span>/160</div>
-      <div class="opts"><select id="aS"><option value="notice">Notice (yellow)</option><option value="urgent">Urgent (red)</option></select><select id="aW"><option value="both">Big screens + phones</option><option value="screens">Big screens only</option><option value="phones">Phones only</option></select></div>
-      <div class="acts"><button class="go" id="aGo">📣 Show now</button><button class="sv" id="aSv">Save</button></div>
-      <div class="live" id="aLive"><span id="aLiveT"></span><button id="aClr">Clear</button></div>
-      <div class="sl" id="aList"></div>
-      <p class="mut" style="margin:8px 0 0">Describe, don't name children. Phones get it at the venue only, not the diaspora link.</p>
-    </div>
-    <div class="card team owner-only">
-      <h2>Team · assistant operators</h2>
-      <p class="mut" style="margin:0">Add a helper with their own PIN. <b style="color:#fff">Photo assistant</b>: approves photos and takes them down; can't change the show. <b style="color:#fff">Full operator</b>: runs the show too, but can't manage the team. Remove someone and they're signed out straight away.</p>
-      <div class="tl" id="tl"><p class="mut">No assistants yet.</p></div>
-      <form id="tf"><input id="tn" maxlength="40" placeholder="Name, e.g. Kerry" autocomplete="off"><select id="tr"><option value="assistant">Photo assistant</option><option value="operator">Full operator</option></select><button type="submit">Add</button></form>
-      <div class="newpin" id="np"></div>
-    </div>
     <div class="card">
       <h2>Diaspora now</h2>
       <div class="dia" id="dia"><p class="mut">No diaspora phones yet.</p></div>
+    </div>
     </div>
   </div>
 </div>
@@ -213,6 +279,9 @@ if(PIN){call({a:'overview'}).then(()=>{$('login').hidden=true;$('ui').hidden=fal
 
 let ST=null,fails=0,settingsDirty=false;
 function fitPv(){const w=$('pv').clientWidth;$('pvf').style.transform=`scale(${w/1280})`}addEventListener('resize',fitPv);
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.hidden=t.id!==b.dataset.tab);try{localStorage.setItem('rally_tab',b.dataset.tab)}catch(e){}fitPv();if(b.dataset.tab==='tabSetup')report()});
+try{const t=localStorage.getItem('rally_tab');if(t&&t!=='tabShow'){const b=document.querySelector('.tabs button[data-tab="'+t+'"]');b&&b.click()}}catch(e){}
+
 async function tick(){if($('ui').hidden)return;try{const d=await call({a:'overview'});fails=0;render(d);$('conn').className='pill';$('conn').textContent='● Connected';if(!$('bar').classList.contains('warn'))$('bar').className='bar'}
  catch(e){if(e==='pin')return;fails++;if(fails>=2){$('conn').className='pill bad';$('conn').textContent='● Offline';$('bar').className='bar show bad';$('bar').textContent='⚠ This control screen is offline. Your taps are NOT being sent. Reconnecting… The big screens keep running on their own. Switch to the backup phone or hotspot if this lasts.'}}
  setTimeout(tick,1000)}
