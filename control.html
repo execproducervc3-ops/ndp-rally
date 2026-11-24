@@ -63,6 +63,15 @@ dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;paddi
 .st.auto{border-color:#4be38a}.st.auto .fill{background:rgba(75,227,138,.35)}
 .autost{grid-column:1/-1;display:flex;align-items:center;gap:10px;background:#0d3b1e;border:1px solid #4be38a;border-radius:12px;padding:10px 12px;font-weight:800;font-size:14px;color:#c8ffd9}
 .autost[hidden]{display:none}.autost span{flex:1}.autost button{padding:8px 14px;border-radius:9px;border:0;background:#5a1a1a;color:#fff;font:800 13px Inter,sans-serif;cursor:pointer}
+.me{display:flex;align-items:center;gap:8px;margin-left:auto}.me span{font-size:12px;color:var(--mut)}.me b{color:#fff}
+.lo{padding:7px 12px;border-radius:9px;border:1px solid #3a3a46;background:#22222c;color:#fff;font:800 12px Inter,sans-serif;cursor:pointer}.lo.arm{background:#7a1f1f;border-color:#c0392b}
+body[data-role=assistant] .op-only{display:none!important}body:not([data-role=owner]) .owner-only{display:none!important}
+.team .tl{display:flex;flex-direction:column;gap:6px;margin:8px 0}.team .tr{display:flex;align-items:center;gap:8px;background:#1c1c24;border-radius:10px;padding:8px 10px;font-size:13px}
+.team .tr b{flex:1}.team .tr i{font-style:normal;font-size:11px;color:var(--mut)}.team .tr button{padding:6px 10px;border-radius:8px;border:0;background:#5a1a1a;color:#fff;font:700 12px Inter,sans-serif;cursor:pointer}
+.team form{display:flex;flex-wrap:wrap;gap:6px}.team input,.team select{flex:1;min-width:120px;padding:10px;border-radius:10px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:600 14px Inter,sans-serif}
+.team form button{padding:10px 14px;border-radius:10px;border:0;background:var(--y);color:#10204a;font:800 14px Inter,sans-serif;cursor:pointer}
+.newpin{display:none;margin-top:10px;background:#0d3b1e;border:1px solid #4be38a;border-radius:12px;padding:12px;font-size:13px;color:#c8ffd9}.newpin.show{display:block}
+.newpin .pn{font:400 36px Anton,Impact,sans-serif;letter-spacing:4px;color:#fff;margin:4px 0}
 </style>
 </head>
 <body>
@@ -74,10 +83,10 @@ dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;paddi
   <p class="mut" id="lerr" style="color:#ff9a9a"></p>
 </div>
 <div class="wrap" id="ui" hidden>
-  <div class="top"><b class="big" style="font-size:26px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="conn">● Connected</span></div>
+  <div class="top"><b class="big" style="font-size:26px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="conn">● Connected</span><div class="me"><span id="who"></span><button class="lo" id="logout">Log out</button></div></div>
   <div class="bar" id="bar"></div>
   <div class="grid">
-    <div class="card">
+    <div class="card op-only">
       <h2>Show</h2>
       <div class="steps">
         <button class="st full hold auto" id="autoB"><span class="fill"></span>▶ Run full sequence<small>hold to start · vote → shake → victory → replay</small></button>
@@ -127,13 +136,20 @@ dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;paddi
       <div class="wall" id="wall"></div>
       <p class="mut">Tap a photo to spotlight it or take it down.</p>
     </div>
+    <div class="card team owner-only">
+      <h2>Team · assistant operators</h2>
+      <p class="mut" style="margin:0">Add a helper with their own PIN. <b style="color:#fff">Photo assistant</b>: approves photos and takes them down; can't change the show. <b style="color:#fff">Full operator</b>: runs the show too, but can't manage the team. Remove someone and they're signed out straight away.</p>
+      <div class="tl" id="tl"><p class="mut">No assistants yet.</p></div>
+      <form id="tf"><input id="tn" maxlength="40" placeholder="Name, e.g. Kerry" autocomplete="off"><select id="tr"><option value="assistant">Photo assistant</option><option value="operator">Full operator</option></select><button type="submit">Add</button></form>
+      <div class="newpin" id="np"></div>
+    </div>
     <div class="card">
       <h2>Diaspora now</h2>
       <div class="dia" id="dia"><p class="mut">No diaspora phones yet.</p></div>
     </div>
   </div>
 </div>
-<dialog id="dlg"><img id="dimg" alt=""><div class="row"><button id="dSpot" style="background:var(--y);color:#10204a">Spotlight</button><button id="dRem" style="background:#5a1a1a;color:#fff">Take down</button></div><div class="row"><button id="dClose" style="background:#2a2a33;color:#fff">Close</button></div></dialog>
+<dialog id="dlg"><img id="dimg" alt=""><div class="row"><button id="dSpot" class="op-only" style="background:var(--y);color:#10204a">Spotlight</button><button id="dRem" style="background:#5a1a1a;color:#fff">Take down</button></div><div class="row"><button id="dClose" style="background:#2a2a33;color:#fff">Close</button></div></dialog>
 <script src="config.js"></script>
 <script>
 (function(){
@@ -141,10 +157,10 @@ const CFG=window.RALLY_CFG||{};const FN=CFG.supabaseUrl+'/functions/v1/control';
 const $=id=>document.getElementById(id);
 let PIN='';try{PIN=sessionStorage.getItem('rally_pin')||''}catch(e){}
 async function call(body){const r=await fetch(FN,{method:'POST',headers:{'content-type':'application/json','x-pin':PIN},body:JSON.stringify(body)});if(r.status===401){lock('Wrong PIN');throw 'pin'}if(!r.ok)throw r.status;return r.json()}
-function lock(msg){$('ui').hidden=true;$('login').hidden=false;$('lerr').textContent=msg||'';try{sessionStorage.removeItem('rally_pin')}catch(e){}}
-async function unlock(){PIN=$('pin').value.trim();if(!PIN)return;try{await call({a:'overview'});try{sessionStorage.setItem('rally_pin',PIN)}catch(e){}$('login').hidden=true;$('ui').hidden=false;$('pin').value='';tick();report();fitPv()}catch(e){if(e!=='pin')$('lerr').textContent='Can\'t reach the server. Check your connection.'}}
+function lock(msg){$('ui').hidden=true;document.body.removeAttribute('data-role');PIN='';$('login').hidden=false;$('lerr').textContent=msg||'';try{sessionStorage.removeItem('rally_pin')}catch(e){}}
+async function unlock(){PIN=$('pin').value.trim();if(!PIN)return;try{await call({a:'overview'});try{sessionStorage.setItem('rally_pin',PIN)}catch(e){}$('login').hidden=true;$('ui').hidden=false;$('pin').value='';tick();report();fitPv();whoami()}catch(e){if(e!=='pin')$('lerr').textContent='Can\'t reach the server. Check your connection.'}}
 $('go').onclick=unlock;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
-if(PIN){call({a:'overview'}).then(()=>{$('login').hidden=true;$('ui').hidden=false;tick();report();fitPv()}).catch(()=>{})}
+if(PIN){call({a:'overview'}).then(()=>{$('login').hidden=true;$('ui').hidden=false;tick();report();fitPv();whoami()}).catch(()=>{})}
 
 let ST=null,fails=0,settingsDirty=false;
 function fitPv(){const w=$('pv').clientWidth;$('pvf').style.transform=`scale(${w/1280})`}addEventListener('resize',fitPv);
@@ -203,6 +219,19 @@ $('autoStop').onclick=()=>autoStop('Sequence stopped. Screens stay on the curren
     if(k>=1){fill.style.width='0';AUTO={on:1};autoSend('vote');autoShow('Starting VOTE…');return}raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)};
   const up=()=>{cancelAnimationFrame(raf);fill.style.width='0'};
   b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up)})();
+
+// ---------- who's signed in, log out, team ----------
+const ROLE={owner:'Owner',operator:'Full operator',assistant:'Photo assistant'};
+async function whoami(){try{const w=await call({a:'whoami'});document.body.dataset.role=w.role;$('who').innerHTML=w.role==='owner'?'<b>Owner</b>':`<b>${esc(w.name)}</b> · ${ROLE[w.role]||w.role}`;if(w.role==='owner')teamLoad();if(w.role!=='owner'&&AUTO&&w.role==='assistant'){autoStop('')}fitPv()}catch(e){}}
+let loT=null;$('logout').onclick=()=>{const b=$('logout');if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent=AUTO?'Sequence running! Tap to log out':'Tap to log out';clearTimeout(loT);loT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Log out'},3000);return}
+  clearTimeout(loT);b.classList.remove('arm');b.textContent='Log out';if(AUTO)autoStop('');lock('Logged out.')};
+async function teamLoad(){try{const r=await call({a:'ops_list'});const o=r.ops||[];$('tl').innerHTML=o.length?o.map(x=>`<div class="tr"><b>${esc(x.name)}</b><i>${ROLE[x.role]}${x.last_seen?' · seen '+new Date(x.last_seen).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):' · not signed in yet'}</i><button data-rm="${x.id}">Remove</button></div>`).join(''):'<p class="mut">No assistants yet.</p>'}catch(e){}}
+$('tl').addEventListener('click',async e=>{const id=e.target.dataset.rm;if(!id)return;if(e.target.textContent!=='Sure?'){e.target.textContent='Sure?';setTimeout(()=>{if(e.target.isConnected)e.target.textContent='Remove'},3000);return}try{await call({a:'ops_remove',id});teamLoad()}catch(x){alertBar('Couldn\'t remove that person.')}});
+$('tf').onsubmit=async e=>{e.preventDefault();const name=$('tn').value.trim();if(!name){$('tn').focus();return}
+  try{const r=await call({a:'ops_add',name,role:$('tr').value});$('tn').value='';
+    $('np').innerHTML=`<b>${esc(r.op.name)}</b> · ${ROLE[r.op.role]}<div class="pn">${r.pin}</div>Give them this PIN and the control page link. It's shown only once. If it's lost, remove them and add them again.`;$('np').classList.add('show');teamLoad()}
+  catch(x){alertBar('Couldn\'t add that person.')}};
+setInterval(()=>{if(document.body.dataset.role==='owner'&&!$('ui').hidden)teamLoad()},20000);
 let armT=null;$('outsel').onclick=e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
  // green screen takes the show off the output: tap twice to confirm
  if(b.dataset.out==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green screen'},3000);return}
