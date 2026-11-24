@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rally reactions · green screen</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:var(--key,#00B140);cursor:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#hud{position:fixed;left:12px;bottom:12px;font:700 13px/1.4 system-ui,sans-serif;color:#fff;background:rgba(0,0,0,.75);padding:8px 12px;border-radius:8px;display:none;cursor:default;white-space:pre}
+body.hud #hud{display:block}body.hud{cursor:default}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud"></div>
+<script src="config.js"></script>
+<script>
+(function(){
+// Green-screen overlay: emojis sent from crowd phones float up. Keys used by the AV crew:
+//   ?bg=green (default) | blue | black | transparent   ?lane=full | left | right | center   ?size=1 (scale)
+//   Keys: F full screen · H show/hide status · T test burst
+var CFG=window.RALLY_CFG||{};var FN=CFG.supabaseUrl+'/functions/v1/crowd';
+var EMO=['💛','💙','🔥','👏','🙌','🎉'];
+var q=new URLSearchParams(location.search);
+var BG={green:'#00B140',blue:'#0047BB',black:'#000000',transparent:'transparent'}[q.get('bg')||'green']||'#00B140';
+document.documentElement.style.setProperty('--key',BG);
+var LANE=q.get('lane')||'full';var SIZE=Math.max(.4,Math.min(3,parseFloat(q.get('size'))||1));
+var cv=document.getElementById('cv'),g=cv.getContext('2d'),W=0,H=0,DPR=1;
+function fit(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;g.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',fit);fit();
+// pre-render each emoji once (sharp and fast)
+var SPR=EMO.map(function(e){var c=document.createElement('canvas'),s=160;c.width=c.height=s;var x=c.getContext('2d');x.font=Math.round(s*.8)+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,s/2,s/2+s*.04);return c});
+var P=[];var MAXP=260;
+function laneX(){var r=Math.random();if(LANE==='left')return W*(.03+r*.27);if(LANE==='right')return W*(.70+r*.27);if(LANE==='center')return W*(.35+r*.30);return W*(.04+r*.92)}
+function spawn(k,delay){if(P.length>=MAXP)return;var base=Math.min(W,H)*.09*SIZE;var s=base*(.75+Math.random()*.6);
+  P.push({k:k,x:laneX(),y:H+s,s:s,vy:(H*(.16+Math.random()*.10)),ph:Math.random()*6.28,wob:s*(.25+Math.random()*.35),t:-(delay||0),life:4.2+Math.random()*1.6,rot:(Math.random()-.5)*.5})}
+var last=performance.now();
+function frame(now){var dt=Math.min(.05,(now-last)/1000);last=now;g.clearRect(0,0,W,H);
+  for(var i=P.length-1;i>=0;i--){var p=P[i];p.t+=dt;if(p.t<0)continue;if(p.t>p.life){P.splice(i,1);continue}
+    p.y-=p.vy*dt;var x=p.x+Math.sin(p.ph+p.t*2.2)*p.wob;
+    var a=p.t<.25?p.t/.25:(p.t>p.life-1?Math.max(0,p.life-p.t):1);var pop=p.t<.3?.6+.4*(p.t/.3)+.15*Math.sin(p.t/.3*3.14):1;
+    g.save();g.globalAlpha=a;g.translate(x,p.y);g.rotate(p.rot*Math.sin(p.t*1.5));var s=p.s*pop;g.drawImage(SPR[p.k],-s/2,-s/2,s,s);g.restore()}
+  requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
+// release a batch smoothly over the next poll interval
+function release(counts){var tot=counts.reduce(function(a,b){return a+b},0);if(!tot)return;
+  var cap=Math.min(tot,40),scale=cap/tot;
+  counts.forEach(function(n,k){var m=n*scale;var c=Math.floor(m)+(Math.random()<m-Math.floor(m)?1:0);if(n>0&&c===0)c=1;
+    for(var j=0;j<c;j++)spawn(k,Math.random()*.5)})}
+// poll the server
+var prev=null,open=false,fails=0,seen=0,lastOk=0;
+function hud(){var h=document.getElementById('hud');h.textContent='Reactions: '+(open?'ON':'OFF (turn on in control)')+'\nConnection: '+(fails>=2?'OFFLINE, retrying':'ok')+'\nShown so far: '+seen+'\nKeys: F full screen · H hide · T test';}
+function poll(){var ctl=new AbortController();var to=setTimeout(function(){ctl.abort()},3000);
+  fetch(FN,{method:'POST',headers:{'content-type':'application/json'},body:'{"a":"reacts"}',signal:ctl.signal}).then(function(r){return r.ok?r.json():Promise.reject(r.status)}).then(function(d){clearTimeout(to);fails=0;lastOk=Date.now();open=!!d.open;var t=(d.t||[]).slice(0,6);while(t.length<6)t.push(0);
+    if(prev){var dl=t.map(function(v,i){return Math.max(0,v-prev[i])});if(open){release(dl);seen+=dl.reduce(function(a,b){return a+b},0)}}
+    prev=t;hud()}).catch(function(){clearTimeout(to);fails++;hud()}).then(function(){setTimeout(poll,500)})}
+poll();hud();
+// keys
+addEventListener('keydown',function(e){var k=e.key.toLowerCase();
+  if(k==='f'){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(function(){});else document.exitFullscreen()}
+  if(k==='h')document.body.classList.toggle('hud');
+  if(k==='t'){for(var i=0;i<30;i++)spawn(i%6,Math.random()*1.5)}});
+addEventListener('dblclick',function(){if(!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(function(){})});
+document.body.classList.add('hud');setTimeout(function(){document.body.classList.remove('hud')},6000);
+})();
+</script>
+</body>
+</html>

@@ -87,6 +87,7 @@ dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;paddi
         <label class="sw">Vote <input type="number" id="voteS" min="10" max="120"> s</label>
         <label class="sw">Shake <input type="number" id="shakeS" min="15" max="90"> s</label>
         <label class="sw"><input type="checkbox" id="paused"> Pause photo sending</label>
+        <label class="sw"><input type="checkbox" id="reacts"> Emoji reactions on <a href="reactions.html" target="_blank" style="color:var(--y);margin-left:6px;font-size:12px">open green screen ↗</a></label>
       </div>
     </div>
     <div class="card">
@@ -141,7 +142,7 @@ function render(d){ST=d.state;const s=d.stats||{};
  $('sPh').textContent=(s.phones||0).toLocaleString();$('sVD').textContent=(s.phones_venue||0).toLocaleString()+' / '+(s.phones_diaspora||0).toLocaleString();
  $('sVo').textContent=(s.votes||0).toLocaleString();$('sSh').textContent=(s.shakes||0).toLocaleString();$('sQ').textContent=(s.queue||0)+'/20';$('sL').textContent=s.line||0;
  $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
- if(!settingsDirty){$('voteS').value=ST.vote_seconds;$('shakeS').value=ST.shake_seconds;$('paused').checked=ST.sending_paused}
+ if(!settingsDirty){$('voteS').value=ST.vote_seconds;$('shakeS').value=ST.shake_seconds;$('paused').checked=ST.sending_paused;$('reacts').checked=!!ST.reactions_open}
  // fireworks cue: counts down to the moment the meter smashes MAX
  const end=Date.parse(ST.scene_started_at)+ST.shake_seconds*1000,left=(end-d.now)/1000;
  if(ST.scene==='shake'&&left>-3){$('cue').classList.add('show');$('cueN').textContent=left>10?Math.ceil(left)+'s':left>0?Math.ceil(left):'FIRE!'}else $('cue').classList.remove('show');
@@ -166,6 +167,7 @@ $('dClose').onclick=()=>$('dlg').close();$('dSpot').onclick=()=>{scene('spotligh
 $('dRem').onclick=async()=>{try{await call({a:'remove',photo:pick})}catch(e){}$('dlg').close()};
 ['voteS','shakeS'].forEach(id=>{$(id).addEventListener('focus',()=>settingsDirty=true);$(id).addEventListener('change',async()=>{await call({a:'settings',vote_seconds:+$('voteS').value,shake_seconds:+$('shakeS').value}).catch(()=>{});settingsDirty=false})});
 $('paused').onchange=()=>call({a:'settings',paused:$('paused').checked}).catch(()=>{});
+$('reacts').onchange=()=>call({a:'settings',reactions:$('reacts').checked}).catch(()=>{});
 async function report(){if($('ui').hidden){setTimeout(report,5000);return}try{const r=await call({a:'report'});const t=r.diaspora_by_timezone||[],c=r.diaspora_by_city||[];
   const rows=t.slice(0,8).map(x=>`<div><span>${esc(x.place)}</span><b>${x.phones} phones · ${x.photos||0} photos</b></div>`).join('');
   const cities=c.slice(0,6).map(x=>esc(x.city)+' ('+x.phones+')').join(', ');

@@ -54,6 +54,12 @@ main{flex:1;position:relative;overflow:hidden}
 input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px solid #3a3a44;background:#15151b;color:#fff;font:600 17px Inter,sans-serif;text-align:center}
 .card{width:100%;max-width:360px;background:var(--card);border-radius:18px;padding:16px;margin-top:10px}
 .small{font-size:13px;color:#c9c9d0;line-height:1.5}
+.rx{display:none;justify-content:space-between;gap:6px;margin:4px 16px 0;padding:6px;background:#15151b;border:1px solid #2c2c36;border-radius:999px}
+.rx.on{display:flex}
+.rx button{flex:1;aspect-ratio:1;max-width:52px;border:0;border-radius:50%;background:#22222c;font-size:26px;line-height:1;padding:0;cursor:pointer;touch-action:manipulation}
+.rx button:active{transform:scale(.88);background:#33333d}
+.fly{position:fixed;z-index:70;font-size:34px;pointer-events:none;animation:fly 1.3s ease-out forwards}
+@keyframes fly{0%{transform:translate(-50%,0) scale(.6);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),-260px) scale(1.25);opacity:0}}
 </style>
 </head>
 <body>
@@ -105,6 +111,7 @@ input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px
     <p class="note" id="motionNote"></p>
   </section>
 </main>
+<div class="rx" id="rx" aria-label="Send a reaction to the big screen"><button data-k="0">💛</button><button data-k="1">💙</button><button data-k="2">🔥</button><button data-k="3">👏</button><button data-k="4">🙌</button><button data-k="5">🎉</button></div>
 <div class="tog" id="tog"><button id="tPhoto" class="a">📷 PHOTO</button><button id="tVote">✔ VOTE</button></div>
 </div>
 <div class="ls" id="ls"><img src="img/ndp-logo.webp" alt=""><b>I AM<br>NDP!</b></div>
@@ -227,10 +234,21 @@ function applyScene(){if(HOME){lightShow(false);return}
 }
 setInterval(()=>{if(!HOME&&S.scene==='shake'&&shakeOver()&&!$('ls').classList.contains('on'))lightShow('flash')},500);
 
+
+// ---------- emoji reactions (positive set only) ----------
+const RX=[0,0,0,0,0,0];let rxTaps=[];const RXSEED=parseInt(DEV.slice(9,13),16)/0xffff;
+function rxShow(){const hide=['vCam','vShake','vCity'].includes(cur)||$('ls').classList.contains('on')||(S.scene==='vote'&&voted!=String(S.seq)&&cur==='vVote');$('rx').classList.toggle('on',!!S.react&&!hide)}
+$('rx').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!S.react)return;const now=Date.now();rxTaps=rxTaps.filter(t=>now-t<1000);if(rxTaps.length>=8)return;rxTaps.push(now);
+  const k=+b.dataset.k;RX[k]++;try{navigator.vibrate&&navigator.vibrate(12)}catch(err){}
+  const r=b.getBoundingClientRect(),f=document.createElement('div');f.className='fly';f.textContent=b.textContent;f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top-10)+'px';f.style.setProperty('--dx',((Math.random()-.5)*80)+'px');document.body.appendChild(f);setTimeout(()=>f.remove(),1400)});
+setInterval(()=>{if(!RX.some(n=>n>0))return;const rs=Math.max(.05,Math.min(1,+S.rs||1));const c=RX.splice(0,6,0,0,0,0,0,0);
+  if(RXSEED<rs&&navigator.onLine!==false){api({a:'react',c:c.map(n=>Math.round(n/rs))},1).catch(()=>{})}},3000+Math.random()*1500);
+setInterval(rxShow,500);
+
 // ---------- status polling via CDN ----------
 let fails=0;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),4000);
-  const r=await fetch(STATUS+'?t='+Math.floor(Date.now()/2000),{signal:ctl.signal});clearTimeout(to);if(!r.ok)throw r.status;const d=await r.json();fails=0;$('off').classList.remove('show');
+  const r=await fetch(STATUS+'?t='+Math.floor(Date.now()/2000),{signal:ctl.signal});clearTimeout(to);if(!r.ok)throw r.status;const d=await r.json();fails=0;$('off').classList.remove('show');S.react=!!d.react;S.rs=d.rs||1;
   if(d.seq!==S.seq){const first=S.seq<0;Object.assign(S,d);if(!first||['vote','shake','victory','replay'].includes(d.scene))applyScene();else if(tab==='vote')renderVote()}}
  catch(e){fails++;if(fails>=2)$('off').classList.add('show')}}
 let pollT=null;function loop(){poll();clearTimeout(pollT);pollT=setTimeout(loop,2000+Math.random()*600)}
