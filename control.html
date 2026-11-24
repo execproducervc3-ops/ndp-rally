@@ -59,6 +59,9 @@ dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;paddi
 .outsel .seg{display:flex;gap:6px}.outsel button{flex:1;padding:11px 4px;border-radius:10px;border:1px solid #33333d;background:#22222c;color:#fff;font:800 13px Inter,sans-serif;cursor:pointer}
 .outsel button.on{background:var(--y);color:#10204a;border-color:var(--y)}.outsel button[data-out=green].on{background:#00B140;color:#fff;border-color:#00B140}
 .outsel button.arm{background:#5a4a05;border-color:var(--y)}.outsel small{display:block;font-size:11px;color:var(--mut);margin-top:6px}
+.st.auto{border-color:#4be38a}.st.auto .fill{background:rgba(75,227,138,.35)}
+.autost{grid-column:1/-1;display:flex;align-items:center;gap:10px;background:#0d3b1e;border:1px solid #4be38a;border-radius:12px;padding:10px 12px;font-weight:800;font-size:14px;color:#c8ffd9}
+.autost[hidden]{display:none}.autost span{flex:1}.autost button{padding:8px 14px;border-radius:9px;border:0;background:#5a1a1a;color:#fff;font:800 13px Inter,sans-serif;cursor:pointer}
 </style>
 </head>
 <body>
@@ -76,6 +79,8 @@ dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;paddi
     <div class="card">
       <h2>Show</h2>
       <div class="steps">
+        <button class="st full hold auto" id="autoB"><span class="fill"></span>▶ Run full sequence<small>hold to start · vote → shake → victory → replay</small></button>
+        <div class="autost" id="autoSt" hidden><span id="autoTx"></span><button id="autoStop">Stop</button></div>
         <button class="st" data-scene="photo">1 Open photo</button>
         <button class="st" data-scene="vote">2 Start vote</button>
         <button class="st" data-scene="shake">3 Start shake</button>
@@ -90,6 +95,7 @@ dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;paddi
       <div class="set">
         <label class="sw">Vote <input type="number" id="voteS" min="10" max="120"> s</label>
         <label class="sw">Shake <input type="number" id="shakeS" min="15" max="90"> s</label>
+        <label class="sw">Victory hold <input type="number" id="vicS" min="5" max="60"> s</label>
         <label class="sw"><input type="checkbox" id="paused"> Pause photo sending</label>
         <label class="sw"><input type="checkbox" id="reacts"> Emoji reactions on</label>
       </div>
@@ -144,7 +150,7 @@ function fitPv(){const w=$('pv').clientWidth;$('pvf').style.transform=`scale(${w
 async function tick(){if($('ui').hidden)return;try{const d=await call({a:'overview'});fails=0;render(d);$('conn').className='pill';$('conn').textContent='● Connected';if(!$('bar').classList.contains('warn'))$('bar').className='bar'}
  catch(e){if(e==='pin')return;fails++;if(fails>=2){$('conn').className='pill bad';$('conn').textContent='● Offline';$('bar').className='bar show bad';$('bar').textContent='⚠ This control screen is offline. Your taps are NOT being sent. Reconnecting… The big screens keep running on their own. Switch to the backup phone or hotspot if this lasts.'}}
  setTimeout(tick,1000)}
-function render(d){ST=d.state;const s=d.stats||{};
+function render(d){ST=d.state;try{autoTick(d)}catch(e){}const s=d.stats||{};
  $('sPh').textContent=(s.phones||0).toLocaleString();$('sVD').textContent=(s.phones_venue||0).toLocaleString()+' / '+(s.phones_diaspora||0).toLocaleString();
  $('sVo').textContent=(s.votes||0).toLocaleString();$('sSh').textContent=(s.shakes||0).toLocaleString();$('sQ').textContent=(s.queue||0)+'/20';$('sL').textContent=s.line||0;
  $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
@@ -162,7 +168,7 @@ function render(d){ST=d.state;const s=d.stats||{};
 const esc=t=>String(t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
 async function scene(sc,extra){try{await call(Object.assign({a:'scene',scene:sc},extra||{}))}catch(e){alertBar('Couldn\'t send that. Try again.')}}
 function alertBar(t){const b=$('bar');b.className='bar show warn';b.textContent='⚠ '+t;setTimeout(()=>{if(b.textContent==='⚠ '+t)b.className='bar'},4000)}
-document.querySelectorAll('.st').forEach(b=>{
+document.querySelectorAll('.st[data-scene]').forEach(b=>{
  if(b.dataset.hold){let t0=0,raf=0;const fill=b.querySelector('.fill');
   const down=e=>{e.preventDefault();t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/900);fill.style.width=k*100+'%';if(k>=1){t0=0;fill.style.width='0';scene(b.dataset.scene);return}raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)};
   const up=()=>{cancelAnimationFrame(raf);fill.style.width='0'};
@@ -174,6 +180,28 @@ $('dClose').onclick=()=>$('dlg').close();$('dSpot').onclick=()=>{scene('spotligh
 $('dRem').onclick=async()=>{try{await call({a:'remove',photo:pick})}catch(e){}$('dlg').close()};
 ['voteS','shakeS'].forEach(id=>{$(id).addEventListener('focus',()=>settingsDirty=true);$(id).addEventListener('change',async()=>{await call({a:'settings',vote_seconds:+$('voteS').value,shake_seconds:+$('shakeS').value}).catch(()=>{});settingsDirty=false})});
 $('paused').onchange=()=>call({a:'settings',paused:$('paused').checked}).catch(()=>{});
+
+// ---------- one-button sequence: vote → shake → victory → replay ----------
+// Runs from this control screen: keep it open and online until the replay starts.
+const CHAIN=['vote','shake','victory','replay'],NEXT={vote:'shake',shake:'victory',victory:'replay'};
+let AUTO=null;try{AUTO=JSON.parse(localStorage.getItem('rally_auto')||'null')}catch(e){}
+let VIC=+(localStorage.getItem('rally_vic')||15);$('vicS').value=VIC;$('vicS').onchange=()=>{VIC=Math.max(5,Math.min(60,+$('vicS').value||15));$('vicS').value=VIC;localStorage.setItem('rally_vic',VIC)};
+function autoSave(){try{AUTO?localStorage.setItem('rally_auto',JSON.stringify(AUTO)):localStorage.removeItem('rally_auto')}catch(e){}}
+function autoShow(t){$('autoSt').hidden=!t;$('autoTx').textContent=t||''}
+function autoSend(sc){AUTO.expect=sc;AUTO.sentAt=Date.now();autoSave();scene(sc)}
+function autoStop(msg){AUTO=null;autoSave();autoShow(msg||'');if(msg)setTimeout(()=>{if(!AUTO)autoShow('')},5000)}
+function autoTick(d){if(!AUTO)return;const sc=ST.scene,el=(d.now-Date.parse(ST.scene_started_at))/1000;
+  if(sc!==AUTO.expect){if(Date.now()-AUTO.sentAt<8000){autoShow('Starting '+AUTO.expect.toUpperCase()+'…');return}autoStop('Sequence stopped: another step was chosen.');return}
+  if(sc==='replay'){autoStop('✓ Sequence done. Replay is on.');return}
+  const len=sc==='vote'?ST.vote_seconds:sc==='shake'?ST.shake_seconds+1:VIC,left=Math.max(0,Math.ceil(len-el));
+  autoShow(`AUTO: ${sc.toUpperCase()} · ${left}s → ${NEXT[sc].toUpperCase()}`);
+  if(el>=len)autoSend(NEXT[sc])}
+$('autoStop').onclick=()=>autoStop('Sequence stopped. Screens stay on the current step.');
+(function(){const b=$('autoB'),fill=b.querySelector('.fill');let t0=0,raf=0;
+  const down=e=>{e.preventDefault();t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/900);fill.style.width=k*100+'%';
+    if(k>=1){fill.style.width='0';AUTO={on:1};autoSend('vote');autoShow('Starting VOTE…');return}raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)};
+  const up=()=>{cancelAnimationFrame(raf);fill.style.width='0'};
+  b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up)})();
 let armT=null;$('outsel').onclick=e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
  // green screen takes the show off the output: tap twice to confirm
  if(b.dataset.out==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green screen'},3000);return}
