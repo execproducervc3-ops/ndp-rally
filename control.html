@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Rally control</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#F7D117;--bg:#0b0b10;--card:#15151c;--line:#2a2a33;--ink:#f4f4f6;--mut:#a3a3ad;--ok:#4be38a;--bad:#ff6b6b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+.big{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px}
+.wrap{max-width:1100px;margin:0 auto;padding:12px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.pill{font-size:13px;font-weight:800;padding:5px 12px;border-radius:999px;background:#0d3b1e;color:var(--ok)}
+.pill.warn{background:#3b2e05;color:var(--y)}.pill.bad{background:#3b0d0d;color:#ff9a9a;animation:pulse .8s infinite}
+@keyframes pulse{50%{opacity:.5}}
+.bar{display:none;margin-bottom:10px;padding:10px 14px;border-radius:12px;font-weight:700;font-size:14px}
+.bar.show{display:block}.bar.bad{background:#5a1010}.bar.warn{background:#4a3a05}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+.card h2{margin:0 0 10px;font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stats div{background:#1c1c24;border-radius:10px;padding:8px 10px}.stats span{display:block;font-size:11px;color:var(--mut)}.stats b{font-size:22px}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.st{position:relative;padding:16px 10px;border-radius:12px;background:#22222c;color:#fff;border:1px solid #33333d;font:800 16px Inter,sans-serif;cursor:pointer;text-align:center;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.st.on{background:var(--y);color:#10204a;border-color:var(--y)}
+.st.hold{border-color:var(--y)}.st.hold small{display:block;font-size:11px;font-weight:600;color:var(--mut)}.st.on.hold small{color:#10204a}
+.st .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(247,209,23,.35)}
+.st.full{grid-column:1/-1}.st.qr{background:#fff;color:#10204a}
+.cue{display:none;margin-top:10px;border-radius:12px;background:#3a1500;border:2px solid #ff8a1a;padding:10px;text-align:center}
+.cue.show{display:block}.cue span{font-size:12px;font-weight:800;letter-spacing:2px;color:#ffb36b}.cue b{display:block;font-family:Anton,Impact,sans-serif;font-size:48px;font-weight:400}
+.set{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:13px;color:var(--mut);align-items:center}
+.set input[type=number]{width:62px;padding:6px;border-radius:8px;border:1px solid #3a3a44;background:#1c1c24;color:#fff;font:700 14px Inter}
+.sw{display:flex;align-items:center;gap:6px}
+.q{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.qi{background:#1c1c24;border-radius:10px;overflow:hidden}
+.qi img{width:100%;aspect-ratio:4/5;object-fit:cover;display:block;background:#000}
+.qi .tag{font-size:11px;font-weight:800;padding:6px 8px}
+.qi .ab{display:flex}.qi .ab button{flex:1;border:0;padding:12px 0;font:800 18px Inter;cursor:pointer}
+.ap{background:#1f7a46;color:#fff}.rj{background:#5a1a1a;color:#fff}
+.slots{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0 12px}.slots i{width:22px;height:22px;border-radius:4px;background:#22222c}
+.slots i.v{background:#2fbf87}.slots i.d{background:#8f86e6}
+.wall{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:6px}
+.wall div{position:relative;cursor:pointer}.wall img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:6px;display:block}
+.wall div span{position:absolute;left:3px;bottom:3px;font-size:10px;background:rgba(0,0,0,.7);padding:1px 4px;border-radius:4px}
+.pv{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000;border:1px solid var(--line)}
+.pv iframe{position:absolute;left:0;top:0;width:1280px;height:720px;border:0;transform-origin:0 0;pointer-events:none}
+.dia{font-size:14px}.dia div{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)}
+#login{max-width:360px;margin:12vh auto;text-align:center}
+#login input{width:100%;padding:14px;border-radius:12px;border:1px solid #3a3a44;background:#15151b;color:#fff;font:800 22px Inter;text-align:center;letter-spacing:6px}
+.btn{width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;background:var(--y);color:#10204a;font:800 17px Inter;cursor:pointer}
+.mut{color:var(--mut);font-size:13px}
+dialog{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;max-width:320px}
+dialog img{width:100%;border-radius:8px}
+dialog .row{display:flex;gap:8px;margin-top:10px}dialog .row button{flex:1;padding:12px;border:0;border-radius:10px;font:800 15px Inter;cursor:pointer}
+</style>
+</head>
+<body>
+<div id="login">
+  <div class="big" style="font-size:40px;color:var(--y)">RALLY CONTROL</div>
+  <p class="mut">Enter the control PIN</p>
+  <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" aria-label="Control PIN">
+  <button class="btn" id="go">Unlock</button>
+  <p class="mut" id="lerr" style="color:#ff9a9a"></p>
+</div>
+<div class="wrap" id="ui" hidden>
+  <div class="top"><b class="big" style="font-size:26px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="conn">● Connected</span></div>
+  <div class="bar" id="bar"></div>
+  <div class="grid">
+    <div class="card">
+      <h2>Show</h2>
+      <div class="steps">
+        <button class="st" data-scene="photo">1 Open photo</button>
+        <button class="st" data-scene="vote">2 Start vote</button>
+        <button class="st" data-scene="shake">3 Start shake</button>
+        <button class="st hold" data-scene="victory" data-hold="1"><span class="fill"></span>4 Victory<small>hold to confirm</small></button>
+        <button class="st" data-scene="replay">5 Replay</button>
+        <button class="st" data-scene="wall">Photo wall</button>
+        <button class="st full qr" data-scene="qronly">▣ Show QR code only</button>
+        <button class="st" data-scene="off">Screens off</button>
+        <button class="st" data-scene="photo">Back to photo</button>
+      </div>
+      <div class="cue" id="cue"><span>FIREWORKS CUE</span><b id="cueN">–</b></div>
+      <div class="set">
+        <label class="sw">Vote <input type="number" id="voteS" min="10" max="120"> s</label>
+        <label class="sw">Shake <input type="number" id="shakeS" min="15" max="90"> s</label>
+        <label class="sw"><input type="checkbox" id="paused"> Pause photo sending</label>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Live</h2>
+      <div class="stats">
+        <div><span>Phones</span><b id="sPh">0</b></div>
+        <div><span>Venue / diaspora</span><b id="sVD">0 / 0</b></div>
+        <div><span>Votes</span><b id="sVo">0</b></div>
+        <div><span>Shakes (sampled)</span><b id="sSh">0</b></div>
+        <div><span>Photo queue</span><b id="sQ">0/20</b></div>
+        <div><span>Waiting line</span><b id="sL">0</b></div>
+      </div>
+      <p class="mut" style="margin:10px 0 6px">Now showing: <b id="now" style="color:#fff">–</b></p>
+      <div class="pv" id="pv"><iframe id="pvf" title="Big screen preview" src="screen.html?preview"></iframe></div>
+    </div>
+    <div class="card">
+      <h2>Photo queue · approve before it goes up</h2>
+      <div class="q" id="q"><p class="mut">No photos waiting.</p></div>
+    </div>
+    <div class="card">
+      <h2>On the big screen</h2>
+      <div class="mut">📍 Venue <b id="wv">0</b>/15</div><div class="slots" id="slv"></div>
+      <div class="mut">🌍 Diaspora <b id="wd">0</b>/5</div><div class="slots" id="sld"></div>
+      <div class="wall" id="wall"></div>
+      <p class="mut">Tap a photo to spotlight it or take it down.</p>
+    </div>
+    <div class="card">
+      <h2>Diaspora now</h2>
+      <div class="dia" id="dia"><p class="mut">No diaspora phones yet.</p></div>
+    </div>
+  </div>
+</div>
+<dialog id="dlg"><img id="dimg" alt=""><div class="row"><button id="dSpot" style="background:var(--y);color:#10204a">Spotlight</button><button id="dRem" style="background:#5a1a1a;color:#fff">Take down</button></div><div class="row"><button id="dClose" style="background:#2a2a33;color:#fff">Close</button></div></dialog>
+<script src="config.js"></script>
+<script>
+(function(){
+const CFG=window.RALLY_CFG||{};const FN=CFG.supabaseUrl+'/functions/v1/control';
+const $=id=>document.getElementById(id);
+let PIN='';try{PIN=sessionStorage.getItem('rally_pin')||''}catch(e){}
+async function call(body){const r=await fetch(FN,{method:'POST',headers:{'content-type':'application/json','x-pin':PIN},body:JSON.stringify(body)});if(r.status===401){lock('Wrong PIN');throw 'pin'}if(!r.ok)throw r.status;return r.json()}
+function lock(msg){$('ui').hidden=true;$('login').hidden=false;$('lerr').textContent=msg||'';try{sessionStorage.removeItem('rally_pin')}catch(e){}}
+async function unlock(){PIN=$('pin').value.trim();if(!PIN)return;try{await call({a:'overview'});try{sessionStorage.setItem('rally_pin',PIN)}catch(e){}$('login').hidden=true;$('ui').hidden=false;$('pin').value='';tick();report();fitPv()}catch(e){if(e!=='pin')$('lerr').textContent='Can\'t reach the server. Check your connection.'}}
+$('go').onclick=unlock;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});
+if(PIN){call({a:'overview'}).then(()=>{$('login').hidden=true;$('ui').hidden=false;tick();report();fitPv()}).catch(()=>{})}
+
+let ST=null,fails=0,settingsDirty=false;
+function fitPv(){const w=$('pv').clientWidth;$('pvf').style.transform=`scale(${w/1280})`}addEventListener('resize',fitPv);
+async function tick(){if($('ui').hidden)return;try{const d=await call({a:'overview'});fails=0;render(d);$('conn').className='pill';$('conn').textContent='● Connected';if(!$('bar').classList.contains('warn'))$('bar').className='bar'}
+ catch(e){if(e==='pin')return;fails++;if(fails>=2){$('conn').className='pill bad';$('conn').textContent='● Offline';$('bar').className='bar show bad';$('bar').textContent='⚠ This control screen is offline. Your taps are NOT being sent. Reconnecting… The big screens keep running on their own. Switch to the backup phone or hotspot if this lasts.'}}
+ setTimeout(tick,1000)}
+function render(d){ST=d.state;const s=d.stats||{};
+ $('sPh').textContent=(s.phones||0).toLocaleString();$('sVD').textContent=(s.phones_venue||0).toLocaleString()+' / '+(s.phones_diaspora||0).toLocaleString();
+ $('sVo').textContent=(s.votes||0).toLocaleString();$('sSh').textContent=(s.shakes||0).toLocaleString();$('sQ').textContent=(s.queue||0)+'/20';$('sL').textContent=s.line||0;
+ $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
+ if(!settingsDirty){$('voteS').value=ST.vote_seconds;$('shakeS').value=ST.shake_seconds;$('paused').checked=ST.sending_paused}
+ // fireworks cue: counts down to the moment the meter smashes MAX
+ const end=Date.parse(ST.scene_started_at)+ST.shake_seconds*1000,left=(end-d.now)/1000;
+ if(ST.scene==='shake'&&left>-3){$('cue').classList.add('show');$('cueN').textContent=left>10?Math.ceil(left)+'s':left>0?Math.ceil(left):'FIRE!'}else $('cue').classList.remove('show');
+ // queue
+ const q=d.queue||[];const qh=q.map(p=>`<div class="qi"><img src="${p.url}" alt="" loading="lazy"><div class="tag">${p.grp==='diaspora'?'🌍 Diaspora'+(p.city?' · '+esc(p.city):''):'📍 Venue'}</div><div class="ab"><button class="ap" data-ok="${p.id}" aria-label="Approve">✓</button><button class="rj" data-no="${p.id}" aria-label="Reject">✕</button></div></div>`).join('');
+ const qk=q.map(p=>p.id).join();if($('q').dataset.k!==qk){$('q').dataset.k=qk;$('q').innerHTML=qh||'<p class="mut">No photos waiting.</p>'}
+ const w=d.wall||[];const wv=w.filter(p=>p.grp==='venue').length,wd=w.filter(p=>p.grp==='diaspora').length;$('wv').textContent=wv;$('wd').textContent=wd;
+ $('slv').innerHTML=Array.from({length:15},(_,i)=>`<i class="${i<wv?'v':''}"></i>`).join('');$('sld').innerHTML=Array.from({length:5},(_,i)=>`<i class="${i<wd?'d':''}"></i>`).join('');
+ const wk=w.map(p=>p.id).join();if($('wall').dataset.k!==wk){$('wall').dataset.k=wk;$('wall').innerHTML=w.map(p=>`<div data-w="${p.id}" data-u="${p.url}"><img src="${p.url}" alt="" loading="lazy"><span>${p.grp==='diaspora'?'🌍':'📍'}</span></div>`).join('')}}
+const esc=t=>String(t).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+async function scene(sc,extra){try{await call(Object.assign({a:'scene',scene:sc},extra||{}))}catch(e){alertBar('Couldn\'t send that. Try again.')}}
+function alertBar(t){const b=$('bar');b.className='bar show warn';b.textContent='⚠ '+t;setTimeout(()=>{if(b.textContent==='⚠ '+t)b.className='bar'},4000)}
+document.querySelectorAll('.st').forEach(b=>{
+ if(b.dataset.hold){let t0=0,raf=0;const fill=b.querySelector('.fill');
+  const down=e=>{e.preventDefault();t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/900);fill.style.width=k*100+'%';if(k>=1){t0=0;fill.style.width='0';scene(b.dataset.scene);return}raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)};
+  const up=()=>{cancelAnimationFrame(raf);fill.style.width='0'};
+  b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up)}
+ else b.onclick=()=>scene(b.dataset.scene)});
+$('q').addEventListener('click',async e=>{const ok=e.target.dataset.ok,no=e.target.dataset.no;if(!ok&&!no)return;e.target.closest('.qi').style.opacity=.3;try{await call({a:'decide',photo:ok||no,approve:!!ok})}catch(x){alertBar('Couldn\'t update that photo.')}});
+let pick=null;$('wall').addEventListener('click',e=>{const c=e.target.closest('[data-w]');if(!c)return;pick=c.dataset.w;$('dimg').src=c.dataset.u;$('dlg').showModal()});
+$('dClose').onclick=()=>$('dlg').close();$('dSpot').onclick=()=>{scene('spotlight',{photo:pick});$('dlg').close()};
+$('dRem').onclick=async()=>{try{await call({a:'remove',photo:pick})}catch(e){}$('dlg').close()};
+['voteS','shakeS'].forEach(id=>{$(id).addEventListener('focus',()=>settingsDirty=true);$(id).addEventListener('change',async()=>{await call({a:'settings',vote_seconds:+$('voteS').value,shake_seconds:+$('shakeS').value}).catch(()=>{});settingsDirty=false})});
+$('paused').onchange=()=>call({a:'settings',paused:$('paused').checked}).catch(()=>{});
+async function report(){if($('ui').hidden){setTimeout(report,5000);return}try{const r=await call({a:'report'});const t=r.diaspora_by_timezone||[],c=r.diaspora_by_city||[];
+  const rows=t.slice(0,8).map(x=>`<div><span>${esc(x.place)}</span><b>${x.phones} phones · ${x.photos||0} photos</b></div>`).join('');
+  const cities=c.slice(0,6).map(x=>esc(x.city)+' ('+x.phones+')').join(', ');
+  $('dia').innerHTML=(rows||'<p class="mut">No diaspora phones yet.</p>')+(cities?`<p class="mut" style="margin-top:8px">Typed cities: ${cities}</p>`:'')}catch(e){}
+ setTimeout(report,10000)}
+let wl=null;async function wake(){try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}document.addEventListener('click',wake);
+})();
+</script>
+</body>
+</html>

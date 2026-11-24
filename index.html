@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b0b10">
+<title>NDP Anniversary Rally</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#F7D117;--n:#1f2a55;--b:#1f4fa3;--bg:#0b0b10;--card:#17171e;--ink:#f4f4f6;--mut:#a3a3ad}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;overscroll-behavior:none}
+.big{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;gap:10px;padding:10px 16px}
+header img{width:38px;height:38px;border-radius:50%}
+header b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:20px;color:var(--y);letter-spacing:.5px}
+main{flex:1;position:relative;overflow:hidden}
+.view{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;padding:10px 18px 16px;overflow-y:auto;text-align:center}
+.view.on{display:flex}
+.btn{display:block;width:100%;border:0;border-radius:16px;padding:16px;font:800 18px Inter,sans-serif;cursor:pointer}
+.btn.y{background:var(--y);color:#10204a}.btn.g{background:#25D366;color:#fff}.btn.o{background:transparent;color:var(--y);border:2px solid var(--y)}.btn.d{background:#24242d;color:#fff}
+.btn:active{transform:scale(.97)}
+.row{display:flex;gap:10px;width:100%}
+.row .btn{flex:1;padding:14px 8px;font-size:16px}
+.note{font-size:12px;color:var(--mut);margin-top:8px}
+.tog{display:flex;gap:4px;margin:6px 16px 10px;padding:4px;background:#1c1c24;border:1px solid #33333d;border-radius:999px}
+.tog button{flex:1;border:0;border-radius:999px;padding:11px 0;font:800 14px Inter,sans-serif;background:transparent;color:#c9c9d0}
+.tog button.a{background:var(--y);color:#10204a}
+.framebox{position:relative;width:min(100%,360px);aspect-ratio:4/5;border-radius:10px;overflow:hidden;background:#111;flex:none}
+.framebox video,.framebox canvas,.framebox img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.mirror{transform:scaleX(-1)}
+#cd{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Anton,Impact,sans-serif;font-size:120px;color:#fff;text-shadow:0 0 30px #000;pointer-events:none}
+.flash{position:fixed;inset:0;background:#fff;pointer-events:none;animation:fl .5s forwards;z-index:50}
+@keyframes fl{from{opacity:1}to{opacity:0}}
+.shutter{width:74px;height:74px;border-radius:50%;border:5px solid #fff;background:var(--y);margin:14px auto 0;cursor:pointer}
+.offbar{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 8px);z-index:60;background:#2a1f05;border:2px solid var(--y);border-radius:14px;padding:10px 12px;font-size:13px;display:none;gap:10px;align-items:center;text-align:left}
+.offbar.show{display:flex}.offbar i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--y);animation:pulse .8s infinite}
+@keyframes pulse{50%{opacity:.4}}
+.vote{width:100%;max-width:360px;background:var(--y);color:#2a2400;border-radius:24px;padding:22px 10px;border:0;cursor:pointer;box-shadow:0 0 40px rgba(247,209,23,.4)}
+.vote img{width:120px;display:block;margin:8px auto}
+.check{width:110px;height:110px;border-radius:50%;background:var(--y);display:flex;align-items:center;justify-content:center;margin:20px auto 12px}
+.shake{width:100%;max-width:360px;border-radius:24px;background:var(--y);color:#2a2400;padding:28px 0;animation:pulse .4s infinite;box-shadow:0 0 40px rgba(247,209,23,.5)}
+.bar{width:100%;max-width:360px;height:20px;border-radius:10px;background:#22222a;overflow:hidden;margin-top:14px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#b39500,var(--y),#fff8c4);transition:width .15s}
+.ls{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;align-items:center;justify-content:center;animation:lsf .5s steps(1) infinite}
+.ls.on{display:flex}.ls.pulse{animation:lsp 1.2s ease-in-out infinite}
+@keyframes lsf{0%{background:var(--y)}50%{background:var(--b)}}
+@keyframes lsp{0%,100%{background:var(--y)}50%{background:#7a6400}}
+.ls img{width:44vw;max-width:220px}
+.ls b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:20vw;line-height:.95;color:#fff;-webkit-text-stroke:3px var(--n);margin-top:4vw}
+@media (prefers-reduced-motion:reduce){.ls{animation:none;background:var(--y)}}
+.lineno{font-family:Anton,Impact,sans-serif;font-size:84px;color:var(--y);line-height:1}
+input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px solid #3a3a44;background:#15151b;color:#fff;font:600 17px Inter,sans-serif;text-align:center}
+.card{width:100%;max-width:360px;background:var(--card);border-radius:18px;padding:16px;margin-top:10px}
+.small{font-size:13px;color:#c9c9d0;line-height:1.5}
+</style>
+</head>
+<body>
+<div id="app">
+<header><img src="img/ndp-logo.webp" alt="NDP"><b>ANNIVERSARY RALLY</b></header>
+<main>
+  <!-- diaspora: where are you watching from -->
+  <section class="view" id="vCity">
+    <div class="big" style="font-size:40px;color:var(--y);margin-top:20px;line-height:1">WATCHING FROM HOME?</div>
+    <p class="small" style="margin:10px 0 18px">Take your rally photo in the NDP frame and send it to the big screens at the rally.</p>
+    <input class="city" id="cityIn" maxlength="30" placeholder="Toronto" autocomplete="off">
+    <p class="note">Where are you watching from? This goes on your photo.</p>
+    <button class="btn y" id="cityGo" style="margin-top:16px;max-width:360px">Continue</button>
+    <p class="note" id="cityErr" style="color:#ff9a9a"></p>
+  </section>
+  <!-- photo: start -->
+  <section class="view" id="vPhoto">
+    <div class="framebox" id="introBox"><canvas id="introCv" width="540" height="675"></canvas></div>
+    <button class="btn y" id="openCam" style="margin-top:14px;max-width:360px">📷 Take your rally photo</button>
+    <p class="note">Your photo is made on your phone. Nothing is uploaded unless you send it to the big screen.</p>
+  </section>
+  <!-- camera -->
+  <section class="view" id="vCam">
+    <div class="framebox"><video id="vid" playsinline muted autoplay class="mirror"></video><canvas id="ovl" width="1080" height="1350"></canvas><div id="cd"></div></div>
+    <div class="row" style="max-width:360px;align-items:center;margin-top:8px"><button class="btn d" id="camBack" style="flex:none;width:72px">✕</button><div class="shutter" id="shoot" role="button" aria-label="Take photo"></div><button class="btn d" id="flip" style="flex:none;width:72px">🔄</button></div>
+    <p class="note" id="camErr"></p>
+  </section>
+  <!-- result -->
+  <section class="view" id="vResult">
+    <div class="framebox"><img id="shot" alt="Your rally photo"></div>
+    <div class="row" style="max-width:360px;margin-top:12px"><button class="btn y" id="saveB">⬇ Save</button><button class="btn g" id="shareB">Share</button></div>
+    <button class="btn o" id="sendB" style="margin-top:10px;max-width:360px">📺 Send to big screen</button>
+    <p class="note" id="sendNote">Your photo may appear on the big screens and livestream. Photos are checked before they go up, and deleted after the rally.</p>
+    <button class="btn d" id="again" style="margin-top:6px;max-width:360px;padding:12px;font-size:15px">Take another</button>
+  </section>
+  <!-- send status -->
+  <section class="view" id="vSend">
+    <div class="framebox" style="max-width:220px"><img id="shot2" alt=""></div>
+    <div id="sendBody" style="margin-top:16px;width:100%;max-width:360px"></div>
+    <button class="btn d" id="sendBack" style="margin-top:12px;max-width:360px">Back to my photo</button>
+  </section>
+  <!-- vote -->
+  <section class="view" id="vVote"></section>
+  <!-- shake -->
+  <section class="view" id="vShake">
+    <div class="shake" id="shakeBox"><div class="big" style="font-size:64px" id="shakeWord">SHAKE!</div><div style="font-weight:800;font-size:14px">Shake your phone. Every shake counts</div></div>
+    <div class="bar"><i id="power"></i></div>
+    <div class="big" id="myShakes" style="font-size:58px;margin-top:12px">0</div><div class="small">your shakes</div>
+    <p class="note" id="motionNote"></p>
+  </section>
+</main>
+<div class="tog" id="tog"><button id="tPhoto" class="a">📷 PHOTO</button><button id="tVote">✔ VOTE</button></div>
+</div>
+<div class="ls" id="ls"><img src="img/ndp-logo.webp" alt=""><b>I AM<br>NDP!</b></div>
+<div class="offbar" id="off"><i></i><div><b>You're offline.</b> Reconnecting… Keep this page open. Photos still work, and your shakes count when you're back.</div></div>
+<canvas id="work" width="1080" height="1350" style="display:none"></canvas>
+<script src="config.js"></script>
+<script>
+(function(){
+const CFG=window.RALLY_CFG||{};const SUPA=CFG.supabaseUrl;const FN=SUPA+'/functions/v1/crowd';
+const STATUS=SUPA+'/storage/v1/object/public/status/status.json';
+const $=id=>document.getElementById(id);
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const uuid=()=>(crypto.randomUUID?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)}));
+let DEV=store.get('rally_dev');if(!DEV){DEV=uuid();store.set('rally_dev',DEV)}
+const HOME=/[?&]home\b/.test(location.search);const ORIGIN=HOME?'diaspora':'venue';
+let TZ='';try{TZ=Intl.DateTimeFormat().resolvedOptions().timeZone||''}catch(e){}
+const TZOFF=new Date().getTimezoneOffset();
+let CITY=store.get('rally_city')||'';
+const SAMPLER=(parseInt(DEV.slice(0,6),16)/0xffffff)<(CFG.shakeSampleRate||0.35);
+function api(body,tries){tries=tries||2;return fetch(FN,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({d:DEV,origin:ORIGIN,tzoff:TZOFF},body))}).then(r=>r.ok?r.json():Promise.reject(r.status)).catch(e=>tries>1?new Promise(r=>setTimeout(r,800+Math.random()*1200)).then(()=>api(body,tries-1)):Promise.reject(e))}
+const ev=k=>api({a:'event',kind:k}).catch(()=>{});
+
+// ---------- views ----------
+let cur='';function show(v){document.querySelectorAll('.view').forEach(e=>e.classList.toggle('on',e.id===v));cur=v}
+let tab='photo';let photoView='vPhoto';
+function setTab(t){tab=t;$('tPhoto').classList.toggle('a',t==='photo');$('tVote').classList.toggle('a',t==='vote');if(t==='photo'){show(photoView)}else{renderVote();show(gameView())}}
+$('tPhoto').onclick=()=>{setTab('photo')};$('tVote').onclick=()=>setTab('vote');
+if(HOME)$('tog').style.display='none';
+
+// ---------- frame drawing ----------
+const IMG={};['ndp-logo.webp','anniversary-rally.webp','geh-dem-performance.webp'].forEach(n=>{const i=new Image();i.src='img/'+n;IMG[n]=i});
+function drawBorder(g,W,H){const p=W*.05;g.fillStyle='#F7D117';g.fillRect(0,0,W,p);g.fillRect(0,H-p,W,p);g.fillRect(0,0,p,H);g.fillRect(W-p,0,p,H)}
+function drawDecor(g,W,H,city){const p=W*.05,iw=W-2*p,ih=H-2*p;
+  const bh=ih*.26,gb=g.createLinearGradient(0,H-p-bh,0,H-p);gb.addColorStop(0,'rgba(31,42,85,0)');gb.addColorStop(.6,'rgba(31,42,85,.8)');gb.addColorStop(1,'rgba(31,42,85,0)');g.fillStyle=gb;g.fillRect(p,H-p-bh,iw,bh);
+  g.strokeStyle='#1f2a55';g.lineWidth=W*.006;g.strokeRect(p,p,iw,ih);
+  const L=IMG['ndp-logo.webp'];if(L.complete&&L.naturalWidth){const s=W*.26;g.save();g.beginPath();g.arc(W*.01+s/2,W*.01+s/2,s/2+W*.008,0,7);g.fillStyle='#F7D117';g.fill();g.restore();g.drawImage(L,W*.01,W*.01,s,s)}
+  const A=IMG['anniversary-rally.webp'];if(A.complete&&A.naturalWidth){const w=W*.62,h=w*A.naturalHeight/A.naturalWidth;g.save();g.translate(W*.97-w/2,W*.155);g.rotate(-4*Math.PI/180);g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=W*.015;g.drawImage(A,-w/2,-h/2,w,h);g.restore()}
+  const G=IMG['geh-dem-performance.webp'];if(G.complete&&G.naturalWidth){const w=W*.85,h=w*G.naturalHeight/G.naturalWidth;g.save();g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=W*.012;g.drawImage(G,(W-w)/2,H-W*.01-h-(city?W*.065:0),w,h);g.restore()}
+  if(city){const t='Watching from '+city;g.font=`800 ${W*.034}px Inter,sans-serif`;const tw=g.measureText(t).width+W*.06;g.fillStyle='#1f2a55';g.fillRect((W-tw)/2,H-W*.078,tw,W*.058);g.fillStyle='#F7D117';g.textAlign='center';g.textBaseline='middle';g.fillText(t,W/2,H-W*.049)}}
+function drawFrame(g,W,H,photo,mirror,city){const p=W*.05,iw=W-2*p,ih=H-2*p;
+  if(photo){g.fillStyle='#000';g.fillRect(0,0,W,H);const sw=photo.videoWidth||photo.naturalWidth||photo.width,sh=photo.videoHeight||photo.naturalHeight||photo.height;const sc=Math.max(iw/sw,ih/sh),dw=sw*sc,dh=sh*sc;
+    g.save();g.beginPath();g.rect(p,p,iw,ih);g.clip();if(mirror){g.translate(W,0);g.scale(-1,1)}g.drawImage(photo,p+(iw-dw)/2,p+(ih-dh)/2,dw,dh);g.restore()}
+  else{const gr=g.createRadialGradient(W/2,H*.35,10,W/2,H*.35,W);gr.addColorStop(0,'#3a4c8f');gr.addColorStop(1,'#07081a');g.fillStyle=gr;g.fillRect(p,p,iw,ih);g.fillStyle='rgba(255,255,255,.6)';g.font=`800 ${W*.05}px Inter,sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText('Your photo here',W/2,H*.45)}
+  drawBorder(g,W,H);drawDecor(g,W,H,city)}
+function drawIntro(){const c=$('introCv');drawFrame(c.getContext('2d'),c.width,c.height,null,false,HOME?CITY:'')}
+Object.values(IMG).forEach(i=>i.addEventListener('load',drawIntro));drawIntro();
+
+// ---------- camera ----------
+let stream=null,facing='user';
+async function startCam(){$('camErr').textContent='';try{if(stream)stream.getTracks().forEach(t=>t.stop());
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:1280},height:{ideal:1600}},audio:false});const v=$('vid');v.srcObject=stream;v.classList.toggle('mirror',facing==='user');await v.play().catch(()=>{});
+  const o=$('ovl'),g=o.getContext('2d');g.clearRect(0,0,o.width,o.height);drawBorder(g,o.width,o.height);drawDecor(g,o.width,o.height,HOME?CITY:'')}
+ catch(e){$('camErr').textContent='Camera blocked. Allow camera access for this page in your browser settings, then try again.'}}
+function stopCam(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}}
+$('openCam').onclick=()=>{show('vCam');photoView='vCam';startCam()};
+$('camBack').onclick=()=>{stopCam();photoView='vPhoto';show('vPhoto')};
+$('flip').onclick=()=>{facing=facing==='user'?'environment':'user';startCam()};
+let lastBlob=null,lastUrl=null;
+$('shoot').onclick=async()=>{const cd=$('cd');for(const n of ['3','2','1']){cd.textContent=n;await new Promise(r=>setTimeout(r,800))}cd.textContent='';
+  const fl=document.createElement('div');fl.className='flash';document.body.appendChild(fl);setTimeout(()=>fl.remove(),600);
+  const c=$('work'),g=c.getContext('2d');drawFrame(g,c.width,c.height,$('vid'),facing==='user',HOME?CITY:'');
+  c.toBlob(b=>{lastBlob=b;if(lastUrl)URL.revokeObjectURL(lastUrl);lastUrl=URL.createObjectURL(b);$('shot').src=lastUrl;$('shot2').src=lastUrl;stopCam();photoView='vResult';show('vResult');ev('photo')},'image/jpeg',.82)};
+$('again').onclick=()=>{show('vCam');photoView='vCam';startCam()};
+function fileOf(){return new File([lastBlob],'ndp-rally-photo.jpg',{type:'image/jpeg'})}
+$('saveB').onclick=async()=>{ev('save');const f=fileOf();if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e.name==='AbortError')return}}const a=document.createElement('a');a.href=lastUrl;a.download='ndp-rally-photo.jpg';document.body.appendChild(a);a.click();a.remove()};
+$('shareB').onclick=async()=>{ev('share');const f=fileOf();const text='#GEHDEMPERFORMANCE 💛💙';if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text});return}catch(e){if(e.name==='AbortError')return}}if(navigator.share){try{await navigator.share({text})}catch(e){}}};
+
+// ---------- send to big screen ----------
+let sendState=null,linePoll=null;
+function sendView(html){$('sendBody').innerHTML=html;photoView='vSend';if(tab==='photo')show('vSend')}
+$('sendBack').onclick=()=>{photoView='vResult';show('vResult')};
+$('sendB').onclick=()=>requestSend();
+async function requestSend(){if(!lastBlob)return;sendView('<div class="small">Checking for space on the big screen…</div>');
+  try{handleSend(await api({a:'photo_req',city:HOME?CITY:null}))}catch(e){sendView('<div class="card"><b>Couldn\'t reach the big screen.</b><p class="small">Check your connection and try again. Your photo is still on your phone.</p></div>')}}
+async function handleSend(r){clearTimeout(linePoll);
+  if(r.status==='go'&&r.upload){sendView('<div class="small">Sending your photo…</div>');
+    try{const up=await fetch(r.upload.signedUrl,{method:'PUT',headers:{'content-type':'image/jpeg','x-upsert':'true'},body:lastBlob});if(!up.ok)throw up.status;
+      const d=await api({a:'photo_done',photo:r.photo,path:r.upload.path});if(!d.ok)throw 'done';
+      sendView('<div class="card"><div class="big" style="font-size:34px;color:var(--y)">SENT ✓</div><p class="small">Waiting for approval. If it\'s picked, it\'ll appear on the big screens soon.</p></div>')}
+    catch(e){sendView('<div class="card"><b>The upload didn\'t finish.</b><p class="small">Tap to try again.</p><button class="btn y" id="retrySend">Try again</button></div>');$('retrySend').onclick=requestSend}return}
+  if(r.status==='line'){sendView(`<div class="card"><div class="small">You're in line</div><div class="lineno">#${r.position}</div><p class="small">Keep this page open. Your photo sends automatically when there's room.</p></div>`);linePoll=setTimeout(async()=>{try{handleSend(await api({a:'photo_line'}))}catch(e){handleSend(r)}},4000+Math.random()*2000);return}
+  if(r.status==='pending'){sendView('<div class="card"><div class="big" style="font-size:30px;color:var(--y)">ALREADY SENT ✓</div><p class="small">Your photo is waiting for approval.</p></div>');return}
+  if(r.status==='paused'){sendView('<div class="card"><b>Sending is paused for a moment.</b><p class="small">Try again in a minute. Your photo is still on your phone 💛</p></div>');return}
+  if(r.status==='line_full'){sendView('<div class="card"><b>The line is full right now.</b><p class="small">Try again later. Your photo is still on your phone 💛</p></div>');return}
+  sendView('<div class="card"><b>Not sent.</b><p class="small">Tap Send to big screen to try again.</p></div>')}
+
+// ---------- game (venue only) ----------
+const S={seq:-1,scene:'off',at:0,vote:60,shake:40};let voted=store.get('rally_voted_seq');
+function gameView(){const sc=S.scene;if(sc==='shake'&&!shakeOver())return 'vShake';return 'vVote'}
+function shakeOver(){return S.scene==='shake'&&Date.now()>S.at+S.shake*1000}
+function renderVote(){const v=$('vVote');
+  if(S.scene==='vote'){if(voted==String(S.seq)){v.innerHTML='<div class="check"><svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#2a2400" stroke-width="3"><path d="M5 12l5 5L20 7"/></svg></div><div class="big" style="font-size:38px">VOTE COUNTED!</div><p class="small">Get ready to shake your phone</p>'}
+    else{v.innerHTML='<div class="big" style="font-size:30px;margin:6px 0 14px">THE VOTE IS OPEN!</div><button class="vote" id="voteB"><div class="big" style="font-size:54px">VOTE</div><img src="img/ndp-logo.webp" alt="NDP"><div style="font-weight:800">Tap to vote</div></button><p class="note">Anonymous. Nothing personal is collected.</p>';$('voteB').onclick=doVote}}
+  else{v.innerHTML='<img src="img/ndp-logo.webp" alt="" style="width:120px;margin-top:30px;opacity:.9"><div class="big" style="font-size:38px;color:var(--y);margin-top:10px">VOTE OPENS SOON</div><p class="small" style="max-width:320px">Keep this page open. When the MC starts the vote, your phone switches here on its own.</p><p class="note">Tap PHOTO to take another picture</p>'}}
+async function doVote(){motionAsk();voted=String(S.seq);store.set('rally_voted_seq',voted);try{navigator.vibrate&&navigator.vibrate(60)}catch(e){}renderVote();api({a:'vote'},3).catch(()=>{})}
+// motion
+let motionOk=false,shakes=0,unsent=0,lastPeak=0,power=0;
+function motionAsk(){try{if(window.DeviceMotionEvent&&typeof DeviceMotionEvent.requestPermission==='function'){DeviceMotionEvent.requestPermission().then(s=>{motionOk=s==='granted';if(motionOk)addMotion()}).catch(()=>{})}else{motionOk=true;addMotion()}}catch(e){}}
+let motionOn=false;function addMotion(){if(motionOn)return;motionOn=true;addEventListener('devicemotion',e=>{const a=e.accelerationIncludingGravity||e.acceleration;if(!a)return;const m=Math.sqrt((a.x||0)**2+(a.y||0)**2+(a.z||0)**2);power=power*.85+Math.min(1,Math.abs(m-9.8)/14)*.15;
+  if(S.scene==='shake'&&!shakeOver()&&Math.abs(m-9.8)>9&&e.timeStamp-lastPeak>140){lastPeak=e.timeStamp;shakes++;unsent++;const s=$('myShakes');if(s)s.textContent=shakes}})}
+setInterval(()=>{const p=$('power');if(p)p.style.width=Math.round(Math.min(1,power*2.2)*100)+'%'},150);
+setInterval(()=>{if(unsent>0&&S.scene==='shake'&&SAMPLER&&navigator.onLine!==false){const n=unsent;unsent=0;api({a:'shake',n},1).catch(()=>{unsent+=n})}else if(!SAMPLER)unsent=0},4000+Math.random()*1500);
+// tap fallback when motion isn't available
+$('shakeBox').onclick=()=>{if(S.scene==='shake'&&!shakeOver()){shakes++;unsent++;$('myShakes').textContent=shakes;power=Math.min(1,power+.15)}};
+// wake lock
+let wl=null;async function wake(){try{if('wakeLock' in navigator&&!wl){wl=await navigator.wakeLock.request('screen');wl.addEventListener('release',()=>{wl=null})}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){wake();poll()}});
+
+// light show
+function lightShow(mode){const l=$('ls');l.classList.toggle('on',!!mode);l.classList.toggle('pulse',mode==='pulse');if(mode==='flash'){try{navigator.vibrate&&navigator.vibrate([200,100,200,100,400])}catch(e){}}}
+$('ls').onclick=()=>lightShow(false);
+
+function applyScene(){if(HOME){lightShow(false);return}
+  const sc=S.scene;
+  if(sc==='vote'){setTab('vote');lightShow(false)}
+  else if(sc==='shake'){if(shakeOver()){lightShow('flash')}else{setTab('vote');show('vShake');lightShow(false);if(!motionOk)$('motionNote').textContent='Tip: if shaking doesn\'t register, tap the yellow box.'}}
+  else if(sc==='victory'){lightShow('flash')}
+  else if(sc==='replay'){lightShow('pulse')}
+  else{lightShow(false);if(tab==='vote'){renderVote();show(gameView())}}
+}
+setInterval(()=>{if(!HOME&&S.scene==='shake'&&shakeOver()&&!$('ls').classList.contains('on'))lightShow('flash')},500);
+
+// ---------- status polling via CDN ----------
+let fails=0;
+async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),4000);
+  const r=await fetch(STATUS+'?t='+Math.floor(Date.now()/2000),{signal:ctl.signal});clearTimeout(to);if(!r.ok)throw r.status;const d=await r.json();fails=0;$('off').classList.remove('show');
+  if(d.seq!==S.seq){const first=S.seq<0;Object.assign(S,d);if(!first||['vote','shake','victory','replay'].includes(d.scene))applyScene();else if(tab==='vote')renderVote()}}
+ catch(e){fails++;if(fails>=2)$('off').classList.add('show')}}
+let pollT=null;function loop(){poll();clearTimeout(pollT);pollT=setTimeout(loop,2000+Math.random()*600)}
+addEventListener('online',poll);
+
+// ---------- start ----------
+function start(){api({a:'join',tz:TZ,city:HOME?CITY:null}).catch(()=>{});show(photoView);loop();wake()}
+if(HOME&&!CITY){show('vCity');$('cityGo').onclick=()=>{const c=$('cityIn').value.trim().replace(/[<>]/g,'');if(c.length<2){$('cityErr').textContent='Enter the city you\'re watching from';return}CITY=c;store.set('rally_city',c);drawIntro();start()};$('cityIn').oninput=()=>{$('cityErr').textContent=''}}
+else start();
+document.addEventListener('click',wake,{once:true});
+})();
+</script>
+</body>
+</html>
