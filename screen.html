@@ -145,7 +145,7 @@ button:focus-visible{outline:3px solid var(--y);outline-offset:2px}
 
 <style id="live">
 html,body{margin:0!important;padding:0!important;background:#000!important;overflow:hidden!important;width:100%;height:100%;cursor:none}
-body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask):not(#annb){display:none!important}
+body>*:not(#scal):not(#startov):not(#fitp):not(#fitgrid):not(#rxg):not(#rxc):not(#fitmask):not(#annb):not(#fxd):not(.efx){display:none!important}
 #annb{position:fixed;z-index:49600;display:flex;align-items:center;gap:1.2em;padding:.55em 1em;border-radius:.45em;font-family:Inter,system-ui,sans-serif;font-weight:800;line-height:1.2;box-shadow:0 .4em 1.6em rgba(0,0,0,.55);transform:translateY(140%);opacity:0;transition:transform .45s cubic-bezier(.2,.9,.3,1.2),opacity .3s}
 #annb.on{transform:none;opacity:1}#annb .al{flex:none;font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.06em;padding:.2em .55em;border-radius:.3em;font-size:.8em}
 #annb.notice{background:#F7D117;color:#10204a}#annb.notice .al{background:#10204a;color:#F7D117}
@@ -2787,7 +2787,7 @@ if(sc==='victory'&&autoVictorySeq>=0&&autoVictorySeq===seq-1)return;
 let fails=0,started=false;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),2500);
 const r=await fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(PREV?{a:'screen'}:{a:'screen',out:OUTP}),signal:ctl.signal});clearTimeout(to);
-if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann&&!CUE)window.__ann(d.ann);if(window.__sonic)window.__sonic(d.sonic);
+if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann&&!CUE)window.__ann(d.ann);if(window.__sonic)window.__sonic(d.sonic);if(window.__efx&&!CUE)window.__efx(d.efx);
 const st=d.state;LIVE.vote=st.vote;LIVE.shake=st.shake;if(!CUE){LIVE.at=st.at;LIVE.spotlight=st.spotlight}
 if(CUE){}else if(started&&st.seq!==LIVE.seq){const prev=LIVE.seq;LIVE.seq=st.seq;LIVE.scene=st.scene;if(st.fx==='fade'&&window.__fade)window.__fade(()=>runScene(st.scene,st.seq));else runScene(st.scene,st.seq)}else if(!started){LIVE.seq=st.seq;LIVE.scene=st.scene}
 $('startinfo').textContent='Connected as OUTPUT '+OUTP+'. Current step: '+st.scene+'. (Press S to change A / B.)'}catch(e){fails++;if(!started)$('startinfo').textContent='Connecting to the server…'}
@@ -2803,6 +2803,45 @@ addEventListener('message',e=>{if(e.origin!==location.origin)return;const m=e.da
  if('ann' in m&&window.__ann)window.__ann(m.ann);
  if(m.scene){LIVE.spotlight=m.photo||null;LIVE.at=srvNow();LIVE.scene=m.scene;LIVE.seq=++cueSeq;runScene(m.scene,LIVE.seq)}});
 try{parent.postMessage({t:'cueReady'},location.origin)}catch(e){}
+})();
+// --- effects layer: one-shot effects fired from the control page, over any scene and under announcements ---
+(function(){
+const st=document.createElement('style');st.textContent='@keyframes efxSpark{0%{transform:translate(0,0);opacity:1}100%{transform:translate(var(--dx),var(--dy));opacity:0}}@keyframes efxPulse{0%,100%{opacity:.35}25%{opacity:1}}@keyframes efxIn{from{opacity:0}to{opacity:1}}';document.head.appendChild(st);
+function layer(){const L=document.createElement('div');L.className='efx';L.style.cssText=`position:absolute;left:${scr.offsetLeft}px;top:${scr.offsetTop}px;width:${scr.offsetWidth}px;height:${scr.offsetHeight}px;pointer-events:none;overflow:hidden`;scr.parentNode.appendChild(L);return L}
+function fadeOut(el,at,dur){setTimeout(()=>{el.style.transition=`opacity ${dur||600}ms`;el.style.opacity='0';setTimeout(()=>el.remove(),(dur||600)+50)},at)}
+function noise(len,dec,freq,gain,type){if(!on||!ctx)return;const n=ctx.createBuffer(1,Math.floor(ctx.sampleRate*len),ctx.sampleRate),a=n.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=(Math.random()*2-1)*Math.exp(-i/(a.length*dec));const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();s.buffer=n;f.type=type||'lowpass';f.frequency.value=freq;g.gain.value=gain;s.connect(f);f.connect(g);g.connect(master);s.start()}
+function boltPath(W,H){let x=W*(.12+Math.random()*.76),y=0,d=`M${x.toFixed(0)} 0`,br='';const steps=11;for(let i=1;i<=steps;i++){x+=(Math.random()-.5)*W*.09;y=H*i/steps;d+=` L${x.toFixed(0)} ${y.toFixed(0)}`;
+  if(Math.random()<.3){let bx=x,by=y,b=`M${bx.toFixed(0)} ${by.toFixed(0)}`;const dir=Math.random()<.5?-1:1;for(let k=0;k<3;k++){bx+=dir*W*(.02+Math.random()*.04);by+=H*.06;b+=` L${bx.toFixed(0)} ${by.toFixed(0)}`}br+=`<path d="${b}"/>`}}
+  return `<path d="${d}"/>${br}`}
+const FX={
+ lightning(L){const W=L.clientWidth,H=L.clientHeight;const fl=document.createElement('div');fl.style.cssText='position:absolute;inset:0;background:#fff8d0;opacity:0';L.appendChild(fl);
+  [0,420,950].forEach((t,k)=>setTimeout(()=>{const g=document.createElement('div');g.style.cssText='position:absolute;inset:0;filter:drop-shadow(0 0 14px #F7D117) drop-shadow(0 0 30px #F7D117)';
+   const p=boltPath(W,H);g.innerHTML=`<svg width="${W}" height="${H}" style="position:absolute;inset:0"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><g stroke="#F7D117" stroke-width="${Math.max(6,H*.018)}" opacity=".6">${p}</g><g stroke="#fff" stroke-width="${Math.max(2,H*.006)}">${p}</g></g></svg>`;L.appendChild(g);
+   fl.style.transition='none';fl.style.opacity='.45';requestAnimationFrame(()=>{fl.style.transition='opacity .35s';fl.style.opacity='0'});
+   const seq=[[60,.25],[120,1],[200,.15],[260,.9],[380,0]];seq.forEach(([d,o])=>setTimeout(()=>g.style.opacity=o,d));setTimeout(()=>g.remove(),420);
+   noise(1.4,.25,k===1?260:420,.9);noise(.12,.3,3000,.5,'highpass')},t));setTimeout(()=>fl.remove(),1500)},
+ electric(L){const w=document.createElement('div');w.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center';
+  w.innerHTML='<div style="width:24%;animation:slam .5s both"><img src="img/ndp-logo.webp" alt="" style="width:100%;display:block;filter:drop-shadow(0 0 22px rgba(247,209,23,.85))"></div>';L.appendChild(w);
+  setTimeout(()=>{try{electrify(w.querySelector('img'),L)}catch(e){}},420);for(let i=0;i<9;i++)setTimeout(()=>noise(.06,.25,2500+Math.random()*2000,.35,'bandpass'),450+i*170+Math.random()*80);fadeOut(w,3400)},
+ sparks(L){const W=L.clientWidth,H=L.clientHeight;[[.04,1],[.96,-1]].forEach(([fx,dir])=>{for(let i=0;i<70;i++){const sz=3+Math.random()*6,el=document.createElement('i');
+   el.style.cssText=`position:absolute;left:${W*fx}px;top:${H*.98}px;width:${sz}px;height:${sz}px;border-radius:50%;background:${Math.random()<.5?'#fff8c4':'#F7D117'};box-shadow:0 0 10px #F7D117;--dx:${dir*(W*.05+Math.random()*W*.35)}px;--dy:${-(H*.35+Math.random()*H*.55)}px;animation:efxSpark ${.7+Math.random()*.9}s ${Math.random()*1.6}s ease-out both`;L.appendChild(el)}});
+  for(let i=0;i<6;i++)setTimeout(()=>noise(.25,.15,4000,.25,'highpass'),i*280)},
+ surge(L){const v=document.createElement('div');v.style.cssText='position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 38%,rgba(247,209,23,.55) 100%);animation:efxPulse .62s infinite';L.appendChild(v);
+  try{heartbeat();drumroll(3.2)}catch(e){}setTimeout(()=>{try{stopHB()}catch(e){}},3400);fadeOut(v,3400)},
+ beams(L){const b=document.createElement('div');b.style.cssText='position:absolute;inset:0;animation:efxIn .5s both';
+  b.innerHTML=[0,1,2,3].map(k=>`<div style="position:absolute;bottom:-20%;left:${12+k*25}%;width:22%;height:140%;transform-origin:50% 100%;background:linear-gradient(0deg,rgba(247,209,23,.4),rgba(247,209,23,0) 80%);clip-path:polygon(42% 100%,58% 100%,100% 0,0 0);animation:beam${k%2} ${1.6+k*.3}s ease-in-out infinite alternate;mix-blend-mode:screen"></div>`).join('');L.appendChild(b);fadeOut(b,5200,900)},
+ firetext(L,text){const t=(text||'GEH DEM!').toUpperCase(),H=L.clientHeight,W=L.clientWidth;const size=Math.min(H*.2,W*1.5/Math.max(4,t.length));
+  try{fireText(L,(H*.5-size*.55)+'px',size+'px');const d=L.querySelector('.firetxt:last-of-type');if(d)d.firstElementChild.textContent=t;fadeOut(d,3600)}catch(e){}},
+ confetti(L){try{confetti(L,170)}catch(e){}},
+ fireworks(L){const c=document.createElement('canvas');c.style.cssText='position:absolute;inset:0;width:100%;height:100%;mix-blend-mode:screen';L.appendChild(c);try{fireworks(c,3800)}catch(e){}},
+ logo(L){const W=L.clientWidth,H=L.clientHeight,w=Math.min(.26,.5*H/W);const d=document.createElement('div');d.style.cssText='position:absolute;inset:0;display:flex;align-items:center;justify-content:center';
+  d.innerHTML=auraWrap('img/ndp-logo.webp','NDP','',(w*100).toFixed(1)+'%',0,true).replace('position:absolute;','position:relative;');L.appendChild(d);noise(.9,.2,140,.9);fadeOut(d,4000)},
+ fanfare(){try{fanfare()}catch(e){}}
+};
+function fire(list,text){if(!list||!list.length)return;const L=layer();list.forEach(n=>{if(FX[n])try{FX[n](L,text)}catch(e){console.error(e)}});setTimeout(()=>L.remove(),6500)}
+window.__fire=fire;
+let last=null;window.__efx=d=>{if(!d)return;if(last===null){last=d.seq;return}if(d.seq!==last){last=d.seq;fire(String(d.list||'').split(',').filter(Boolean),d.text)}};
+if(CUE)addEventListener('message',e=>{if(e.origin!==location.origin)return;const m=e.data||{};if(m.t==='fx')fire(m.fx||[],m.text)});
 })();
 // --- sound sync: hidden tone through the PA so phones without data still fire the light show ---
 (function(){let ac=null,cfg={on:false,hz:18500,test:null};const out=!PREV&&OUTP==='A';

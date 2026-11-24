@@ -164,6 +164,23 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
 #tabShow #pv,#tabShow #pvP{margin-top:0}
 .card h2:has(.mode){display:flex;align-items:center;justify-content:space-between}.mode{float:none}
 .mons>.mon{min-width:0}.mon .pv{width:100%;overflow:hidden}
+
+.ptabs{display:flex;gap:3px;background:#0b0b10;border:1px solid var(--line);border-radius:9px;padding:3px;margin-bottom:10px}
+.ptabs button{flex:1;border:0;background:transparent;color:var(--mut);font:800 12px Inter,sans-serif;padding:7px 4px;border-radius:7px;cursor:pointer}.ptabs button.on{background:#2a2a35;color:#fff}
+.fxg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.fxg button{padding:10px 6px;border-radius:10px;border:1px solid #33333d;background:#22222c;color:#fff;font:800 13px Inter,sans-serif;cursor:pointer;text-align:left}
+.fxg button.cued{outline:3px solid #4be38a;outline-offset:-3px}.fxg button.hit{background:var(--y);color:#10204a}
+.fxo{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:var(--mut);flex-wrap:wrap}.fxo label{display:flex;align-items:center;gap:6px}
+.fxo input[type=text],#fxTx{flex:1;min-width:0;width:120px;padding:7px 8px;border-radius:8px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:800 13px Inter,sans-serif}
+.prl{display:flex;flex-direction:column;gap:6px}.pri{display:flex;gap:6px}
+.pri .pb{flex:1;padding:11px 10px;border-radius:10px;border:0;font:800 14px Inter,sans-serif;cursor:pointer;text-align:left;color:#10204a}
+.pri .pb small{display:block;font:600 11px Inter,sans-serif;opacity:.75;margin-top:2px}
+.pri .pe{width:40px;border-radius:10px;border:1px solid #3a3a46;background:#22222c;color:#fff;cursor:pointer;font-size:14px}
+.prf{display:flex;flex-direction:column;gap:6px;margin-top:8px}.prf input,.prf select,.prf textarea{width:100%;min-width:0;padding:8px;border-radius:9px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:600 13px Inter,sans-serif}
+.prf textarea{min-height:48px;resize:vertical}.prf .r2,.prf .r3{display:grid;grid-template-columns:1fr 1fr;gap:6px}.prf .r3{grid-template-columns:1fr}
+.prf .pfx{display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;font-size:12px}.prf .pfx label{display:flex;gap:6px;align-items:center;color:#fff}.prf .pfx input{width:auto}
+.prf .go2{padding:10px;border-radius:9px;border:0;background:var(--y);color:#10204a;font:800 13px Inter,sans-serif;cursor:pointer}
+.prf[hidden],.pane[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -231,7 +248,8 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
 
     </div>
     <div class="card col ann op-only">
-      <h2>Announcements</h2>
+      <div class="ptabs" id="ptabs"><button data-p="pnAnn" class="on">Announce</button><button data-p="pnFx">Effects</button><button data-p="pnPr">Presets</button></div>
+      <div class="pane" id="pnAnn">
       <textarea id="aT" maxlength="160" placeholder="e.g. Parents of a young boy in a yellow NDP shirt, please come to the side of the stage."></textarea>
       <div class="cnt"><span id="aC">0</span>/160</div>
       <div class="opts"><select id="aS"><option value="notice">Notice (yellow)</option><option value="urgent">Urgent (red)</option></select><select id="aW"><option value="both">Big screens + phones</option><option value="screens">Big screens only</option><option value="phones">Phones only</option></select></div>
@@ -239,6 +257,37 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
       <div class="live" id="aLive"><span id="aLiveT"></span><button id="aClr">Clear</button></div>
       <div class="sl" id="aList"></div>
       <p class="mut" style="margin:8px 0 0">Describe, don't name children. Phones get it at the venue only, not the diaspora link.</p>
+      </div>
+      <div class="pane" id="pnFx" hidden>
+        <div class="fxg" id="fxg">
+          <button data-fx="lightning">⚡ Lightning</button><button data-fx="electric">🔌 Electric logo</button>
+          <button data-fx="sparks">✨ Sparks</button><button data-fx="surge">💓 Energy surge</button>
+          <button data-fx="beams">🔦 Stadium beams</button><button data-fx="firetext">🔥 Fire text</button>
+          <button data-fx="confetti">🎊 Confetti</button><button data-fx="fireworks">🎆 Fireworks</button>
+          <button data-fx="logo">🌟 Logo slam</button><button data-fx="fanfare">🎺 Fanfare</button>
+        </div>
+        <div class="fxo"><label>Fire text <input id="fxTx" maxlength="24" value="GEH DEM!"></label></div>
+        <div class="fxo"><label class="tg"><input type="checkbox" id="fxPh"><span>Also flash crowd phones</span></label><button id="fxFl" class="lo">📱 Flash phones only</button></div>
+        <p class="mut" id="fxN" style="font-size:12px;margin:8px 0 0">Direct: fires on the big screens straight away. Preview: adds to the cue and plays in PREVIEW; TAKE fires it live.</p>
+      </div>
+      <div class="pane" id="pnPr" hidden>
+        <div class="prl" id="prList"><p class="mut">No presets yet.</p></div>
+        <button id="prNew" class="lo" style="margin-top:8px;width:100%">+ New preset</button>
+        <form id="pfForm" class="prf" hidden>
+          <input id="pfN" maxlength="40" placeholder="Name, e.g. Punchline" autocomplete="off">
+          <div class="r2"><select id="pfC"><option value="#F7D117">Yellow</option><option value="#1f6fd1">Blue</option><option value="#1f9a56">Green</option><option value="#ff8a1a">Orange</option><option value="#e9e9ef">White</option></select>
+          <select id="pfT"><option value="cut">Cut</option><option value="fade">Fade</option></select></div>
+          <select id="pfS"><option value="">Scene: no change</option><option value="photo">Open photo</option><option value="vote">Vote</option><option value="shake">Shake</option><option value="victory">Victory</option><option value="replay">Replay</option><option value="wall">Photo wall</option><option value="qronly">QR code only</option><option value="off">Screens off</option></select>
+          <div class="pfx" id="pfX"></div>
+          <input id="pfTx" maxlength="24" placeholder="Fire text (if used), e.g. GEH DEM!">
+          <label class="tg"><input type="checkbox" id="pfPh"><span>Flash crowd phones</span></label>
+          <textarea id="pfA" maxlength="160" placeholder="Announcement (optional)"></textarea>
+          <div class="r2"><select id="pfAs"><option value="notice">Notice (yellow)</option><option value="urgent">Urgent (red)</option></select><select id="pfAw"><option value="both">Screens + phones</option><option value="screens">Screens only</option><option value="phones">Phones only</option></select></div>
+          <div class="r3"><select id="pfR"><option value="">Emojis: no change</option><option value="on">Emojis on</option><option value="off">Emojis off</option></select><select id="pfO"><option value="">Output A: no change</option><option value="show">A: Show</option><option value="emoji">A: Show + emojis</option><option value="green">A: Green screen</option></select><select id="pfP"><option value="">Photos: no change</option><option value="pause">Pause photos</option><option value="resume">Resume photos</option></select></div>
+          <div class="r2"><button type="button" id="pfFc" class="lo">Fill from cue</button><button type="button" id="pfDel" class="lo" hidden>Delete</button></div>
+          <div class="r2"><button type="button" id="pfX2" class="lo">Cancel</button><button type="submit" class="go2">Save preset</button></div>
+        </form>
+      </div>
     </div>
     </div>
   </div>
@@ -394,31 +443,83 @@ function annRender(){const t=ST&&ST.ann_text;const lv=$('aLive');if(t){lv.classN
 // Direct: buttons go straight to the LED wall. Preview: buttons cue into PREVIEW; TAKE (cut) or FADE sends it live.
 // Urgent announcements and the one-button sequence always go straight to live.
 let PVW=false;try{PVW=localStorage.getItem('rally_pvw')==='1'}catch(e){}
-const CUEQ={scene:null,extra:null,ann:null};let cueReady=false,lastPosted='';
+const CUEQ={scene:null,extra:null,ann:null,fx:[],fxText:'',phones:false,set:{}};let cueReady=false,lastPosted='';
 const SN={photo:'Open photo',vote:'Vote',shake:'Shake',victory:'Victory',replay:'Replay',wall:'Photo wall',qronly:'QR code only',off:'Screens off',spotlight:'Spotlight photo'};
+const FXN={lightning:'Lightning',electric:'Electric logo',sparks:'Sparks',surge:'Energy surge',beams:'Stadium beams',firetext:'Fire text',confetti:'Confetti',fireworks:'Fireworks',logo:'Logo slam',fanfare:'Fanfare'};
+function cueHas(){return !!(CUEQ.scene||CUEQ.ann||CUEQ.fx.length||CUEQ.phones||Object.keys(CUEQ.set).length)}
 function pvPost(force){const f=$('pvPf');if(!f||!f.contentWindow||!ST)return;
   const sc=CUEQ.scene||ST.scene,ph=CUEQ.scene?(CUEQ.extra||{}).photo:ST.spotlight_photo,k=sc+'|'+(ph||'')+'|'+(CUEQ.scene?'c':'l')+(CUEQ.scene?'':ST.scene_seq);
   const ann=CUEQ.ann?{id:'cue',text:CUEQ.ann.text,style:CUEQ.ann.style}:(ST.ann_text&&ST.ann_where!=='phones'?{id:ST.ann_seq,text:ST.ann_text,style:ST.ann_style}:null);
   const m={t:'cue',ann};if(force||k!==lastPosted){m.scene=sc;m.photo=ph;lastPosted=k}
   f.contentWindow.postMessage(m,location.origin)}
+function pvFx(list,text){const f=$('pvPf');if(PVW&&f&&f.contentWindow&&list.length)f.contentWindow.postMessage({t:'fx',fx:list,text},location.origin)}
 addEventListener('message',e=>{if(e.origin===location.origin&&e.data&&e.data.t==='cueReady'){cueReady=true;lastPosted='';pvPost(true)}});
-function cueRender(){const has=!!(CUEQ.scene||CUEQ.ann);['tkCut','tkFade','tkClr'].forEach(id=>$(id).disabled=!has);$('tkFade').disabled=!CUEQ.scene;
-  const p=[];if(CUEQ.scene)p.push(SN[CUEQ.scene]||CUEQ.scene);if(CUEQ.ann)p.push('announcement');$('cueTx').textContent=p.length?'cued: '+p.join(' + '):'nothing cued';
-  document.querySelectorAll('.st[data-scene]').forEach(b=>b.classList.toggle('cued',!!CUEQ.scene&&b.dataset.scene===CUEQ.scene&&b.textContent.indexOf('Back')<0))}
+function cueRender(){const has=cueHas();['tkCut','tkClr'].forEach(id=>$(id).disabled=!has);$('tkFade').disabled=!CUEQ.scene;
+  const p=[];if(CUEQ.scene)p.push(SN[CUEQ.scene]||CUEQ.scene);if(CUEQ.ann)p.push('announcement');if(CUEQ.fx.length)p.push(CUEQ.fx.length===1?FXN[CUEQ.fx[0]]:CUEQ.fx.length+' effects');if(CUEQ.phones)p.push('phones flash');if(Object.keys(CUEQ.set).length)p.push('settings');
+  $('cueTx').textContent=p.length?'cued: '+p.join(' + '):'nothing cued';
+  document.querySelectorAll('.st[data-scene]').forEach(b=>b.classList.toggle('cued',!!CUEQ.scene&&b.dataset.scene===CUEQ.scene&&b.textContent.indexOf('Back')<0));
+  document.querySelectorAll('#fxg button').forEach(b=>b.classList.toggle('cued',CUEQ.fx.includes(b.dataset.fx)))}
 function cueScene(sc,extra){CUEQ.scene=sc;CUEQ.extra=extra||null;cueRender();pvPost()}
 function cueAnn(text,style,where){CUEQ.ann={text,style,where};cueRender();pvPost()}
-function cueClear(){CUEQ.scene=null;CUEQ.extra=null;CUEQ.ann=null;cueRender();pvPost()}
+function cueClear(){Object.assign(CUEQ,{scene:null,extra:null,ann:null,fx:[],fxText:'',phones:false,set:{}});cueRender();pvPost()}
 function goScene(sc,extra){if(PVW)cueScene(sc,extra);else scene(sc,extra)}
 function goAnn(text,style){if(!text.trim()){$('aT').focus();return}if(PVW&&style!=='urgent')cueAnn(text.trim(),style,$('aW').value);else annShow(text,style)}
-async function take(fx){const q={scene:CUEQ.scene,extra:CUEQ.extra,ann:CUEQ.ann};if(!q.scene&&!q.ann)return;cueClear();
-  if(q.scene)await scene(q.scene,Object.assign({},q.extra||{},fx==='fade'?{fx:'fade'}:{}));
-  if(q.ann){try{await call({a:'ann_show',text:q.ann.text,style:q.ann.style,where:q.ann.where})}catch(e){alertBar('Couldn\'t show that announcement.')}}}
+// apply a cue or a preset: settings, then the scene (cut or fade), then the announcement, then the effects
+async function applyAll(q,tr){
+  try{const set=q.set||{};if(Object.keys(set).length)await call(Object.assign({a:'settings'},set))}catch(e){alertBar('Couldn\'t change the settings.')}
+  if(q.scene)await scene(q.scene,Object.assign({},q.extra||{},tr==='fade'?{fx:'fade'}:{}));
+  if(q.ann){try{await call({a:'ann_show',text:q.ann.text,style:q.ann.style,where:q.ann.where||'both'})}catch(e){alertBar('Couldn\'t show that announcement.')}}
+  if((q.fx&&q.fx.length)||q.phones){const go=()=>call({a:'effect',fx:q.fx||[],text:q.fxText||'',phones:!!q.phones}).catch(()=>alertBar('Couldn\'t fire that effect.'));if(q.scene&&tr==='fade')setTimeout(go,700);else go()}}
+async function take(tr){if(!cueHas())return;const q=JSON.parse(JSON.stringify(CUEQ));cueClear();await applyAll(q,tr)}
 $('tkCut').onclick=()=>take('cut');$('tkFade').onclick=()=>take('fade');$('tkClr').onclick=cueClear;
 function annBtn(){$('aGo').textContent=PVW&&$('aS').value!=='urgent'?'👁 Cue':'📣 Show now'}
 function setMode(on){PVW=!!on;try{localStorage.setItem('rally_pvw',PVW?'1':'0')}catch(e){}document.body.classList.toggle('pvw',PVW);{const f=$('pvPf');if(PVW&&f.dataset.src&&f.getAttribute('src')==='about:blank'){cueReady=false;f.src=f.dataset.src}}
   document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',(b.dataset.m==='1')===PVW));cueClear();annBtn();if(annList.items)annList();setTimeout(fitPv,30)}
 $('mode').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.m==='1')});
+
+// ---------- right-hand panel tabs: Announce / Effects / Presets ----------
+$('ptabs').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#ptabs button').forEach(x=>x.classList.toggle('on',x===b));
+  ['pnAnn','pnFx','pnPr'].forEach(id=>$(id).hidden=id!==b.dataset.p);if(b.dataset.p==='pnPr')presetLoad()});
+
+// ---------- effects pad ----------
+$('fxg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const n=b.dataset.fx,text=$('fxTx').value.trim();
+  if(PVW){const i=CUEQ.fx.indexOf(n);if(i>=0)CUEQ.fx.splice(i,1);else{CUEQ.fx.push(n);pvFx([n],text)}CUEQ.fxText=text;CUEQ.phones=$('fxPh').checked||CUEQ.phones;cueRender();return}
+  b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),400);
+  call({a:'effect',fx:[n],text,phones:$('fxPh').checked}).catch(()=>alertBar('Couldn\'t fire that effect.'))});
+$('fxPh').onchange=()=>{if(PVW&&CUEQ.fx.length){CUEQ.phones=$('fxPh').checked;cueRender()}};
+$('fxFl').onclick=()=>{if(PVW){CUEQ.phones=true;cueRender();return}call({a:'effect',fx:[],phones:true}).catch(()=>alertBar('Couldn\'t flash the phones.'))};
+
+// ---------- presets ----------
+let PRESETS=[],editId=null;
+const FXKEYS=Object.keys(FXN);$('pfX').innerHTML=FXKEYS.map(k=>`<label><input type="checkbox" value="${k}">${FXN[k]}</label>`).join('');
+function presetSummary(d){const p=[];if(d.scene)p.push(SN[d.scene]+(d.tr==='fade'?' (fade)':''));if(d.fx&&d.fx.length)p.push(d.fx.map(x=>FXN[x]).join(', '));if(d.phones)p.push('phones flash');if(d.ann)p.push('announcement');
+  if(typeof d.reactions==='boolean')p.push('emojis '+(d.reactions?'on':'off'));if(d.output)p.push('A: '+({show:'show',emoji:'show + emojis',green:'green'}[d.output]));if(typeof d.paused==='boolean')p.push('photos '+(d.paused?'paused':'on'));return p.join(' · ')||'empty'}
+async function presetLoad(){try{const r=await call({a:'preset_list'});PRESETS=r.list||[];
+  $('prList').innerHTML=PRESETS.length?PRESETS.map(x=>`<div class="pri"><button class="pb" data-run="${x.id}" style="background:${x.color}">${esc(x.name)}<small>${esc(presetSummary(x.data||{}))}</small></button><button class="pe" data-ed="${x.id}" aria-label="Edit">✎</button></div>`).join(''):'<p class="mut">No presets yet.</p>'}catch(e){}}
+function presetToQ(d){return{scene:d.scene||null,extra:d.scene==='spotlight'&&d.photo?{photo:d.photo}:null,ann:d.ann||null,fx:(d.fx||[]).slice(),fxText:d.fxText||'',phones:!!d.phones,
+  set:Object.assign({},typeof d.reactions==='boolean'?{reactions:d.reactions}:{},d.output?{output:d.output}:{},typeof d.paused==='boolean'?{paused:d.paused}:{})}}
+$('prList').addEventListener('click',e=>{const run=e.target.closest('[data-run]'),ed=e.target.closest('[data-ed]');
+  if(run){const p=PRESETS.find(x=>x.id===run.dataset.run);if(!p)return;const d=p.data||{},q=presetToQ(d);
+    if(PVW){Object.assign(CUEQ,q);cueRender();pvPost();pvFx(q.fx,q.fxText);return}
+    run.style.opacity=.5;setTimeout(()=>run.style.opacity=1,500);applyAll(q,d.tr)}
+  if(ed){const p=PRESETS.find(x=>x.id===ed.dataset.ed);if(p)presetForm(p)}});
+function presetForm(p){editId=p?p.id:null;const d=(p&&p.data)||{};$('pfForm').hidden=false;$('prNew').hidden=true;$('pfDel').hidden=!p;
+  $('pfN').value=p?p.name:'';$('pfC').value=p?p.color:'#F7D117';$('pfT').value=d.tr||'cut';$('pfS').value=d.scene&&d.scene!=='spotlight'?d.scene:'';
+  $('pfX').querySelectorAll('input').forEach(i=>i.checked=(d.fx||[]).includes(i.value));$('pfTx').value=d.fxText||'';$('pfPh').checked=!!d.phones;
+  $('pfA').value=d.ann?d.ann.text:'';$('pfAs').value=d.ann?d.ann.style:'notice';$('pfAw').value=d.ann?d.ann.where:'both';
+  $('pfR').value=typeof d.reactions==='boolean'?(d.reactions?'on':'off'):'';$('pfO').value=d.output||'';$('pfP').value=typeof d.paused==='boolean'?(d.paused?'pause':'resume'):'';$('pfN').focus()}
+function formClose(){$('pfForm').hidden=true;$('prNew').hidden=false;editId=null}
+$('prNew').onclick=()=>presetForm(null);$('pfX2').onclick=formClose;
+$('pfFc').onclick=()=>{if(CUEQ.scene&&CUEQ.scene!=='spotlight')$('pfS').value=CUEQ.scene;$('pfX').querySelectorAll('input').forEach(i=>i.checked=CUEQ.fx.includes(i.value));if(CUEQ.fxText)$('pfTx').value=CUEQ.fxText;$('pfPh').checked=CUEQ.phones;
+  if(CUEQ.ann){$('pfA').value=CUEQ.ann.text;$('pfAs').value=CUEQ.ann.style;$('pfAw').value=CUEQ.ann.where||'both'}};
+$('pfDel').onclick=async()=>{const b=$('pfDel');if(b.textContent!=='Sure?'){b.textContent='Sure?';setTimeout(()=>b.textContent='Delete',3000);return}try{await call({a:'preset_delete',id:editId});formClose();presetLoad()}catch(e){alertBar('Couldn\'t delete that preset.')}};
+$('pfForm').onsubmit=async e=>{e.preventDefault();const name=$('pfN').value.trim();if(!name){$('pfN').focus();return}
+  const data={scene:$('pfS').value||undefined,tr:$('pfT').value,fx:[...$('pfX').querySelectorAll('input:checked')].map(i=>i.value),fxText:$('pfTx').value.trim(),phones:$('pfPh').checked};
+  if($('pfA').value.trim())data.ann={text:$('pfA').value.trim(),style:$('pfAs').value,where:$('pfAw').value};
+  if($('pfR').value)data.reactions=$('pfR').value==='on';if($('pfO').value)data.output=$('pfO').value;if($('pfP').value)data.paused=$('pfP').value==='pause';
+  try{await call(Object.assign({a:'preset_save',name,color:$('pfC').value,data},editId?{id:editId}:{}));formClose();presetLoad()}catch(x){alertBar('Couldn\'t save that preset.')}};
 setMode(PVW);
+
 // ---------- photo report ----------
 let PR=null;
 function pct(a,b){return b?Math.round(a*100/b)+'%':'–'}
