@@ -148,6 +148,22 @@ body[data-role=assistant] .sg{grid-template-columns:1.5fr 1.2fr}
 @media (min-width:1000px) and (max-height:720px){#tabShow .pv{width:88%;margin-left:auto;margin-right:auto}}
 @media (min-width:1000px){body[data-role=assistant] #tabShow .q{grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}}
 @media (max-width:999px){.top{flex-wrap:wrap}.top>.big{font-size:22px!important}.tabs{order:3;width:100%}.tabs button{flex:1}}
+
+.mode{float:right;display:inline-flex;gap:2px;background:#0b0b10;border:1px solid var(--line);border-radius:8px;padding:2px;text-transform:none;letter-spacing:0}
+.mode button{border:0;background:transparent;color:var(--mut);font:800 11px Inter,sans-serif;padding:4px 9px;border-radius:6px;cursor:pointer}
+.mode button.on{background:#2a2a35;color:#fff}body.pvw .mode button[data-m="1"].on{background:#1f7a46}
+.mons{display:grid;grid-template-columns:1fr;gap:8px;margin-top:8px}body.pvw .mons{grid-template-columns:1fr 1fr}
+.mon>span{display:flex;justify-content:space-between;gap:6px;font:800 11px Inter,sans-serif;letter-spacing:1px;margin-bottom:4px}.mon>span i{font-style:normal;font-weight:600;letter-spacing:0;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp>span{color:#4be38a}.ml>span{color:#ff5a5a}.mp .pv{border:2px solid #1f9a56}.ml .pv{border:2px solid #c8102e}
+#monP,.takes{display:none}body.pvw #monP{display:block}body.pvw .takes{display:flex}
+body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var(--line)}
+.takes{gap:6px;margin-top:8px}.takes button{flex:1;padding:11px 6px;border-radius:10px;border:0;font:800 15px Inter,sans-serif;cursor:pointer}
+#tkCut{background:#c8102e;color:#fff;flex:1.4}#tkFade{background:#7a1f2a;color:#fff}#tkClr{background:#22222c;color:#fff;border:1px solid #3a3a46}
+.takes button:disabled{opacity:.35;cursor:default}
+.st.cued{outline:3px solid #4be38a;outline-offset:-3px}
+#tabShow #pv,#tabShow #pvP{margin-top:0}
+.card h2:has(.mode){display:flex;align-items:center;justify-content:space-between}.mode{float:none}
+.mons>.mon{min-width:0}.mon .pv{width:100%;overflow:hidden}
 </style>
 </head>
 <body>
@@ -164,7 +180,7 @@ body[data-role=assistant] .sg{grid-template-columns:1.5fr 1.2fr}
   <div class="tab" id="tabShow">
     <div class="sg">
     <div class="card col op-only">
-      <h2>Show</h2>
+      <h2>Show <span class="mode" id="mode"><button data-m="0">Direct</button><button data-m="1">Preview</button></span></h2>
       <div class="steps">
         <button class="st full hold auto" id="autoB"><span class="fill"></span>▶ Run full sequence<small>hold to start · vote → shake → victory → replay</small></button>
         <div class="autost" id="autoSt" hidden><span id="autoTx"></span><button id="autoStop">Stop</button></div>
@@ -194,7 +210,11 @@ body[data-role=assistant] .sg{grid-template-columns:1.5fr 1.2fr}
         <div><span>Photo queue</span><b id="sQ">0/20</b></div>
         <div><span>Waiting line</span><b id="sL">0</b></div>
       </div>
-      <div class="pv" id="pv"><iframe id="pvf" title="Big screen preview" src="screen.html?preview"></iframe></div>
+      <div class="mons">
+        <div class="mon mp" id="monP"><span>PREVIEW <i id="cueTx">nothing cued</i></span><div class="pv" id="pvP"><iframe id="pvPf" title="Preview: what's cued next" src="about:blank" data-src="screen.html?preview&amp;cue"></iframe></div></div>
+        <div class="mon ml"><span>LIVE <i>on the LED wall</i></span><div class="pv" id="pv"><iframe id="pvf" title="Live: what's on the big screen" src="screen.html?preview"></iframe></div></div>
+      </div>
+      <div class="takes" id="takes"><button id="tkCut" disabled>TAKE</button><button id="tkFade" disabled>FADE</button><button id="tkClr" disabled>Clear</button></div>
       <div class="op-only"><div class="outsel"><span>Big screen outputs</span>
       <div class="orow" data-o="A"><div class="olab"><i class="dot" id="dotA"></i>Output A</div><div class="seg" id="outsel"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
       <div class="orow" data-o="B" id="rowB"><div class="olab"><i class="dot" id="dotB"></i>Output B</div><div class="seg" id="outselB"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
@@ -278,14 +298,14 @@ $('go').onclick=unlock;$('pin').addEventListener('keydown',e=>{if(e.key==='Enter
 if(PIN){call({a:'overview'}).then(()=>{$('login').hidden=true;$('ui').hidden=false;tick();report();fitPv();whoami()}).catch(()=>{})}
 
 let ST=null,fails=0,settingsDirty=false;
-function fitPv(){const w=$('pv').clientWidth;$('pvf').style.transform=`scale(${w/1280})`}addEventListener('resize',fitPv);
+function fitPv(){document.querySelectorAll('.pv iframe').forEach(f=>{const w=f.parentNode.clientWidth;if(w)f.style.transform=`scale(${w/1280})`})}addEventListener('resize',fitPv);
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.hidden=t.id!==b.dataset.tab);try{localStorage.setItem('rally_tab',b.dataset.tab)}catch(e){}fitPv();if(b.dataset.tab==='tabSetup')report()});
 try{const t=localStorage.getItem('rally_tab');if(t&&t!=='tabShow'){const b=document.querySelector('.tabs button[data-tab="'+t+'"]');b&&b.click()}}catch(e){}
 
 async function tick(){if($('ui').hidden)return;try{const d=await call({a:'overview'});fails=0;render(d);$('conn').className='pill';$('conn').textContent='● Connected';if(!$('bar').classList.contains('warn'))$('bar').className='bar'}
  catch(e){if(e==='pin')return;fails++;if(fails>=2){$('conn').className='pill bad';$('conn').textContent='● Offline';$('bar').className='bar show bad';$('bar').textContent='⚠ This control screen is offline. Your taps are NOT being sent. Reconnecting… The big screens keep running on their own. Switch to the backup phone or hotspot if this lasts.'}}
  setTimeout(tick,1000)}
-function render(d){ST=d.state;try{autoTick(d)}catch(e){}try{annRender()}catch(e){}const s=d.stats||{};
+function render(d){ST=d.state;try{autoTick(d)}catch(e){}try{annRender()}catch(e){}try{if(PVW)pvPost()}catch(e){}const s=d.stats||{};
  $('sPh').textContent=(s.phones||0).toLocaleString();$('sVD').textContent=(s.phones_venue||0).toLocaleString()+' / '+(s.phones_diaspora||0).toLocaleString();
  $('sVo').textContent=(s.votes||0).toLocaleString();$('sSh').textContent=(s.shakes||0).toLocaleString();$('sQ').textContent=(s.queue||0)+'/20';$('sL').textContent=s.line||0;
  $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
@@ -308,13 +328,13 @@ async function scene(sc,extra){try{await call(Object.assign({a:'scene',scene:sc}
 function alertBar(t){const b=$('bar');b.className='bar show warn';b.textContent='⚠ '+t;setTimeout(()=>{if(b.textContent==='⚠ '+t)b.className='bar'},4000)}
 document.querySelectorAll('.st[data-scene]').forEach(b=>{
  if(b.dataset.hold){let t0=0,raf=0;const fill=b.querySelector('.fill');
-  const down=e=>{e.preventDefault();t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/900);fill.style.width=k*100+'%';if(k>=1){t0=0;fill.style.width='0';scene(b.dataset.scene);return}raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)};
+  const down=e=>{e.preventDefault();if(PVW){cueScene(b.dataset.scene);return}t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/900);fill.style.width=k*100+'%';if(k>=1){t0=0;fill.style.width='0';scene(b.dataset.scene);return}raf=requestAnimationFrame(f)};raf=requestAnimationFrame(f)};
   const up=()=>{cancelAnimationFrame(raf);fill.style.width='0'};
   b.addEventListener('pointerdown',down);b.addEventListener('pointerup',up);b.addEventListener('pointerleave',up);b.addEventListener('pointercancel',up)}
- else b.onclick=()=>scene(b.dataset.scene)});
+ else b.onclick=()=>goScene(b.dataset.scene)});
 $('q').addEventListener('click',async e=>{const ok=e.target.dataset.ok,no=e.target.dataset.no;if(!ok&&!no)return;e.target.closest('.qi').style.opacity=.3;try{await call({a:'decide',photo:ok||no,approve:!!ok})}catch(x){alertBar('Couldn\'t update that photo.')}});
 let pick=null;$('wall').addEventListener('click',e=>{const c=e.target.closest('[data-w]');if(!c)return;pick=c.dataset.w;$('dimg').src=c.dataset.u;$('dlg').showModal()});
-$('dClose').onclick=()=>$('dlg').close();$('dSpot').onclick=()=>{scene('spotlight',{photo:pick});$('dlg').close()};
+$('dClose').onclick=()=>$('dlg').close();$('dSpot').onclick=()=>{goScene('spotlight',{photo:pick});$('dlg').close()};
 $('dRem').onclick=async()=>{try{await call({a:'remove',photo:pick})}catch(e){}$('dlg').close()};
 ['voteS','shakeS'].forEach(id=>{$(id).addEventListener('focus',()=>settingsDirty=true);$(id).addEventListener('change',async()=>{await call({a:'settings',vote_seconds:+$('voteS').value,shake_seconds:+$('shakeS').value}).catch(()=>{});settingsDirty=false})});
 $('paused').onchange=()=>call({a:'settings',paused:$('paused').checked}).catch(()=>{});
@@ -359,16 +379,46 @@ setInterval(()=>{if(document.body.dataset.role==='owner'&&!$('ui').hidden&&(pinF
 
 // ---------- announcements ----------
 $('aT').oninput=()=>{$('aC').textContent=$('aT').value.length};
-async function annList(){try{const r=await call({a:'ann_list'});const l=r.list||[];$('aList').innerHTML=l.map(x=>`<div class="si"><i class="${x.style}"></i><span>${esc(x.text)}</span><button data-show="${x.id}">Show</button><button class="dl" data-del="${x.id}">Delete</button></div>`).join('');annList.items=l}catch(e){}}
+async function annList(){try{const r=await call({a:'ann_list'});const l=r.list||[];$('aList').innerHTML=l.map(x=>`<div class="si"><i class="${x.style}"></i><span>${esc(x.text)}</span><button data-show="${x.id}">${PVW&&x.style!=='urgent'?'Cue':'Show'}</button><button class="dl" data-del="${x.id}">Delete</button></div>`).join('');annList.items=l}catch(e){}}
 async function annShow(text,style){if(!text.trim()){$('aT').focus();return}try{await call({a:'ann_show',text,style,where:$('aW').value})}catch(e){alertBar('Couldn\'t show that announcement.')}}
-$('aGo').onclick=()=>annShow($('aT').value,$('aS').value);
+$('aGo').onclick=()=>goAnn($('aT').value,$('aS').value);$('aS').addEventListener('change',annBtn);
 $('aSv').onclick=async()=>{const text=$('aT').value.trim();if(!text){$('aT').focus();return}try{await call({a:'ann_save',text,style:$('aS').value});$('aT').value='';$('aC').textContent='0';annList()}catch(e){alertBar('Couldn\'t save that announcement.')}};
 $('aClr').onclick=async()=>{try{await call({a:'ann_clear'})}catch(e){}};
 $('aList').addEventListener('click',async e=>{const sh=e.target.dataset.show,dl=e.target.dataset.del;
-  if(sh){const it=(annList.items||[]).find(x=>x.id===sh);if(it)annShow(it.text,it.style)}
+  if(sh){const it=(annList.items||[]).find(x=>x.id===sh);if(it)goAnn(it.text,it.style)}
   if(dl){if(e.target.textContent!=='Sure?'){e.target.textContent='Sure?';setTimeout(()=>{if(e.target.isConnected)e.target.textContent='Delete'},3000);return}try{await call({a:'ann_delete',id:dl});annList()}catch(x){}}});
 function annRender(){const t=ST&&ST.ann_text;const lv=$('aLive');if(t){lv.className='live show '+(ST.ann_style==='urgent'?'urgent':'notice');$('aLiveT').textContent='Showing now ('+({both:'screens + phones',screens:'screens',phones:'phones'}[ST.ann_where]||'')+'): '+t}else lv.className='live'}
 
+
+// ---------- preview / live ----------
+// Direct: buttons go straight to the LED wall. Preview: buttons cue into PREVIEW; TAKE (cut) or FADE sends it live.
+// Urgent announcements and the one-button sequence always go straight to live.
+let PVW=false;try{PVW=localStorage.getItem('rally_pvw')==='1'}catch(e){}
+const CUEQ={scene:null,extra:null,ann:null};let cueReady=false,lastPosted='';
+const SN={photo:'Open photo',vote:'Vote',shake:'Shake',victory:'Victory',replay:'Replay',wall:'Photo wall',qronly:'QR code only',off:'Screens off',spotlight:'Spotlight photo'};
+function pvPost(force){const f=$('pvPf');if(!f||!f.contentWindow||!ST)return;
+  const sc=CUEQ.scene||ST.scene,ph=CUEQ.scene?(CUEQ.extra||{}).photo:ST.spotlight_photo,k=sc+'|'+(ph||'')+'|'+(CUEQ.scene?'c':'l')+(CUEQ.scene?'':ST.scene_seq);
+  const ann=CUEQ.ann?{id:'cue',text:CUEQ.ann.text,style:CUEQ.ann.style}:(ST.ann_text&&ST.ann_where!=='phones'?{id:ST.ann_seq,text:ST.ann_text,style:ST.ann_style}:null);
+  const m={t:'cue',ann};if(force||k!==lastPosted){m.scene=sc;m.photo=ph;lastPosted=k}
+  f.contentWindow.postMessage(m,location.origin)}
+addEventListener('message',e=>{if(e.origin===location.origin&&e.data&&e.data.t==='cueReady'){cueReady=true;lastPosted='';pvPost(true)}});
+function cueRender(){const has=!!(CUEQ.scene||CUEQ.ann);['tkCut','tkFade','tkClr'].forEach(id=>$(id).disabled=!has);$('tkFade').disabled=!CUEQ.scene;
+  const p=[];if(CUEQ.scene)p.push(SN[CUEQ.scene]||CUEQ.scene);if(CUEQ.ann)p.push('announcement');$('cueTx').textContent=p.length?'cued: '+p.join(' + '):'nothing cued';
+  document.querySelectorAll('.st[data-scene]').forEach(b=>b.classList.toggle('cued',!!CUEQ.scene&&b.dataset.scene===CUEQ.scene&&b.textContent.indexOf('Back')<0))}
+function cueScene(sc,extra){CUEQ.scene=sc;CUEQ.extra=extra||null;cueRender();pvPost()}
+function cueAnn(text,style,where){CUEQ.ann={text,style,where};cueRender();pvPost()}
+function cueClear(){CUEQ.scene=null;CUEQ.extra=null;CUEQ.ann=null;cueRender();pvPost()}
+function goScene(sc,extra){if(PVW)cueScene(sc,extra);else scene(sc,extra)}
+function goAnn(text,style){if(!text.trim()){$('aT').focus();return}if(PVW&&style!=='urgent')cueAnn(text.trim(),style,$('aW').value);else annShow(text,style)}
+async function take(fx){const q={scene:CUEQ.scene,extra:CUEQ.extra,ann:CUEQ.ann};if(!q.scene&&!q.ann)return;cueClear();
+  if(q.scene)await scene(q.scene,Object.assign({},q.extra||{},fx==='fade'?{fx:'fade'}:{}));
+  if(q.ann){try{await call({a:'ann_show',text:q.ann.text,style:q.ann.style,where:q.ann.where})}catch(e){alertBar('Couldn\'t show that announcement.')}}}
+$('tkCut').onclick=()=>take('cut');$('tkFade').onclick=()=>take('fade');$('tkClr').onclick=cueClear;
+function annBtn(){$('aGo').textContent=PVW&&$('aS').value!=='urgent'?'👁 Cue':'📣 Show now'}
+function setMode(on){PVW=!!on;try{localStorage.setItem('rally_pvw',PVW?'1':'0')}catch(e){}document.body.classList.toggle('pvw',PVW);{const f=$('pvPf');if(PVW&&f.dataset.src&&f.getAttribute('src')==='about:blank'){cueReady=false;f.src=f.dataset.src}}
+  document.querySelectorAll('#mode button').forEach(b=>b.classList.toggle('on',(b.dataset.m==='1')===PVW));cueClear();annBtn();if(annList.items)annList();setTimeout(fitPv,30)}
+$('mode').addEventListener('click',e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.m==='1')});
+setMode(PVW);
 // ---------- photo report ----------
 let PR=null;
 function pct(a,b){return b?Math.round(a*100/b)+'%':'–'}

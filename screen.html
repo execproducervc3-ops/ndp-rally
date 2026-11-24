@@ -2716,7 +2716,7 @@ const srvNow=()=>Date.now()+LIVE.off;
 // scaling + rect correction so effect positions stay right inside the scaled box
 const scal=document.createElement('div');scal.id='scal';document.body.appendChild(scal);scal.appendChild(scr);
 // fit settings for odd-shaped LED walls: saved on this laptop, or set in the link (?fit=fill&zoom=95&x=0&y=0)
-const PREV=/[?&]preview/.test(location.search);
+const PREV=/[?&]preview/.test(location.search);const CUE=/[?&]cue\b/.test(location.search);
 // which output this window is: A (main) or B (second display / laptop). From the link (?out=B) or saved on this laptop.
 let OUTP=(new URLSearchParams(location.search).get('out')||(()=>{try{return localStorage.getItem('rally_out')}catch(e){return null}})()||'A').toUpperCase()==='B'?'B':'A';
 const FIT=(()=>{const d={mode:'fit',zoom:100,x:0,y:0,bg:'#000000',ct:0,cb:0,cl:0,cr:0};if(PREV)return d;try{Object.assign(d,JSON.parse(localStorage.getItem('rally_fit')||'{}'))}catch(e){}
@@ -2787,14 +2787,23 @@ if(sc==='victory'&&autoVictorySeq>=0&&autoVictorySeq===seq-1)return;
 let fails=0,started=false;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),2500);
 const r=await fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(PREV?{a:'screen'}:{a:'screen',out:OUTP}),signal:ctl.signal});clearTimeout(to);
-if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann)window.__ann(d.ann);if(window.__sonic)window.__sonic(d.sonic);
-const st=d.state;LIVE.vote=st.vote;LIVE.shake=st.shake;LIVE.at=st.at;LIVE.spotlight=st.spotlight;
-if(started&&st.seq!==LIVE.seq){const prev=LIVE.seq;LIVE.seq=st.seq;LIVE.scene=st.scene;runScene(st.scene,st.seq)}else if(!started){LIVE.seq=st.seq;LIVE.scene=st.scene}
+if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann&&!CUE)window.__ann(d.ann);if(window.__sonic)window.__sonic(d.sonic);
+const st=d.state;LIVE.vote=st.vote;LIVE.shake=st.shake;if(!CUE){LIVE.at=st.at;LIVE.spotlight=st.spotlight}
+if(CUE){}else if(started&&st.seq!==LIVE.seq){const prev=LIVE.seq;LIVE.seq=st.seq;LIVE.scene=st.scene;if(st.fx==='fade'&&window.__fade)window.__fade(()=>runScene(st.scene,st.seq));else runScene(st.scene,st.seq)}else if(!started){LIVE.seq=st.seq;LIVE.scene=st.scene}
 $('startinfo').textContent='Connected as OUTPUT '+OUTP+'. Current step: '+st.scene+'. (Press S to change A / B.)'}catch(e){fails++;if(!started)$('startinfo').textContent='Connecting to the server…'}
 setTimeout(poll,fails?1500:500)}
 if(/[?&]preview/.test(location.search)){started=true;const so=$('startov');if(so)so.remove()}
 poll();
 // backup: if the server is unreachable, the laptop keyboard can run the show locally
+// --- preview/live: a cue-only preview (control page) and a fade for takes ---
+(function(){const f=document.createElement('div');f.id='fxd';f.style.cssText='position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;z-index:40;transition:opacity .35s ease';document.body.appendChild(f);
+window.__fade=go=>{f.style.transition='opacity .35s ease';f.style.opacity='1';setTimeout(()=>{go();requestAnimationFrame(()=>{f.style.transition='opacity .6s ease';f.style.opacity='0'})},380)};
+if(!CUE)return;let cueSeq=1000000;
+addEventListener('message',e=>{if(e.origin!==location.origin)return;const m=e.data||{};if(m.t!=='cue')return;
+ if('ann' in m&&window.__ann)window.__ann(m.ann);
+ if(m.scene){LIVE.spotlight=m.photo||null;LIVE.at=srvNow();LIVE.scene=m.scene;LIVE.seq=++cueSeq;runScene(m.scene,LIVE.seq)}});
+try{parent.postMessage({t:'cueReady'},location.origin)}catch(e){}
+})();
 // --- sound sync: hidden tone through the PA so phones without data still fire the light show ---
 (function(){let ac=null,cfg={on:false,hz:18500,test:null};const out=!PREV&&OUTP==='A';
 function code(t0,a,b){const g=ac.createGain(),o=ac.createOscillator();g.gain.value=0;o.connect(g).connect(ac.destination);
