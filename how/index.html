@@ -505,7 +505,7 @@ function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promi
 $('nb').onclick=()=>{narrOn=!narrOn;$('nb').textContent=narrOn?'🔊 Voice on':'🔇 Voice off';$('nb').setAttribute('aria-pressed',narrOn);if(!narrOn)narrStop()};
 
 // ---------- animated intro (plays before step 1 in Play all) ----------
-const INTRO={"dur": 90096, "c": {"thousands": 3731, "qr": 10893, "g0": 15226, "share": 23833, "i1": 27504, "i2": 30032, "i3": 33041, "i4": 34967, "i5": 40504, "film": 42911, "g1": 46041, "i7": 52842, "g2": 57536, "i8": 60365, "i9": 64939, "i10": 66744, "i11": 72883, "i12": 76013, "i13": 78841, "finale": 85943}};
+const INTRO={"dur": 91715, "c": {"thousands": 3798, "qr": 11089, "g0": 15500, "share": 24261, "i1": 27998, "i2": 30571, "i3": 33635, "i4": 35595, "i5": 41232, "film": 43682, "g1": 46868, "i7": 53791, "g2": 58570, "i8": 61450, "i9": 66106, "i10": 67944, "i11": 74193, "i12": 77379, "i13": 80259, "finale": 87488}};
 function introShow(staticMode){const o=$('intro');o.className='on'+(staticMode?' static':'');o.querySelectorAll('.gc,.fi').forEach(e=>e.classList.toggle('lit',!!staticMode))}
 function introHide(){$('intro').className='';IC.run=false;$('ia').innerHTML=''}
 // --- particle canvas: crowd of phones, light show, fireworks, emojis ---
