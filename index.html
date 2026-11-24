@@ -157,7 +157,7 @@ function drawDecor(g,W,H,city){const p=W*.05,iw=W-2*p,ih=H-2*p;
   const bh=ih*.26,gb=g.createLinearGradient(0,H-p-bh,0,H-p);gb.addColorStop(0,'rgba(31,42,85,0)');gb.addColorStop(.6,'rgba(31,42,85,.8)');gb.addColorStop(1,'rgba(31,42,85,0)');g.fillStyle=gb;g.fillRect(p,H-p-bh,iw,bh);
   g.strokeStyle='#1f2a55';g.lineWidth=W*.006;g.strokeRect(p,p,iw,ih);
   const L=IMG['ndp-logo.webp'];if(L.complete&&L.naturalWidth){const s=W*.26;g.save();g.beginPath();g.arc(W*.01+s/2,W*.01+s/2,s/2+W*.008,0,7);g.fillStyle='#F7D117';g.fill();g.restore();g.drawImage(L,W*.01,W*.01,s,s)}
-  const A=IMG['anniversary-rally.webp'];if(A.complete&&A.naturalWidth){const w=W*.62,h=w*A.naturalHeight/A.naturalWidth;g.save();g.translate(W*.97-w/2,W*.155);g.rotate(-4*Math.PI/180);g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=W*.015;g.drawImage(A,-w/2,-h/2,w,h);g.restore()}
+  const A=IMG['anniversary-rally.webp'];if(A.complete&&A.naturalWidth){const w=W*.60,h=w*A.naturalHeight/A.naturalWidth;g.save();g.translate(W*.615,W*.155);g.rotate(-4*Math.PI/180);g.shadowColor='rgba(0,0,0,.6)';g.shadowBlur=W*.015;g.drawImage(A,-w/2,-h/2,w,h);g.restore()}
   const G=IMG['geh-dem-performance.webp'];if(G.complete&&G.naturalWidth){const w=W*.85,h=w*G.naturalHeight/G.naturalWidth;g.save();g.shadowColor='rgba(0,0,0,.7)';g.shadowBlur=W*.012;g.drawImage(G,(W-w)/2,H-W*.01-h-(city?W*.065:0),w,h);g.restore()}
   if(city){const t='Watching from '+city;g.font=`800 ${W*.034}px Inter,sans-serif`;const tw=g.measureText(t).width+W*.06;g.fillStyle='#1f2a55';g.fillRect((W-tw)/2,H-W*.078,tw,W*.058);g.fillStyle='#F7D117';g.textAlign='center';g.textBaseline='middle';g.fillText(t,W/2,H-W*.049)}}
 function drawFrame(g,W,H,photo,mirror,city){const p=W*.05,iw=W-2*p,ih=H-2*p;
