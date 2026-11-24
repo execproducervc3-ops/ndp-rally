@@ -2776,7 +2776,7 @@ scr.innerHTML=`<div class="spot"><div class="rays" style="opacity:.4"></div><img
 // shake: real duration, auto victory at the end
 let autoVictorySeq=-1;
 async function sShake(t,seq){const el0=(srvNow()-LIVE.at)/1000;if(el0>LIVE.shake+2){await s2v(t);autoVictorySeq=seq;return}await s1(t);await s2v(t);autoVictorySeq=seq}
-async function s2v(t){await s2(t);while(true)await sl(5000,t)}
+async function s2v(t){if(window.__sonicFire)window.__sonicFire();await s2(t);while(true)await sl(5000,t)}
 async function sReplay(t){await s3(t);while(true)await sl(5000,t)}
 async function sPhoto(t){await s4(t);while(true)await sl(5000,t)}
 function runScene(sc,seq){const t=++tok;stopHB&&stopHB();ph.classList.remove('shaking');scr.style.transform='';
@@ -2787,7 +2787,7 @@ if(sc==='victory'&&autoVictorySeq>=0&&autoVictorySeq===seq-1)return;
 let fails=0,started=false;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),2500);
 const r=await fetch(SUPA+'/functions/v1/crowd',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(PREV?{a:'screen'}:{a:'screen',out:OUTP}),signal:ctl.signal});clearTimeout(to);
-if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann)window.__ann(d.ann);
+if(!r.ok)throw 0;const d=await r.json();fails=0;LIVE.off=d.now-Date.now();LIVE.stats=d.stats||{};joined=LIVE.stats.votes||LIVE.stats.phones||0;LIVE.wall=d.wall||[];if(window.__rx)window.__rx(d);if(window.__ann)window.__ann(d.ann);if(window.__sonic)window.__sonic(d.sonic);
 const st=d.state;LIVE.vote=st.vote;LIVE.shake=st.shake;LIVE.at=st.at;LIVE.spotlight=st.spotlight;
 if(started&&st.seq!==LIVE.seq){const prev=LIVE.seq;LIVE.seq=st.seq;LIVE.scene=st.scene;runScene(st.scene,st.seq)}else if(!started){LIVE.seq=st.seq;LIVE.scene=st.scene}
 $('startinfo').textContent='Connected as OUTPUT '+OUTP+'. Current step: '+st.scene+'. (Press S to change A / B.)'}catch(e){fails++;if(!started)$('startinfo').textContent='Connecting to the server…'}
@@ -2795,6 +2795,16 @@ setTimeout(poll,fails?1500:500)}
 if(/[?&]preview/.test(location.search)){started=true;const so=$('startov');if(so)so.remove()}
 poll();
 // backup: if the server is unreachable, the laptop keyboard can run the show locally
+// --- sound sync: hidden tone through the PA so phones without data still fire the light show ---
+(function(){let ac=null,cfg={on:false,hz:18500,test:null};const out=!PREV&&OUTP==='A';
+function code(t0,a,b){const g=ac.createGain(),o=ac.createOscillator();g.gain.value=0;o.connect(g).connect(ac.destination);
+ for(let i=0;i<8;i++){const t=t0+i*.15;o.frequency.setValueAtTime(i%2?b:a,t);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.35,t+.01);g.gain.setValueAtTime(.35,t+.14);g.gain.linearRampToValueAtTime(0,t+.15)}
+ o.start(t0);o.stop(t0+1.25)}
+function play(){if(!out)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume();const t=ac.currentTime+.05;for(let r=0;r<3;r++)code(t+r*2,cfg.hz,cfg.hz+500)}catch(e){}}
+document.addEventListener('click',()=>{try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume()}catch(e){}},{once:true});
+window.__sonic=d=>{if(!d)return;const first=cfg.test===null;cfg.on=!!d.on;cfg.hz=+d.hz||18500;if(!first&&d.test!==cfg.test)play();cfg.test=d.test};
+window.__sonicFire=()=>{if(cfg.on)play()};
+})();
 // --- announcements: a banner across the bottom of the picture, over whatever scene is running ---
 (function(){const b=document.createElement('div');b.id='annb';b.innerHTML='<span class="al"></span><span class="at"></span>';document.body.appendChild(b);let cur=null;
 function pos(){const fs=Math.max(14,CA.h*.05);b.style.fontSize=fs+'px';b.style.left=(CA.x+CA.w*.03)+'px';b.style.width=(CA.w*.94)+'px';b.style.boxSizing='border-box';b.style.bottom=(innerHeight-(CA.y+CA.h)+CA.h*.01)+'px'}

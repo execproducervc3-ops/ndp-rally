@@ -130,7 +130,11 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
         <label class="sw">Victory hold <input type="number" id="vicS" min="5" max="60"> s</label>
         <label class="sw"><input type="checkbox" id="paused"> Pause photo sending</label>
         <label class="sw"><input type="checkbox" id="reacts"> Emoji reactions on</label>
+        <label class="sw"><input type="checkbox" id="sonic"> Sound sync</label>
+        <label class="sw"><select id="sonicHz"><option value="17500">17.5 kHz</option><option value="18500">18.5 kHz</option><option value="19500">19.5 kHz</option></select></label>
+        <label class="sw"><button type="button" id="sonicT">Test tone</button></label>
       </div>
+      <small id="sonicN" style="display:block;margin:-2px 0 8px">Sound sync: when Victory starts, Output A plays a hidden code through the PA. Phones that have lost signal can tap “sync with the stage sound” and still fire the light show. Test tone plays it once now on Output A.</small>
       <div class="outsel"><span>Big screen outputs</span>
       <div class="orow" data-o="A"><div class="olab"><i class="dot" id="dotA"></i>Output A</div><div class="seg" id="outsel"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
       <div class="orow" data-o="B" id="rowB"><div class="olab"><i class="dot" id="dotB"></i>Output B</div><div class="seg" id="outselB"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
@@ -216,7 +220,7 @@ function render(d){ST=d.state;try{autoTick(d)}catch(e){}try{annRender()}catch(e)
  $('sPh').textContent=(s.phones||0).toLocaleString();$('sVD').textContent=(s.phones_venue||0).toLocaleString()+' / '+(s.phones_diaspora||0).toLocaleString();
  $('sVo').textContent=(s.votes||0).toLocaleString();$('sSh').textContent=(s.shakes||0).toLocaleString();$('sQ').textContent=(s.queue||0)+'/20';$('sL').textContent=s.line||0;
  $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
- if(!settingsDirty){$('voteS').value=ST.vote_seconds;$('shakeS').value=ST.shake_seconds;$('paused').checked=ST.sending_paused;$('reacts').checked=!!ST.reactions_open}
+ if(!settingsDirty){$('voteS').value=ST.vote_seconds;$('shakeS').value=ST.shake_seconds;$('paused').checked=ST.sending_paused;$('reacts').checked=!!ST.reactions_open;$('sonic').checked=!!ST.sonic_on;$('sonicHz').value=String(ST.sonic_hz||18500)}
  document.querySelectorAll('#outsel button').forEach(b=>{b.classList.toggle('on',b.dataset.out===(ST.output_mode||'show'));if(b.classList.contains('on'))b.classList.remove('arm')});
  document.querySelectorAll('#outselB button').forEach(b=>{b.classList.toggle('on',b.dataset.out===(ST.output_mode_b||'show'));if(b.classList.contains('on'))b.classList.remove('arm')});
  {const sc=d.screens||{};$('dotA').classList.toggle('on',!!sc.A);$('dotB').classList.toggle('on',!!sc.B);$('rowB').classList.toggle('off',!sc.B);
@@ -325,6 +329,9 @@ let armT=null;function outClick(sel,key){return e=>{const b=e.target.closest('bu
  call({a:'settings',[key]:b.dataset.out}).then(()=>{document.querySelectorAll(sel+' button').forEach(x=>x.classList.toggle('on',x===b))}).catch(x=>alertBar(x===409?'Output B is not connected yet.':'Couldn\'t switch that output.'))}}
 $('outsel').onclick=outClick('#outsel','output');$('outselB').onclick=outClick('#outselB','output_b');
 $('reacts').onchange=()=>call({a:'settings',reactions:$('reacts').checked}).catch(()=>{});
+$('sonic').onchange=()=>call({a:'settings',sonic:$('sonic').checked}).catch(()=>{});
+$('sonicHz').onchange=()=>call({a:'settings',sonic_hz:+$('sonicHz').value}).catch(()=>{});
+$('sonicT').onclick=()=>{const b=$('sonicT');b.disabled=true;b.textContent='Playing…';call({a:'settings',sonic_test:true}).catch(()=>{}).finally(()=>setTimeout(()=>{b.disabled=false;b.textContent='Test tone'},6000))};
 async function report(){if($('ui').hidden){setTimeout(report,5000);return}try{const r=await call({a:'report'});const t=r.diaspora_by_timezone||[],c=r.diaspora_by_city||[];
   const rows=t.slice(0,8).map(x=>`<div><span>${esc(x.place)}</span><b>${x.phones} phones · ${x.photos||0} photos</b></div>`).join('');
   const cities=c.slice(0,6).map(x=>esc(x.city)+' ('+x.phones+')').join(', ');

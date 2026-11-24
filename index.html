@@ -36,7 +36,7 @@ main{flex:1;position:relative;overflow:hidden}
 @keyframes fl{from{opacity:1}to{opacity:0}}
 .shutter{width:74px;height:74px;border-radius:50%;border:5px solid #fff;background:var(--y);margin:14px auto 0;cursor:pointer}
 .offbar{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 8px);z-index:60;background:#2a1f05;border:2px solid var(--y);border-radius:14px;padding:10px 12px;font-size:13px;display:none;gap:10px;align-items:center;text-align:left}
-.offbar.show{display:flex}.offbar i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--y);animation:pulse .8s infinite}
+.offbar.show{display:flex}.sncb{display:none;margin-top:8px;width:100%;border:0;border-radius:10px;padding:10px;background:var(--y);color:#10204a;font-weight:800;font-size:14px}.sncb.on{display:block}.sncs{display:none;margin-top:6px;font-size:12px;color:var(--y)}.sncs.on{display:block}.offbar i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--y);animation:pulse .8s infinite}
 @keyframes pulse{50%{opacity:.4}}
 .vote{width:100%;max-width:360px;background:var(--y);color:#2a2400;border-radius:24px;padding:22px 10px;border:0;cursor:pointer;box-shadow:0 0 40px rgba(247,209,23,.4)}
 .vote img{width:120px;display:block;margin:8px auto}
@@ -124,7 +124,7 @@ input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px
 <div class="ls" id="ls"><img src="img/ndp-logo.webp" alt=""><b>I AM<br>NDP!</b></div>
 <div class="annbar" id="ann" role="alert"><small id="annL"></small><span id="annT"></span><button id="annX" aria-label="Close">✕</button></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="offbar" id="off"><i></i><div><b>You're offline.</b> Reconnecting… Keep this page open. Photos still work, and your shakes count when you're back.</div></div>
+<div class="offbar" id="off"><i></i><div><b>You're offline.</b> Reconnecting… Keep this page open. Photos still work, and your shakes count when you're back.<button class="sncb" id="sncB">🔊 Weak signal? Tap to sync with the stage sound</button><span class="sncs" id="sncS"></span></div></div>
 <canvas id="work" width="1080" height="1350" style="display:none"></canvas>
 <script src="config.js"></script>
 <script>
@@ -283,12 +283,30 @@ let annShown=null;function showAnn(a){if(HOME)return;const el=$('ann');
   if(annShown!==key){annShown=key;el.className='annbar show '+(a.style==='urgent'?'urgent':'notice');$('annL').textContent=a.style==='urgent'?'URGENT':'ANNOUNCEMENT';$('annT').textContent=a.text;
     if(a.style==='urgent'){try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}}}}
 $('annX').onclick=()=>{if(annShown)store.set('rally_ann_x',annShown);$('ann').classList.remove('show')};
+// ---------- sound sync: only offered when this phone has lost its connection ----------
+// the mic only listens for the stage code on this phone; nothing is recorded or sent. It switches off when the code is heard or the connection returns.
+let snc=null;
+function sncOffline(){if(HOME||!S.sonic||fails<5||snc)return;$('sncB').classList.add('on')}
+function sncStop(){if(snc){try{snc.s.getTracks().forEach(t=>t.stop());snc.ctx.close()}catch(e){}clearInterval(snc.iv);snc=null}$('sncB').classList.remove('on');$('sncS').classList.remove('on')}
+function sncOnline(){sncStop()}
+$('sncB').onclick=async()=>{if(snc)return;const hz=S.sonic||18500;
+  try{const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();await ctx.resume();const an=ctx.createAnalyser();an.fftSize=4096;an.smoothingTimeConstant=0;ctx.createMediaStreamSource(s).connect(an);
+    const buf=new Float32Array(an.frequencyBinCount),w=ctx.sampleRate/4096;let ch=[],last='-';
+    const lvl=f=>{const c=Math.round(f/w);let p=-200;for(let i=c-2;i<=c+2;i++)p=Math.max(p,buf[i]);const n=[];for(let k=25;k<=60;k++){n.push(buf[c-k]);n.push(buf[c+k])}n.sort((x,y)=>x-y);return p-n[n.length>>1]};
+    snc={s,ctx,iv:setInterval(()=>{an.getFloatFrequencyData(buf);const A=lvl(hz),B=lvl(hz+500),now=performance.now();
+      const st=A>12&&A>B+3?'A':B>12&&B>A+3?'B':'-';
+      if(st!=='-'&&st!==last){ch.push(now);last=st}ch=ch.filter(t=>now-t<1800);
+      if(ch.length>=5){sncStop();lightShow('flash')}},20)};
+    $('sncB').classList.remove('on');$('sncS').textContent='🎧 Listening for the stage… keep this page open.';$('sncS').classList.add('on');
+    setTimeout(()=>{if(snc)sncStop()},10*60*1000)
+  }catch(e){$('sncS').textContent='Microphone not allowed. The page will catch up when the signal returns.';$('sncS').classList.add('on')}};
 // ---------- status polling via CDN ----------
 let fails=0;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),4000);
-  const r=await fetch(STATUS+'?t='+Math.floor(Date.now()/2000),{signal:ctl.signal});clearTimeout(to);if(!r.ok)throw r.status;const d=await r.json();fails=0;$('off').classList.remove('show');S.react=!!d.react;S.rs=d.rs||1;showAnn(d.ann);
+  const r=await fetch(STATUS+'?t='+Math.floor(Date.now()/2000),{signal:ctl.signal});clearTimeout(to);if(!r.ok)throw r.status;const d=await r.json();fails=0;$('off').classList.remove('show');S.react=!!d.react;S.sonic=+d.sonic||0;sncOnline();S.rs=d.rs||1;showAnn(d.ann);
   if(d.seq!==S.seq){const first=S.seq<0;Object.assign(S,d);if(!first||['vote','shake','victory','replay'].includes(d.scene))applyScene();else if(tab==='vote')renderVote()}}
- catch(e){fails++;if(fails>=2)$('off').classList.add('show')}}
+ catch(e){fails++;if(fails>=2)$('off').classList.add('show');sncOffline()}}
 let pollT=null;function loop(){poll();clearTimeout(pollT);pollT=setTimeout(loop,2000+Math.random()*600)}
 addEventListener('online',poll);
 
