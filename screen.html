@@ -155,6 +155,7 @@ body>*:not(#scal):not(#startov){display:none!important}
 .pw:before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(6,8,20,.05),rgba(6,8,20,.6) 80%);pointer-events:none}
 .pw>*{position:relative}
 .pwh span{text-shadow:0 3px 0 #0b1030,0 0 18px rgba(0,0,0,.6)}
+.pwh{overflow:visible}
 .pwh{display:flex;justify-content:space-between;align-items:baseline;font-family:Anton,Impact,sans-serif;color:#F7D117;font-size:34px;letter-spacing:1px}
 .pwh span:last-child{color:#c9d6ff;font-size:24px}
 .pwg{flex:1;display:flex;flex-wrap:wrap;justify-content:center;align-content:center;gap:18px;margin-top:8px}
@@ -2714,6 +2715,7 @@ while(true){const left=Math.max(0,Math.ceil(LIVE.vote-(srvNow()-LIVE.at)/1000));
 if(c)c.textContent=left;if(r)r.setAttribute('stroke-dashoffset',(276.5*(1-left/Math.max(1,LIVE.vote))).toFixed(1));if(j)j.textContent=(LIVE.stats.votes||0).toLocaleString();
 if(left!==lastLeft&&left<=5&&left>0)beep(0);if(left===0&&lastLeft!==0)beep(1);lastLeft=left;await sl(250,t)}}
 function sOff(){lightShow(false);beat(false);scr.innerHTML=`<div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center"><img src="img/ndp-logo.webp" alt="NDP" style="width:18%;opacity:.35"></div>`}
+function fitTy(){const e=document.getElementById('tyx');if(!e)return;let f=39;e.style.fontSize=f+'px';const max=e.parentElement.clientWidth-8;while(e.scrollWidth>max&&f>20){f-=1;e.style.fontSize=f+'px'}}
 let MONO=null;function monogram(){if(MONO)return MONO;const L=new Image();L.src='img/ndp-logo.webp';const c=document.createElement('canvas'),C=64;c.width=C*2;c.height=C*2;const g=c.getContext('2d');
  const draw=()=>{g.fillStyle='#1b2450';g.fillRect(0,0,C*2,C*2);g.fillStyle='#141b3d';g.fillRect(C,0,C,C);g.fillRect(0,C,C,C);
   g.strokeStyle='rgba(247,209,23,.22)';g.lineWidth=1;g.strokeRect(.5,.5,C*2-1,C*2-1);g.beginPath();g.moveTo(C,0);g.lineTo(C,C*2);g.moveTo(0,C);g.lineTo(C*2,C);g.stroke();
@@ -2723,7 +2725,7 @@ let MONO=null;function monogram(){if(MONO)return MONO;const L=new Image();L.src=
   MONO=c.toDataURL('image/png');document.querySelectorAll('.pw').forEach(e=>e.style.backgroundImage=`url(${MONO})`)};
  if(L.complete&&L.naturalWidth)draw();else L.onload=draw;return MONO}
 function wallTile(p,cls){const where=p.grp==='diaspora'?('🌍 Watching from '+(p.city||'abroad')):'📍 At the rally';return `<div class="pwt ${cls||''}" data-id="${p.id}"><img src="${p.url}" alt=""><div class="lb">${where.replace(/</g,'&lt;')}</div></div>`}
-async function sWall(t){lightShow(false);beat(false);monogram();scr.innerHTML=`<div class="pw" style="${MONO?`background-image:url(${MONO})`:''};background-size:128px 128px"><div class="pwh" style="justify-content:center;text-align:center"><span style="color:#F7D117;font-size:34px;white-space:nowrap">Thank you for your vote, your voice, and your trust.</span></div><div class="pwg" id="pwg"></div></div>`;
+async function sWall(t){lightShow(false);beat(false);monogram();setTimeout(fitTy,30);scr.innerHTML=`<div class="pw" style="${MONO?`background-image:url(${MONO})`:''};background-size:128px 128px"><div class="pwh" style="justify-content:center;text-align:center"><span id="tyx" style="color:#F7D117;font-size:39px;white-space:nowrap;-webkit-text-stroke:3px #fff;paint-order:stroke fill;text-shadow:none;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6))">Thank you for your vote, your voice, and your trust.</span></div><div class="pwg" id="pwg"></div></div>`;
 let off=0,shownIds='';while(true){const W=LIVE.wall;const g=$('pwg');if(!g)return;
 if(!W.length){g.innerHTML='<div style="text-align:center;font-size:28px;font-weight:800;color:#fff;background:rgba(10,14,36,.85);border:2px solid rgba(247,209,23,.6);border-radius:16px;padding:16px 28px">Send your rally photo to the big screen!</div>';await sl(1500,t);continue}
 const n=Math.min(6,W.length),pick=[];for(let k=0;k<n;k++)pick.push(W[(off+k)%W.length]);const ids=pick.map(p=>p.id).join();
