@@ -60,6 +60,8 @@ input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px
 .rx button:active{transform:scale(.88);background:#33333d}
 .fly{position:fixed;z-index:70;font-size:34px;pointer-events:none;animation:fly 1.3s ease-out forwards}
 @keyframes fly{0%{transform:translate(-50%,0) scale(.6);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),-260px) scale(1.25);opacity:0}}
+.toast{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 8px);z-index:65;background:#1c1c24;border:2px solid var(--y);border-radius:14px;padding:11px 14px;font-size:14px;text-align:center;transform:translateY(-140%);transition:transform .3s ease;pointer-events:none}
+.toast.show{transform:none}.toast b{color:var(--y)}
 </style>
 </head>
 <body>
@@ -115,6 +117,7 @@ input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px
 <div class="tog" id="tog"><button id="tPhoto" class="a">📷 PHOTO</button><button id="tVote">✔ VOTE</button></div>
 </div>
 <div class="ls" id="ls"><img src="img/ndp-logo.webp" alt=""><b>I AM<br>NDP!</b></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="offbar" id="off"><i></i><div><b>You're offline.</b> Reconnecting… Keep this page open. Photos still work, and your shakes count when you're back.</div></div>
 <canvas id="work" width="1080" height="1350" style="display:none"></canvas>
 <script src="config.js"></script>
@@ -186,22 +189,33 @@ $('saveB').onclick=async()=>{ev('save');const f=fileOf();if(navigator.canShare&&
 $('shareB').onclick=async()=>{ev('share');const f=fileOf();const text='#GEHDEMPERFORMANCE 💛💙';if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f],text});return}catch(e){if(e.name==='AbortError')return}}if(navigator.share){try{await navigator.share({text})}catch(e){}}};
 
 // ---------- send to big screen ----------
-let sendState=null,linePoll=null;
-function sendView(html){$('sendBody').innerHTML=html;photoView='vSend';if(tab==='photo')show('vSend')}
-$('sendBack').onclick=()=>{photoView='vResult';show('vResult')};
+let linePoll=null,sendBlob=null,backT=null,bgSend=false;
+// a quick note at the top of the screen, like the phone's own apps
+function toast(html,ms){const t=$('toast');t.innerHTML=html;t.classList.add('show');clearTimeout(toast.t);if(ms)toast.t=setTimeout(()=>t.classList.remove('show'),ms)}
+function hideToast(){$('toast').classList.remove('show')}
+function sendView(html){clearTimeout(backT);$('sendBody').innerHTML=html;if(bgSend)return;photoView='vSend';if(tab==='photo')show('vSend')}
+// after a short confirmation, go back to the start of the photo screen by itself
+function autoBack(ms){clearTimeout(backT);bgSend=true;backT=setTimeout(()=>{if(photoView==='vSend'){photoView='vPhoto';if(tab==='photo'&&cur==='vSend')show('vPhoto')}},ms)}
+$('sendBack').onclick=()=>{clearTimeout(backT);photoView='vResult';show('vResult')};
 $('sendB').onclick=()=>requestSend();
-async function requestSend(){if(!lastBlob)return;sendView('<div class="small">Checking for space on the big screen…</div>');
+async function requestSend(){if(!lastBlob)return;sendBlob=lastBlob;bgSend=false;clearTimeout(linePoll);sendView('<div class="small">Checking for space on the big screen…</div>');
   try{handleSend(await api({a:'photo_req',city:HOME?CITY:null}))}catch(e){sendView('<div class="card"><b>Couldn\'t reach the big screen.</b><p class="small">Check your connection and try again. Your photo is still on your phone.</p></div>')}}
 async function handleSend(r){clearTimeout(linePoll);
-  if(r.status==='go'&&r.upload){sendView('<div class="small">Sending your photo…</div>');
-    try{const up=await fetch(r.upload.signedUrl,{method:'PUT',headers:{'content-type':'image/jpeg','x-upsert':'true'},body:lastBlob});if(!up.ok)throw up.status;
+  if(r.status==='go'&&r.upload){if(bgSend)toast('📺 Your turn! Sending your photo…');else sendView('<div class="small">Sending your photo…</div>');
+    try{const up=await fetch(r.upload.signedUrl,{method:'PUT',headers:{'content-type':'image/jpeg','x-upsert':'true'},body:sendBlob});if(!up.ok)throw up.status;
       const d=await api({a:'photo_done',photo:r.photo,path:r.upload.path});if(!d.ok)throw 'done';
-      sendView('<div class="card"><div class="big" style="font-size:34px;color:var(--y)">SENT ✓</div><p class="small">Waiting for approval. If it\'s picked, it\'ll appear on the big screens soon.</p></div>')}
-    catch(e){sendView('<div class="card"><b>The upload didn\'t finish.</b><p class="small">Tap to try again.</p><button class="btn y" id="retrySend">Try again</button></div>');$('retrySend').onclick=requestSend}return}
-  if(r.status==='line'){sendView(`<div class="card"><div class="small">You're in line</div><div class="lineno">#${r.position}</div><p class="small">Keep this page open. Your photo sends automatically when there's room.</p></div>`);linePoll=setTimeout(async()=>{try{handleSend(await api({a:'photo_line'}))}catch(e){handleSend(r)}},4000+Math.random()*2000);return}
-  if(r.status==='pending'){sendView('<div class="card"><div class="big" style="font-size:30px;color:var(--y)">ALREADY SENT ✓</div><p class="small">Your photo is waiting for approval.</p></div>');return}
-  if(r.status==='paused'){sendView('<div class="card"><b>Sending is paused for a moment.</b><p class="small">Try again in a minute. Your photo is still on your phone 💛</p></div>');return}
-  if(r.status==='line_full'){sendView('<div class="card"><b>The line is full right now.</b><p class="small">Try again later. Your photo is still on your phone 💛</p></div>');return}
+      toast('📺 <b>Sent to the big screen ✓</b> Waiting for approval.',4000);
+      if(!bgSend){sendView('<div class="card"><div class="big" style="font-size:34px;color:var(--y)">SENT ✓</div><p class="small">Waiting for approval. If it\'s picked, it\'ll appear on the big screens soon.</p></div>');autoBack(1600)}}
+    catch(e){bgSend=false;hideToast();sendView('<div class="card"><b>The upload didn\'t finish.</b><p class="small">Tap to try again.</p><button class="btn y" id="retrySend">Try again</button></div>');$('retrySend').onclick=requestSend}return}
+  if(r.status==='line'){
+    if(!bgSend){sendView(`<div class="card"><div class="small">You're in line</div><div class="lineno">#${r.position}</div><p class="small">Your photo sends by itself when there's room. Keep this page open.</p></div>`);autoBack(2500)}
+    toast(`📺 In line for the big screen: <b>#${r.position}</b>`);
+    linePoll=setTimeout(async()=>{try{handleSend(await api({a:'photo_line'}))}catch(e){handleSend(r)}},4000+Math.random()*2000);return}
+  hideToast();
+  if(r.status==='pending'){sendView('<div class="card"><div class="big" style="font-size:30px;color:var(--y)">ALREADY SENT ✓</div><p class="small">Your photo is waiting for approval.</p></div>');autoBack(2200);return}
+  if(r.status==='paused'){sendView('<div class="card"><b>Sending is paused for a moment.</b><p class="small">Try again in a minute. Your photo is still on your phone 💛</p></div>');autoBack(3000);return}
+  if(r.status==='line_full'){sendView('<div class="card"><b>The line is full right now.</b><p class="small">Try again later. Your photo is still on your phone 💛</p></div>');autoBack(3000);return}
+  bgSend=false;
   sendView('<div class="card"><b>Not sent.</b><p class="small">Tap Send to big screen to try again.</p></div>')}
 
 // ---------- game (venue only) ----------
