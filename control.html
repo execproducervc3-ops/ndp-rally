@@ -86,6 +86,14 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
 .ann .sl{display:flex;flex-direction:column;gap:6px;margin-top:10px}.ann .si{display:flex;align-items:center;gap:8px;background:#1c1c24;border-radius:10px;padding:8px 10px;font-size:13px}
 .ann .si span{flex:1}.ann .si i{width:8px;height:8px;border-radius:50%;flex:none;background:#F7D117}.ann .si i.urgent{background:#ff4d5e}
 .ann .si button{padding:6px 10px;border-radius:8px;border:0;font:700 12px Inter,sans-serif;cursor:pointer;background:#2c2c36;color:#fff}.ann .si button.dl{background:#5a1a1a}
+.prep .fun{display:flex;flex-direction:column;gap:6px;margin:6px 0 12px}
+.prep .fr{display:grid;grid-template-columns:130px 1fr 62px 48px;align-items:center;gap:8px;font-size:13px}
+.prep .fr b{font-weight:800;color:#fff;text-align:right}.prep .fr i{font-style:normal;color:var(--mut);font-size:11px;text-align:right}
+.prep .pbar{height:12px;border-radius:6px;background:#1c1c24;overflow:hidden}.prep .pbar span{display:block;height:100%;background:linear-gradient(90deg,#F7D117,#ffe680);border-radius:6px}
+.prep .g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.prep .g div{background:#1c1c24;border-radius:10px;padding:8px 10px}.prep .g small{display:block;font-size:11px;color:var(--mut)}.prep .g b{font-size:20px;color:#fff}
+.prep table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}.prep td,.prep th{padding:5px 6px;text-align:right;border-bottom:1px solid #23232c}.prep th{color:var(--mut);font-weight:700}.prep td:first-child,.prep th:first-child{text-align:left}
+.prep .tl{display:flex;align-items:flex-end;gap:3px;height:60px;margin-top:8px}.prep .tl i{flex:1;min-width:4px;background:#F7D117;border-radius:2px 2px 0 0;position:relative}.prep .tl i.a{background:#4be38a}
+.prep .acts{display:flex;gap:6px;margin-top:10px}.prep .acts button{flex:1;padding:10px;border-radius:10px;border:1px solid #3a3a46;background:#22222c;color:#fff;font:800 13px Inter,sans-serif;cursor:pointer}
 </style>
 </head>
 <body>
@@ -151,6 +159,17 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
       <div class="mut">🌍 Diaspora <b id="wd">0</b>/5</div><div class="slots" id="sld"></div>
       <div class="wall" id="wall"></div>
       <p class="mut">Tap a photo to spotlight it or take it down.</p>
+    </div>
+    <div class="card prep">
+      <h2>Photo report</h2>
+      <div class="fun" id="prF"></div>
+      <div class="g" id="prG"></div>
+      <table id="prT"></table>
+      <div class="mut" style="font-size:12px;margin-top:10px">Uploads every 15 minutes <span style="color:#4be38a">■</span> approved</div>
+      <div class="tl" id="prL"></div>
+      <div id="prC"></div>
+      <div class="acts"><button id="prR">Refresh</button><button id="prD">⬇ Download CSV</button></div>
+      <p class="mut" style="margin:8px 0 0;font-size:12px">Counts only: no names, phone numbers or photos.</p>
     </div>
     <div class="card ann op-only">
       <h2>Announcements</h2>
@@ -251,7 +270,7 @@ $('autoStop').onclick=()=>autoStop('Sequence stopped. Screens stay on the curren
 
 // ---------- who's signed in, log out, team ----------
 const ROLE={owner:'Owner',operator:'Full operator',assistant:'Photo assistant'};
-async function whoami(){try{const w=await call({a:'whoami'});document.body.dataset.role=w.role;$('who').innerHTML=w.role==='owner'?'<b>Owner</b>':`<b>${esc(w.name)}</b> · ${ROLE[w.role]||w.role}`;if(w.role==='owner')teamLoad();if(w.role!=='assistant')annList();if(w.role!=='owner'&&AUTO&&w.role==='assistant'){autoStop('')}fitPv()}catch(e){}}
+async function whoami(){try{const w=await call({a:'whoami'});document.body.dataset.role=w.role;$('who').innerHTML=w.role==='owner'?'<b>Owner</b>':`<b>${esc(w.name)}</b> · ${ROLE[w.role]||w.role}`;if(w.role==='owner')teamLoad();if(w.role!=='assistant')annList();photoReport();if(w.role!=='owner'&&AUTO&&w.role==='assistant'){autoStop('')}fitPv()}catch(e){}}
 let loT=null;$('logout').onclick=()=>{const b=$('logout');if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent=AUTO?'Sequence running! Tap to log out':'Tap to log out';clearTimeout(loT);loT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Log out'},3000);return}
   clearTimeout(loT);b.classList.remove('arm');b.textContent='Log out';if(AUTO)autoStop('');hidePin();lock('Logged out.')};
 let pinFor=null;function hidePin(){pinFor=null;$('np').classList.remove('show');$('np').innerHTML=''}
@@ -276,6 +295,30 @@ $('aList').addEventListener('click',async e=>{const sh=e.target.dataset.show,dl=
   if(sh){const it=(annList.items||[]).find(x=>x.id===sh);if(it)annShow(it.text,it.style)}
   if(dl){if(e.target.textContent!=='Sure?'){e.target.textContent='Sure?';setTimeout(()=>{if(e.target.isConnected)e.target.textContent='Delete'},3000);return}try{await call({a:'ann_delete',id:dl});annList()}catch(x){}}});
 function annRender(){const t=ST&&ST.ann_text;const lv=$('aLive');if(t){lv.className='live show '+(ST.ann_style==='urgent'?'urgent':'notice');$('aLiveT').textContent='Showing now ('+({both:'screens + phones',screens:'screens',phones:'phones'}[ST.ann_where]||'')+'): '+t}else lv.className='live'}
+
+// ---------- photo report ----------
+let PR=null;
+function pct(a,b){return b?Math.round(a*100/b)+'%':'–'}
+function dur(s){if(s==null)return '–';s=+s;return s<90?s+' s':(s<5400?Math.round(s/60)+' min':(s/3600).toFixed(1)+' h')}
+async function photoReport(){if($('ui').hidden)return;try{const r=await call({a:'photo_report'});PR=r;const top=Math.max(1,r.taken);
+  const rows=[['Photos taken',r.taken],['Saved to phone',r.saved],['Shared',r.shared],['Tapped Send',r.send_taps],['Uploaded',r.uploaded],['Approved',r.approved]];
+  $('prF').innerHTML=rows.map(([n,v])=>`<div class="fr"><span>${n}</span><div class="pbar"><span style="width:${Math.min(100,v*100/top)}%"></span></div><b>${(+v).toLocaleString()}</b><i>${pct(v,r.taken)}</i></div>`).join('');
+  const g=[['Phones taking photos',r.phones_taking],['Deleted on phone',r.deleted],['Uploads not finished',r.unfinished],['Rejected',r.rejected],['Taken down',r.taken_down],['Rolled off the wall',r.rolled_off],['Waiting for approval',r.pending_now],['On the wall now',(r.on_wall_now.venue||0)+' + '+(r.on_wall_now.diaspora||0)],['Avg time to approve',dur(r.avg_approval_seconds)]];
+  $('prG').innerHTML=g.map(([n,v])=>`<div><small>${n}</small><b>${typeof v==='number'?v.toLocaleString():v}</b></div>`).join('');
+  const bg=r.by_group||{},row=k=>{const x=bg[k]||{uploaded:0,approved:0,rejected:0};return `<tr><td>${k==='venue'?'📍 Venue':'🌍 Diaspora'}</td><td>${x.uploaded}</td><td>${x.approved}</td><td>${x.rejected}</td><td>${pct(x.approved,x.uploaded)}</td></tr>`};
+  $('prT').innerHTML='<tr><th></th><th>Uploaded</th><th>Approved</th><th>Rejected</th><th>Approval rate</th></tr>'+row('venue')+row('diaspora');
+  const tl=r.timeline||[],mx=Math.max(1,...tl.map(x=>x.uploaded));
+  $('prL').innerHTML=tl.length?tl.map(x=>`<i title="${new Date(x.t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}: ${x.uploaded} uploaded, ${x.approved} approved" style="height:${x.uploaded*100/mx}%"><i class="a" style="position:absolute;left:0;right:0;bottom:0;height:${x.uploaded?x.approved*100/x.uploaded:0}%"></i></i>`).join(''):'<span class="mut" style="font-size:12px">No uploads yet.</span>';
+  const c=r.diaspora_cities||[];$('prC').innerHTML=c.length?'<table><tr><th>Diaspora city</th><th>Uploaded</th><th>Approved</th></tr>'+c.slice(0,8).map(x=>`<tr><td>${esc(x.city)}</td><td>${x.uploaded}</td><td>${x.approved}</td></tr>`).join('')+'</table>':''}catch(e){}}
+$('prR').onclick=photoReport;
+$('prD').onclick=()=>{if(!PR)return;const r=PR,L=[['Photo report','generated '+new Date().toLocaleString()],[],['Metric','Value'],
+  ['Photos taken',r.taken],['Phones taking photos',r.phones_taking],['Saved to phone',r.saved],['Shared',r.shared],['Deleted on phone',r.deleted],['Tapped Send',r.send_taps],['Uploaded',r.uploaded],['Uploads not finished',r.unfinished],['Approved',r.approved],['Rejected',r.rejected],['Taken down by operator',r.taken_down],['Rolled off the wall',r.rolled_off],['Waiting for approval',r.pending_now],['On wall now (venue)',r.on_wall_now.venue],['On wall now (diaspora)',r.on_wall_now.diaspora],['Average seconds to approve',r.avg_approval_seconds??''],[],
+  ['Group','Uploaded','Approved','Rejected'],...['venue','diaspora'].map(k=>{const x=(r.by_group||{})[k]||{};return [k,x.uploaded||0,x.approved||0,x.rejected||0]}),[],
+  ['15-minute period (UTC)','Uploaded','Approved'],...(r.timeline||[]).map(x=>[x.t,x.uploaded,x.approved]),[],
+  ['Diaspora city','Uploaded','Approved'],...(r.diaspora_cities||[]).map(x=>[x.city,x.uploaded,x.approved])];
+  const csv=L.map(a=>a.map(v=>{v=v==null?'':String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='rally-photo-report-'+new Date().toISOString().slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),2000)};
+setInterval(photoReport,15000);
 let armT=null;function outClick(sel,key){return e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
  if(b.dataset.out==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green screen'},3000);return}
  clearTimeout(armT);document.querySelectorAll(sel+' button').forEach(x=>{x.classList.remove('arm');if(x.dataset.out==='green')x.textContent='Green screen'});

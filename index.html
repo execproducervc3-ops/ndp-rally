@@ -192,7 +192,7 @@ $('shoot').onclick=async()=>{const cd=$('cd');for(const n of ['3','2','1']){cd.t
 $('again').onclick=()=>{show('vCam');photoView='vCam';startCam()};
 // delete: tap twice (like the phone's own Delete Photo), then back to the start
 let delT=null;$('delB').onclick=()=>{const b=$('delB');if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap to delete';clearTimeout(delT);delT=setTimeout(()=>{b.classList.remove('arm');b.textContent='🗑 Delete'},3000);return}
-  clearTimeout(delT);b.classList.remove('arm');b.textContent='🗑 Delete';if(lastUrl)URL.revokeObjectURL(lastUrl);lastUrl=null;lastBlob=null;$('shot').removeAttribute('src');$('shot2').removeAttribute('src');
+  clearTimeout(delT);b.classList.remove('arm');b.textContent='🗑 Delete';ev('delete');if(lastUrl)URL.revokeObjectURL(lastUrl);lastUrl=null;lastBlob=null;$('shot').removeAttribute('src');$('shot2').removeAttribute('src');
   photoView='vPhoto';show('vPhoto');toast('🗑 Photo deleted',2000)};
 function fileOf(){return new File([lastBlob],'ndp-rally-photo.jpg',{type:'image/jpeg'})}
 $('saveB').onclick=async()=>{ev('save');const f=fileOf();if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});return}catch(e){if(e.name==='AbortError')return}}const a=document.createElement('a');a.href=lastUrl;a.download='ndp-rally-photo.jpg';document.body.appendChild(a);a.click();a.remove()};
