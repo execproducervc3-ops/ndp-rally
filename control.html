@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="robots" content="noindex">
 <title>Rally control</title>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -203,7 +203,22 @@ body:not(.pvw) .ml>span{display:none}body:not(.pvw) .ml .pv{border:1px solid var
 .drow select{padding:6px;border-radius:7px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:700 11px Inter,sans-serif;max-width:130px}.drow select.un{border-color:var(--y);color:var(--y)}
 .drow button{padding:6px 8px;border-radius:7px;border:1px solid #3a3a46;background:#22222c;color:#fff;font:800 11px Inter,sans-serif;cursor:pointer}.drow button.fg{background:#3a1a1a}
 .drow.offl{opacity:.55}
+html,body{overscroll-behavior:none;-webkit-text-size-adjust:100%}
+@media (min-width:1000px){html,body{height:100%;overflow:hidden}#tabShow .col,#tabSetup{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}}
+body{-webkit-user-select:none;user-select:none}input,textarea,select{-webkit-user-select:text;user-select:text}
 </style>
+<script>
+// stop zooming and page drift on touch screens: no double-tap zoom, no pinch zoom, no rubber-band bounce.
+(function(){var last=0;
+document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});
+document.addEventListener('gesturechange',function(e){e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+document.addEventListener('touchend',function(e){var n=Date.now();var t=e.target;var ui=t&&t.closest&&t.closest('button,a,input,select,textarea,label,[role=button],[data-scene],[data-k],[data-fx],.qi,.wall div,canvas#cv');
+  if(!ui&&n-last<350)e.preventDefault();last=n},{passive:false});
+document.addEventListener('dblclick',function(e){e.preventDefault()},{passive:false});
+})();
+</script>
+<link rel="manifest" href="control.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Rally Control"><link rel="apple-touch-icon" href="img/icon-180.png"><meta name="theme-color" content="#06070f">
 </head>
 <body>
 <div id="login">

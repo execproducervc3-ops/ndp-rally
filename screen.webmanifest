@@ -1,0 +1,1 @@
+{"name": "Rally Screen", "short_name": "Rally Screen", "start_url": "./screen.html?pair", "scope": "./", "display": "fullscreen", "orientation": "landscape", "background_color": "#06070f", "theme_color": "#06070f", "icons": [{"src": "img/icon-192.png", "sizes": "192x192", "type": "image/png"}, {"src": "img/icon-512.png", "sizes": "512x512", "type": "image/png"}]}

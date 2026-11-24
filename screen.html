@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Rally big screen · Rally Shake Vote mockup</title>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -188,6 +188,18 @@ body>*:not(#scal):not(#startov):not(#pairov):not(#fitp):not(#fitgrid):not(#rxg):
 .spot .cap{font-family:Anton,Impact,sans-serif;color:#F7D117;font-size:46px;line-height:1;max-width:36%}
 .spot .cap small{display:block;font-family:Inter,sans-serif;font-size:20px;color:#fff;margin-top:12px;font-weight:800}
 </style>
+<script>
+// stop zooming and page drift on touch screens: no double-tap zoom, no pinch zoom, no rubber-band bounce.
+(function(){var last=0;
+document.addEventListener('gesturestart',function(e){e.preventDefault()},{passive:false});
+document.addEventListener('gesturechange',function(e){e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length>1)e.preventDefault()},{passive:false});
+document.addEventListener('touchend',function(e){var n=Date.now();var t=e.target;var ui=t&&t.closest&&t.closest('button,a,input,select,textarea,label,[role=button],[data-scene],[data-k],[data-fx],.qi,.wall div,canvas#cv');
+  if(!ui&&n-last<350)e.preventDefault();last=n},{passive:false});
+document.addEventListener('dblclick',function(e){e.preventDefault()},{passive:false});
+})();
+</script><style>html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none}html,body{position:fixed;inset:0;overflow:hidden}</style>
+<link rel="manifest" href="screen.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Rally Screen"><link rel="apple-touch-icon" href="img/icon-180.png"><meta name="theme-color" content="#06070f">
 </head>
 <body>
 <div id="startov"><b>RALLY BIG SCREEN</b><span>Click anywhere to start. This turns on sound and full screen. Then leave this window on the LED output; the control screen drives everything from here.</span><span id="startinfo" style="font-size:14px;color:#8d8d96"></span></div>
