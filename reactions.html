@@ -21,7 +21,7 @@ body.hud #hud{display:block}body.hud{cursor:default}
 //   ?bg=green (default) | blue | black | transparent   ?lane=full | left | right | center   ?size=1 (scale)
 //   Keys: F full screen · H show/hide status · T test burst
 var CFG=window.RALLY_CFG||{};var FN=CFG.supabaseUrl+'/functions/v1/crowd';
-var EMO=['💛','💙','🔥','👏','🙌','🎉'];
+var EMO=['💛','💙','🔥','👏','🙌','🎉','🎺'];
 var q=new URLSearchParams(location.search);
 var BG={green:'#00B140',blue:'#0047BB',black:'#000000',transparent:'transparent'}[q.get('bg')||'green']||'#00B140';
 document.documentElement.style.setProperty('--key',BG);
@@ -52,7 +52,7 @@ function release(counts){var tot=counts.reduce(function(a,b){return a+b},0);if(!
 var prev=null,open=false,fails=0,seen=0,lastOk=0;
 function hud(){var h=document.getElementById('hud');h.textContent='Reactions: '+(open?'ON':'OFF (turn on in control)')+'\nConnection: '+(fails>=2?'OFFLINE, retrying':'ok')+'\nShown so far: '+seen+'\nKeys: F full screen · H hide · T test';}
 function poll(){var ctl=new AbortController();var to=setTimeout(function(){ctl.abort()},3000);
-  fetch(FN,{method:'POST',headers:{'content-type':'application/json'},body:'{"a":"reacts"}',signal:ctl.signal}).then(function(r){return r.ok?r.json():Promise.reject(r.status)}).then(function(d){clearTimeout(to);fails=0;lastOk=Date.now();open=!!d.open;var t=(d.t||[]).slice(0,6);while(t.length<6)t.push(0);
+  fetch(FN,{method:'POST',headers:{'content-type':'application/json'},body:'{"a":"reacts"}',signal:ctl.signal}).then(function(r){return r.ok?r.json():Promise.reject(r.status)}).then(function(d){clearTimeout(to);fails=0;lastOk=Date.now();open=!!d.open;var t=(d.t||[]).slice(0,7);while(t.length<7)t.push(0);
     if(prev){var dl=t.map(function(v,i){return Math.max(0,v-prev[i])});if(open){release(dl);seen+=dl.reduce(function(a,b){return a+b},0)}}
     prev=t;hud()}).catch(function(){clearTimeout(to);fails++;hud()}).then(function(){setTimeout(poll,500)})}
 poll();hud();
@@ -60,7 +60,7 @@ poll();hud();
 addEventListener('keydown',function(e){var k=e.key.toLowerCase();
   if(k==='f'){if(!document.fullscreenElement)document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(function(){});else document.exitFullscreen()}
   if(k==='h')document.body.classList.toggle('hud');
-  if(k==='t'){for(var i=0;i<30;i++)spawn(i%6,Math.random()*1.5)}});
+  if(k==='t'){for(var i=0;i<30;i++)spawn(i%7,Math.random()*1.5)}});
 addEventListener('dblclick',function(){if(!document.fullscreenElement&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen().catch(function(){})});
 document.body.classList.add('hud');setTimeout(function(){document.body.classList.remove('hud')},6000);
 })();
