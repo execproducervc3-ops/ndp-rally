@@ -199,7 +199,7 @@ document.addEventListener('touchend',function(e){var n=Date.now();var t=e.target
 document.addEventListener('dblclick',function(e){e.preventDefault()},{passive:false});
 })();
 </script><style>html,body{overscroll-behavior:none;touch-action:manipulation;-webkit-user-select:none;user-select:none}html,body{position:fixed;inset:0;overflow:hidden}</style>
-<link rel="manifest" href="screen.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Rally Screen"><link rel="apple-touch-icon" href="img/icon-180.png"><meta name="theme-color" content="#06070f">
+<link rel="manifest" href="screen.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Rally Screen"><link rel="apple-touch-icon" href="img/icon-180.png"><meta name="theme-color" content="#000000">
 </head>
 <body>
 <div id="startov"><b>RALLY BIG SCREEN</b><span>Click anywhere to start. This turns on sound and full screen. Then leave this window on the LED output; the control screen drives everything from here.</span><span id="startinfo" style="font-size:14px;color:#8d8d96"></span></div>
@@ -2741,12 +2741,12 @@ function saveFit(){try{localStorage.setItem('rally_fit',JSON.stringify(FIT))}cat
 let K=1,KX=1,KY=1,OX=0,OY=0,CA={x:0,y:0,w:innerWidth,h:innerHeight};
 // crop: trim each edge (percent of the window); the show fits inside what's left, the trimmed strips are covered
 function fitMask(W,H){let m=document.getElementById('fitmask');if(!m){m=document.createElement('div');m.id='fitmask';m.innerHTML='<i></i><i></i><i></i><i></i>';document.body.appendChild(m)}
-  const [t,b,l,r]=m.children,c=FIT.bg,set=(e,x,y,w,h)=>{e.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${Math.max(0,w)}px;height:${Math.max(0,h)}px;background:${c}`};
+  const [t,b,l,r]=m.children,c=window.__keyOn||FIT.bg,set=(e,x,y,w,h)=>{e.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:${Math.max(0,w)}px;height:${Math.max(0,h)}px;background:${c}`};
   set(t,0,0,W,CA.y);set(b,0,CA.y+CA.h,W,H-CA.y-CA.h);set(l,0,CA.y,CA.x,CA.h);set(r,CA.x+CA.w,CA.y,W-CA.x-CA.w,CA.h)}
 function fitScreen(){const WW=innerWidth,HH=innerHeight;if(!WW||!HH){setTimeout(fitScreen,100);return}CA={x:WW*FIT.cl/100,y:HH*FIT.ct/100,w:WW*(1-(FIT.cl+FIT.cr)/100),h:HH*(1-(FIT.ct+FIT.cb)/100)};const W=CA.w,H=CA.h,z=FIT.zoom/100;
   if(FIT.mode==='stretch'){KX=W/904*z;KY=H/508.5*z}else{const k=(FIT.mode==='fill'?Math.max(W/904,H/508.5):Math.min(W/904,H/508.5))*z;KX=KY=k}K=KX;
   OX=CA.x+(W-904*KX)/2+W*FIT.x/100;OY=CA.y+(H-508.5*KY)/2+H*FIT.y/100;fitMask(WW,HH);if(window.__annPos)window.__annPos();scal.style.transform=`translate(${OX}px,${OY}px) scale(${KX},${KY})`;
-  document.documentElement.style.setProperty('background',FIT.bg,'important');document.body.style.setProperty('background',FIT.bg,'important');
+  const EDGE=window.__keyOn||FIT.bg;document.documentElement.style.setProperty('background',EDGE,'important');document.body.style.setProperty('background',EDGE,'important');
   const g=document.getElementById('fitgrid');if(g){g.style.left=OX+'px';g.style.top=OY+'px';g.style.width=904*KX+'px';g.style.height=508.5*KY+'px'}
   const z2=document.getElementById('fitsz');if(z2){const gcd=(a,b)=>b?gcd(b,a%b):a,dp=devicePixelRatio||1,pw=Math.round(WW*dp),ph=Math.round(HH*dp),gg=gcd(pw,ph);z2.textContent=`This output: ${pw} × ${ph} px (ratio ${(pw/ph).toFixed(2)}:1${gg>1&&pw/gg<50?' = '+pw/gg+':'+ph/gg:''}). Show is 16:9.`}}
 addEventListener('resize',fitScreen);fitScreen();
@@ -2911,7 +2911,7 @@ window.__ann=a=>{if(!a){if(cur){cur=null;b.classList.remove('on')}return}
 const RX={mode:'show',open:false,prev:null};const L={rate:8,max:35,side:22,key:'#00B140'};
 try{Object.assign(L,JSON.parse(localStorage.getItem('rally_rx_lim')||'{}'))}catch(e){}
 function saveL(){L.rate=Math.max(1,Math.min(30,Math.round(L.rate)));L.max=Math.max(5,Math.min(120,Math.round(L.max)));L.side=Math.max(10,Math.min(40,Math.round(L.side)));try{localStorage.setItem('rally_rx_lim',JSON.stringify(L))}catch(e){}}
-const gdiv=document.createElement('div');gdiv.id='rxg';document.body.appendChild(gdiv);
+const gdiv=document.createElement('div');gdiv.id='rxg'; // only added to the page while green screen is on
 const cv=document.createElement('canvas');cv.id='rxc';document.body.appendChild(cv);const g=cv.getContext('2d');let W=0,H=0;
 function fit(){const d=Math.min(2,devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;g.setTransform(d,0,0,d,0,0)}addEventListener('resize',fit);fit();
 const SPR=EMO.map(e=>{const c=document.createElement('canvas'),z=160;c.width=c.height=z;const x=c.getContext('2d');x.font=Math.round(z*.8)+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(e,z/2,z/2+z*.04);return c});
@@ -2934,7 +2934,10 @@ setInterval(()=>{const now=performance.now();tokens=Math.min(L.rate,tokens+L.rat
   while(tokens>=1&&Q.length&&P.length<L.max){if(spawn(Q.shift()))tokens-=1;else break}},100);
 function queue(counts){counts.forEach((n,k)=>{for(let j=0;j<n;j++)Q.push(k)});const keep=Math.max(4,L.rate*2);
   if(Q.length>keep){for(let i=Q.length-1;i>0;i--){const r=Math.floor(Math.random()*(i+1));[Q[i],Q[r]]=[Q[r],Q[i]]}Q.length=keep}}
-function apply(){gdiv.style.background=L.key;gdiv.classList.toggle('on',RX.mode==='green');if(RX.mode==='show'){P.length=0;dirty=true;kick()}
+function apply(){const gr=RX.mode==='green';
+  if(gr){gdiv.style.background=L.key;gdiv.classList.add('on');if(!gdiv.isConnected)document.body.appendChild(gdiv)}else{gdiv.classList.remove('on');gdiv.style.background='none';if(gdiv.isConnected)gdiv.remove()}
+  window.__keyOn=gr?L.key:null;try{fitScreen()}catch(e){}
+  {let m=document.querySelector('meta[name=theme-color]');if(!m){m=document.createElement('meta');m.name='theme-color';document.head.appendChild(m)}m.content=gr?L.key:'#000000'}if(RX.mode==='show'){P.length=0;dirty=true;kick()}
   const i=document.getElementById('rxinfo');if(i)i.textContent='Output now: '+({show:'Show',emoji:'Show + emojis',green:'Green screen'}[RX.mode])+' · reactions '+(RX.open?'on':'off')+'. Set both from control.'}
 window.__rx=d=>{const m=['show','emoji','green'].includes(d.output)?d.output:'show';const t=(d.rt||[]).slice(0,7);while(t.length<7)t.push(0);
   if(m!==RX.mode||!!d.react!==RX.open){RX.mode=m;RX.open=!!d.react;apply()}
