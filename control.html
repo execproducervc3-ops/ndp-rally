@@ -75,6 +75,17 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
 .orow{display:flex;align-items:center;gap:8px;margin-top:6px}.orow .olab{width:88px;flex:none;font:800 12px Inter,sans-serif;color:#fff;display:flex;align-items:center;gap:6px}.orow .seg{flex:1}
 .orow .dot{width:9px;height:9px;border-radius:50%;background:#55555f;display:inline-block}.orow .dot.on{background:#4be38a;box-shadow:0 0 6px #4be38a}
 .orow.off .seg{opacity:.35;pointer-events:none}.orow.off .olab::after{content:'not connected';font-weight:600;font-size:10px;color:var(--mut);margin-left:2px}
+.ann textarea{width:100%;min-height:70px;resize:vertical;padding:10px;border-radius:10px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:600 15px Inter,sans-serif}
+.ann .opts{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}.ann select{flex:1;min-width:130px;padding:9px;border-radius:10px;border:1px solid #3a3a46;background:#15151b;color:#fff;font:600 13px Inter,sans-serif}
+.ann .acts{display:flex;gap:6px;margin-top:8px}.ann .acts button{flex:1;padding:12px;border-radius:10px;border:0;font:800 14px Inter,sans-serif;cursor:pointer}
+.ann .go{background:var(--y);color:#10204a}.ann .sv{background:#22222c;color:#fff;border:1px solid #3a3a46!important}
+.ann .cnt{font-size:11px;color:var(--mut);text-align:right}
+.ann .live{display:none;margin-top:10px;border-radius:12px;padding:10px 12px;font-size:14px;font-weight:700;align-items:center;gap:10px}.ann .live.show{display:flex}
+.ann .live.notice{background:#F7D117;color:#10204a}.ann .live.urgent{background:#c8102e;color:#fff}.ann .live span{flex:1}
+.ann .live button{padding:8px 12px;border-radius:9px;border:0;background:#10204a;color:#fff;font:800 12px Inter,sans-serif;cursor:pointer}
+.ann .sl{display:flex;flex-direction:column;gap:6px;margin-top:10px}.ann .si{display:flex;align-items:center;gap:8px;background:#1c1c24;border-radius:10px;padding:8px 10px;font-size:13px}
+.ann .si span{flex:1}.ann .si i{width:8px;height:8px;border-radius:50%;flex:none;background:#F7D117}.ann .si i.urgent{background:#ff4d5e}
+.ann .si button{padding:6px 10px;border-radius:8px;border:0;font:700 12px Inter,sans-serif;cursor:pointer;background:#2c2c36;color:#fff}.ann .si button.dl{background:#5a1a1a}
 </style>
 </head>
 <body>
@@ -141,6 +152,16 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
       <div class="wall" id="wall"></div>
       <p class="mut">Tap a photo to spotlight it or take it down.</p>
     </div>
+    <div class="card ann op-only">
+      <h2>Announcements</h2>
+      <textarea id="aT" maxlength="160" placeholder="e.g. Parents of a young boy in a yellow NDP shirt, please come to the side of the stage."></textarea>
+      <div class="cnt"><span id="aC">0</span>/160</div>
+      <div class="opts"><select id="aS"><option value="notice">Notice (yellow)</option><option value="urgent">Urgent (red)</option></select><select id="aW"><option value="both">Big screens + phones</option><option value="screens">Big screens only</option><option value="phones">Phones only</option></select></div>
+      <div class="acts"><button class="go" id="aGo">📣 Show now</button><button class="sv" id="aSv">Save</button></div>
+      <div class="live" id="aLive"><span id="aLiveT"></span><button id="aClr">Clear</button></div>
+      <div class="sl" id="aList"></div>
+      <p class="mut" style="margin:8px 0 0">Describe, don't name children. Phones get it at the venue only, not the diaspora link.</p>
+    </div>
     <div class="card team owner-only">
       <h2>Team · assistant operators</h2>
       <p class="mut" style="margin:0">Add a helper with their own PIN. <b style="color:#fff">Photo assistant</b>: approves photos and takes them down; can't change the show. <b style="color:#fff">Full operator</b>: runs the show too, but can't manage the team. Remove someone and they're signed out straight away.</p>
@@ -172,7 +193,7 @@ function fitPv(){const w=$('pv').clientWidth;$('pvf').style.transform=`scale(${w
 async function tick(){if($('ui').hidden)return;try{const d=await call({a:'overview'});fails=0;render(d);$('conn').className='pill';$('conn').textContent='● Connected';if(!$('bar').classList.contains('warn'))$('bar').className='bar'}
  catch(e){if(e==='pin')return;fails++;if(fails>=2){$('conn').className='pill bad';$('conn').textContent='● Offline';$('bar').className='bar show bad';$('bar').textContent='⚠ This control screen is offline. Your taps are NOT being sent. Reconnecting… The big screens keep running on their own. Switch to the backup phone or hotspot if this lasts.'}}
  setTimeout(tick,1000)}
-function render(d){ST=d.state;try{autoTick(d)}catch(e){}const s=d.stats||{};
+function render(d){ST=d.state;try{autoTick(d)}catch(e){}try{annRender()}catch(e){}const s=d.stats||{};
  $('sPh').textContent=(s.phones||0).toLocaleString();$('sVD').textContent=(s.phones_venue||0).toLocaleString()+' / '+(s.phones_diaspora||0).toLocaleString();
  $('sVo').textContent=(s.votes||0).toLocaleString();$('sSh').textContent=(s.shakes||0).toLocaleString();$('sQ').textContent=(s.queue||0)+'/20';$('sL').textContent=s.line||0;
  $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
@@ -230,7 +251,7 @@ $('autoStop').onclick=()=>autoStop('Sequence stopped. Screens stay on the curren
 
 // ---------- who's signed in, log out, team ----------
 const ROLE={owner:'Owner',operator:'Full operator',assistant:'Photo assistant'};
-async function whoami(){try{const w=await call({a:'whoami'});document.body.dataset.role=w.role;$('who').innerHTML=w.role==='owner'?'<b>Owner</b>':`<b>${esc(w.name)}</b> · ${ROLE[w.role]||w.role}`;if(w.role==='owner')teamLoad();if(w.role!=='owner'&&AUTO&&w.role==='assistant'){autoStop('')}fitPv()}catch(e){}}
+async function whoami(){try{const w=await call({a:'whoami'});document.body.dataset.role=w.role;$('who').innerHTML=w.role==='owner'?'<b>Owner</b>':`<b>${esc(w.name)}</b> · ${ROLE[w.role]||w.role}`;if(w.role==='owner')teamLoad();if(w.role!=='assistant')annList();if(w.role!=='owner'&&AUTO&&w.role==='assistant'){autoStop('')}fitPv()}catch(e){}}
 let loT=null;$('logout').onclick=()=>{const b=$('logout');if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent=AUTO?'Sequence running! Tap to log out':'Tap to log out';clearTimeout(loT);loT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Log out'},3000);return}
   clearTimeout(loT);b.classList.remove('arm');b.textContent='Log out';if(AUTO)autoStop('');hidePin();lock('Logged out.')};
 let pinFor=null;function hidePin(){pinFor=null;$('np').classList.remove('show');$('np').innerHTML=''}
@@ -243,6 +264,18 @@ $('tf').onsubmit=async e=>{e.preventDefault();const name=$('tn').value.trim();if
     pinFor=r.op.id;$('np').innerHTML=`<b>${esc(r.op.name)}</b> · ${ROLE[r.op.role]}<div class="pn">${r.pin}</div>Give them this PIN and the control page link. It disappears once they sign in, and it's never shown again. If it's lost, remove them and add them again.`;$('np').classList.add('show');teamLoad()}
   catch(x){alertBar('Couldn\'t add that person.')}};
 setInterval(()=>{if(document.body.dataset.role==='owner'&&!$('ui').hidden&&(pinFor||Date.now()%20000<3000))teamLoad()},3000);
+
+// ---------- announcements ----------
+$('aT').oninput=()=>{$('aC').textContent=$('aT').value.length};
+async function annList(){try{const r=await call({a:'ann_list'});const l=r.list||[];$('aList').innerHTML=l.map(x=>`<div class="si"><i class="${x.style}"></i><span>${esc(x.text)}</span><button data-show="${x.id}">Show</button><button class="dl" data-del="${x.id}">Delete</button></div>`).join('');annList.items=l}catch(e){}}
+async function annShow(text,style){if(!text.trim()){$('aT').focus();return}try{await call({a:'ann_show',text,style,where:$('aW').value})}catch(e){alertBar('Couldn\'t show that announcement.')}}
+$('aGo').onclick=()=>annShow($('aT').value,$('aS').value);
+$('aSv').onclick=async()=>{const text=$('aT').value.trim();if(!text){$('aT').focus();return}try{await call({a:'ann_save',text,style:$('aS').value});$('aT').value='';$('aC').textContent='0';annList()}catch(e){alertBar('Couldn\'t save that announcement.')}};
+$('aClr').onclick=async()=>{try{await call({a:'ann_clear'})}catch(e){}};
+$('aList').addEventListener('click',async e=>{const sh=e.target.dataset.show,dl=e.target.dataset.del;
+  if(sh){const it=(annList.items||[]).find(x=>x.id===sh);if(it)annShow(it.text,it.style)}
+  if(dl){if(e.target.textContent!=='Sure?'){e.target.textContent='Sure?';setTimeout(()=>{if(e.target.isConnected)e.target.textContent='Delete'},3000);return}try{await call({a:'ann_delete',id:dl});annList()}catch(x){}}});
+function annRender(){const t=ST&&ST.ann_text;const lv=$('aLive');if(t){lv.className='live show '+(ST.ann_style==='urgent'?'urgent':'notice');$('aLiveT').textContent='Showing now ('+({both:'screens + phones',screens:'screens',phones:'phones'}[ST.ann_where]||'')+'): '+t}else lv.className='live'}
 let armT=null;function outClick(sel,key){return e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
  if(b.dataset.out==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green screen'},3000);return}
  clearTimeout(armT);document.querySelectorAll(sel+' button').forEach(x=>{x.classList.remove('arm');if(x.dataset.out==='green')x.textContent='Green screen'});

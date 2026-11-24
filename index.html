@@ -63,6 +63,10 @@ input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px
 @keyframes fly{0%{transform:translate(-50%,0) scale(.6);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),-260px) scale(1.25);opacity:0}}
 .toast{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 8px);z-index:65;background:#1c1c24;border:2px solid var(--y);border-radius:14px;padding:11px 14px;font-size:14px;text-align:center;transform:translateY(-140%);transition:transform .3s ease;pointer-events:none}
 .toast.show{transform:none}.toast b{color:var(--y)}
+.annbar{position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top) + 8px);z-index:66;border-radius:14px;padding:11px 40px 11px 12px;font-size:14px;font-weight:700;line-height:1.35;display:none;text-align:left;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.annbar.show{display:block}.annbar small{display:block;font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:1px;font-size:12px;margin-bottom:2px}
+.annbar.notice{background:#F7D117;color:#10204a}.annbar.urgent{background:#c8102e;color:#fff}
+.annbar button{position:absolute;right:6px;top:6px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(0,0,0,.18);color:inherit;font-size:15px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -118,6 +122,7 @@ input.city{width:100%;max-width:360px;padding:14px;border-radius:14px;border:1px
 <div class="tog" id="tog"><button id="tPhoto" class="a">📷 PHOTO</button><button id="tVote">✔ VOTE</button></div>
 </div>
 <div class="ls" id="ls"><img src="img/ndp-logo.webp" alt=""><b>I AM<br>NDP!</b></div>
+<div class="annbar" id="ann" role="alert"><small id="annL"></small><span id="annT"></span><button id="annX" aria-label="Close">✕</button></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="offbar" id="off"><i></i><div><b>You're offline.</b> Reconnecting… Keep this page open. Photos still work, and your shakes count when you're back.</div></div>
 <canvas id="work" width="1080" height="1350" style="display:none"></canvas>
@@ -270,10 +275,18 @@ setInterval(()=>{if(!RX.some(n=>n>0))return;const rs=Math.max(.05,Math.min(1,+S.
   if(RXSEED<rs&&navigator.onLine!==false){api({a:'react',c:c.map(n=>Math.round(n/rs))},1).catch(()=>{})}},3000+Math.random()*1500);
 setInterval(rxShow,500);
 
+
+// ---------- announcements from control (venue phones) ----------
+let annShown=null;function showAnn(a){if(HOME)return;const el=$('ann');
+  if(!a){el.classList.remove('show');annShown=null;return}
+  const key=a.id+'|'+a.text;if(store.get('rally_ann_x')===key){el.classList.remove('show');return}
+  if(annShown!==key){annShown=key;el.className='annbar show '+(a.style==='urgent'?'urgent':'notice');$('annL').textContent=a.style==='urgent'?'URGENT':'ANNOUNCEMENT';$('annT').textContent=a.text;
+    if(a.style==='urgent'){try{navigator.vibrate&&navigator.vibrate([300,150,300])}catch(e){}}}}
+$('annX').onclick=()=>{if(annShown)store.set('rally_ann_x',annShown);$('ann').classList.remove('show')};
 // ---------- status polling via CDN ----------
 let fails=0;
 async function poll(){try{const ctl=new AbortController();const to=setTimeout(()=>ctl.abort(),4000);
-  const r=await fetch(STATUS+'?t='+Math.floor(Date.now()/2000),{signal:ctl.signal});clearTimeout(to);if(!r.ok)throw r.status;const d=await r.json();fails=0;$('off').classList.remove('show');S.react=!!d.react;S.rs=d.rs||1;
+  const r=await fetch(STATUS+'?t='+Math.floor(Date.now()/2000),{signal:ctl.signal});clearTimeout(to);if(!r.ok)throw r.status;const d=await r.json();fails=0;$('off').classList.remove('show');S.react=!!d.react;S.rs=d.rs||1;showAnn(d.ann);
   if(d.seq!==S.seq){const first=S.seq<0;Object.assign(S,d);if(!first||['vote','shake','victory','replay'].includes(d.scene))applyScene();else if(tab==='vote')renderVote()}}
  catch(e){fails++;if(fails>=2)$('off').classList.add('show')}}
 let pollT=null;function loop(){poll();clearTimeout(pollT);pollT=setTimeout(loop,2000+Math.random()*600)}
