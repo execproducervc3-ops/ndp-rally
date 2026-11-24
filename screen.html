@@ -2815,19 +2815,22 @@ const P=[],Q=[];
 // area emojis rise in: the whole window on green screen, the show picture otherwise
 function area(){if(RX.mode==='green')return{x:CA.x,y:CA.y,w:CA.w,h:CA.h};const x=Math.max(CA.x,OX),y=Math.max(CA.y,OY);return{x,y,w:Math.min(CA.x+CA.w,OX+904*KX)-x,h:Math.min(CA.y+CA.h,OY+508.5*KY)-y}}
 function spawn(k){if(P.length>=L.max)return false;const a=area(),base=Math.min(a.w,a.h)*.09,s=base*(.75+Math.random()*.6),lw=a.w*L.side/100,m=s*.6,x0=m+Math.random()*Math.max(1,lw-2*m);
-  P.push({k,x:Math.random()<.5?a.x+x0:a.x+a.w-x0,y:a.y+a.h+s,top:a.y,s,vy:a.h*(.16+Math.random()*.1),ph:Math.random()*6.28,wob:s*(.25+Math.random()*.35),t:0,life:4.2+Math.random()*1.6,rot:(Math.random()-.5)*.5});return true}
-let last=performance.now();
-function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;g.clearRect(0,0,W,H);
+  kick();P.push({k,x:Math.random()<.5?a.x+x0:a.x+a.w-x0,y:a.y+a.h+s,top:a.y,s,vy:a.h*(.16+Math.random()*.1),ph:Math.random()*6.28,wob:s*(.25+Math.random()*.35),t:0,life:4.2+Math.random()*1.6,rot:(Math.random()-.5)*.5});return true}
+let last=performance.now(),running=false,dirty=false;
+// only animate while there are emojis on screen; idle otherwise (saves the laptop's graphics)
+function kick(){if(!running){running=true;last=performance.now();requestAnimationFrame(frame)}}
+function frame(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(dirty||P.length){g.clearRect(0,0,W,H);dirty=false}
+  if(!P.length){running=false;return}
   for(let i=P.length-1;i>=0;i--){const p=P[i];p.t+=dt;if(p.t>p.life){P.splice(i,1);continue}p.y-=p.vy*dt;const x=p.x+Math.sin(p.ph+p.t*2.2)*p.wob;
     const pop=p.t<.3?.2+.8*(p.t/.3)+.15*Math.sin(p.t/.3*3.14):(p.t>p.life-.6?Math.max(0,(p.life-p.t)/.6):1);const s=p.s*pop;if(s<1||p.y<p.top-p.s)continue;
     g.save();g.translate(x,p.y);g.rotate(p.rot*Math.sin(p.t*1.5));g.drawImage(SPR[p.k],-s/2,-s/2,s,s);g.restore()}
-  requestAnimationFrame(frame)}requestAnimationFrame(frame);
+  dirty=true;requestAnimationFrame(frame)}
 let tokens=0,le=performance.now();
 setInterval(()=>{const now=performance.now();tokens=Math.min(L.rate,tokens+L.rate*(now-le)/1000);le=now;if(RX.mode==='show'){Q.length=0;return}
   while(tokens>=1&&Q.length&&P.length<L.max){if(spawn(Q.shift()))tokens-=1;else break}},100);
 function queue(counts){counts.forEach((n,k)=>{for(let j=0;j<n;j++)Q.push(k)});const keep=Math.max(4,L.rate*2);
   if(Q.length>keep){for(let i=Q.length-1;i>0;i--){const r=Math.floor(Math.random()*(i+1));[Q[i],Q[r]]=[Q[r],Q[i]]}Q.length=keep}}
-function apply(){gdiv.style.background=L.key;gdiv.classList.toggle('on',RX.mode==='green');if(RX.mode==='show'){P.length=0}
+function apply(){gdiv.style.background=L.key;gdiv.classList.toggle('on',RX.mode==='green');if(RX.mode==='show'){P.length=0;dirty=true;kick()}
   const i=document.getElementById('rxinfo');if(i)i.textContent='Output now: '+({show:'Show',emoji:'Show + emojis',green:'Green screen'}[RX.mode])+' · reactions '+(RX.open?'on':'off')+'. Set both from control.'}
 window.__rx=d=>{const m=['show','emoji','green'].includes(d.output)?d.output:'show';const t=(d.rt||[]).slice(0,7);while(t.length<7)t.push(0);
   if(m!==RX.mode||!!d.react!==RX.open){RX.mode=m;RX.open=!!d.react;apply()}
