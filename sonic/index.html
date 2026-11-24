@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Sound sync test</title>
+<style>
+*{box-sizing:border-box;touch-action:manipulation}
+html,body{margin:0;height:100%;background:#0b1020;color:#eef;font:16px/1.4 system-ui,-apple-system,sans-serif}
+main{max-width:520px;margin:0 auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+h1{font-size:20px;margin:0}
+p{margin:0;color:#aab}
+button{font:600 17px system-ui;padding:14px;border-radius:12px;border:0;background:#1e6bff;color:#fff;width:100%}
+button.alt{background:#263052}
+.row{display:flex;gap:10px}
+.m{background:#151c36;border-radius:12px;padding:12px}
+.bar{height:16px;background:#263052;border-radius:8px;overflow:hidden;margin:6px 0 2px}
+.bar i{display:block;height:100%;width:0;background:#ffd400}
+.st{font:700 22px system-ui;text-align:center;padding:10px}
+small{color:#889}
+#flash{position:fixed;inset:0;background:#ffd400;color:#0b1020;display:none;align-items:center;justify-content:center;font:800 40px system-ui;text-align:center}
+select{font:16px system-ui;padding:8px;border-radius:8px;background:#151c36;color:#eef;border:1px solid #334}
+</style></head><body>
+<main>
+  <h1>Sound sync test</h1>
+  <p><b>Phone:</b> tap Listen and allow the microphone. <b>Laptop:</b> tap Send code (or play the tone file). The phone flashes yellow when it hears it.</p>
+  <div class="row">
+    <button id="lis">🎧 Listen (phone)</button>
+    <button id="snd" class="alt">🔊 Send code (laptop)</button>
+  </div>
+  <div class="row" style="align-items:center">
+    <small>Tone</small>
+    <select id="fq">
+      <option value="17500">17.5 kHz (more reach)</option>
+      <option value="18500" selected>18.5 kHz (default)</option>
+      <option value="19500">19.5 kHz (most hidden)</option>
+      <option value="2000">2 kHz (audible check)</option>
+    </select>
+    <label><input type="checkbox" id="loop"> repeat</label>
+  </div>
+  <div class="m">
+    <div class="st" id="st">Not listening</div>
+    <small>Tone A strength</small><div class="bar"><i id="ba"></i></div>
+    <small>Tone B strength</small><div class="bar"><i id="bb"></i></div>
+    <small id="info">—</small>
+  </div>
+  <div class="m"><small>Heard <b id="hits">0</b> times. Best signal <b id="best">0</b> dB. Walk away from the speaker to find the range.</small></div>
+</main>
+<div id="flash">HEARD IT ✓<br><small style="color:#0b1020;font-size:18px">light show would fire</small></div>
+<script>
+const $=id=>document.getElementById(id);
+const F=()=>{const a=+$('fq').value;return [a,a===2000?2600:a+500]};
+const PAT=8, SEG=0.15;          // A,B,A,B... 8 segments of 150 ms = 1.2 s
+
+/* ---------- SEND ---------- */
+let ctxS, loopT;
+function sendOnce(){
+  ctxS=ctxS||new (window.AudioContext||window.webkitAudioContext)();
+  ctxS.resume();
+  const [a,b]=F(), t0=ctxS.currentTime+0.05, g=ctxS.createGain(), o=ctxS.createOscillator();
+  g.gain.value=0; o.connect(g).connect(ctxS.destination);
+  for(let i=0;i<PAT;i++){
+    const t=t0+i*SEG;
+    o.frequency.setValueAtTime(i%2?b:a,t);
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(0.9,t+0.01);
+    g.gain.setValueAtTime(0.9,t+SEG-0.01);g.gain.linearRampToValueAtTime(0,t+SEG);
+  }
+  o.start(t0);o.stop(t0+PAT*SEG+0.05);
+}
+$('snd').onclick=()=>{
+  clearInterval(loopT);sendOnce();
+  if($('loop').checked){loopT=setInterval(sendOnce,3000);$('snd').textContent='🔊 Sending… (tap to restart)'}
+};
+$('loop').onchange=()=>{if(!$('loop').checked){clearInterval(loopT);$('snd').textContent='🔊 Send code (laptop)'}};
+
+/* ---------- LISTEN ---------- */
+let an, buf, sr, hist=[], last='-', changes=[], cool=0, hits=0, best=0;
+$('lis').onclick=async()=>{
+  try{
+    const s=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    await ctx.resume(); sr=ctx.sampleRate;
+    an=ctx.createAnalyser(); an.fftSize=4096; an.smoothingTimeConstant=0;
+    ctx.createMediaStreamSource(s).connect(an);
+    buf=new Float32Array(an.frequencyBinCount);
+    $('lis').textContent='🎧 Listening…';$('lis').disabled=true;
+    $('st').textContent='Listening…';
+    $('info').textContent='Mic sample rate '+sr+' Hz · hears up to '+(sr/2/1000).toFixed(1)+' kHz';
+    setInterval(tick,20);
+  }catch(e){$('st').textContent='Mic blocked: '+e.message}
+};
+function lvl(f){
+  const w=sr/an.fftSize, c=Math.round(f/w); let p=-200;
+  for(let i=c-2;i<=c+2;i++)p=Math.max(p,buf[i]);
+  const n=[];for(let k=25;k<=60;k++){n.push(buf[c-k]);n.push(buf[c+k])}
+  n.sort((x,y)=>x-y);return p-n[n.length>>1];      // dB above local noise
+}
+function tick(){
+  an.getFloatFrequencyData(buf);
+  const [a,b]=F(), A=lvl(a), B=lvl(b), now=performance.now(), TH=12;
+  $('ba').style.width=Math.max(0,Math.min(100,A*2.5))+'%';
+  $('bb').style.width=Math.max(0,Math.min(100,B*2.5))+'%';
+  const s=A>TH&&A>B+3?'A':B>TH&&B>A+3?'B':'-';
+  if(s!=='-'){best=Math.max(best,Math.round(Math.max(A,B)));$('best').textContent=best}
+  if(s!=='-'&&s!==last&&(last==='-'?true:true)){
+    if(changes.length&&changes[changes.length-1].s===s){} else changes.push({s,t:now});
+  }
+  if(s!=='-')last=s;
+  changes=changes.filter(c=>now-c.t<1800);
+  if(changes.length>=5&&now>cool){
+    cool=now+2500;changes=[];hits++;$('hits').textContent=hits;
+    $('flash').style.display='flex';navigator.vibrate&&navigator.vibrate(200);
+    setTimeout(()=>$('flash').style.display='none',1200);
+  }
+  $('st').textContent=s==='-'?'Listening…':'Hearing tone '+s;
+}
+</script>
+</body></html>
