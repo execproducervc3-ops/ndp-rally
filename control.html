@@ -224,14 +224,17 @@ $('autoStop').onclick=()=>autoStop('Sequence stopped. Screens stay on the curren
 const ROLE={owner:'Owner',operator:'Full operator',assistant:'Photo assistant'};
 async function whoami(){try{const w=await call({a:'whoami'});document.body.dataset.role=w.role;$('who').innerHTML=w.role==='owner'?'<b>Owner</b>':`<b>${esc(w.name)}</b> · ${ROLE[w.role]||w.role}`;if(w.role==='owner')teamLoad();if(w.role!=='owner'&&AUTO&&w.role==='assistant'){autoStop('')}fitPv()}catch(e){}}
 let loT=null;$('logout').onclick=()=>{const b=$('logout');if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent=AUTO?'Sequence running! Tap to log out':'Tap to log out';clearTimeout(loT);loT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Log out'},3000);return}
-  clearTimeout(loT);b.classList.remove('arm');b.textContent='Log out';if(AUTO)autoStop('');lock('Logged out.')};
-async function teamLoad(){try{const r=await call({a:'ops_list'});const o=r.ops||[];$('tl').innerHTML=o.length?o.map(x=>`<div class="tr"><b>${esc(x.name)}</b><i>${ROLE[x.role]}${x.last_seen?' · seen '+new Date(x.last_seen).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):' · not signed in yet'}</i><button data-rm="${x.id}">Remove</button></div>`).join(''):'<p class="mut">No assistants yet.</p>'}catch(e){}}
-$('tl').addEventListener('click',async e=>{const id=e.target.dataset.rm;if(!id)return;if(e.target.textContent!=='Sure?'){e.target.textContent='Sure?';setTimeout(()=>{if(e.target.isConnected)e.target.textContent='Remove'},3000);return}try{await call({a:'ops_remove',id});teamLoad()}catch(x){alertBar('Couldn\'t remove that person.')}});
+  clearTimeout(loT);b.classList.remove('arm');b.textContent='Log out';if(AUTO)autoStop('');hidePin();lock('Logged out.')};
+let pinFor=null;function hidePin(){pinFor=null;$('np').classList.remove('show');$('np').innerHTML=''}
+async function teamLoad(){try{const r=await call({a:'ops_list'});const o=r.ops||[];
+  // the PIN box goes away once that person has signed in, or if they've been removed
+  if(pinFor){const m=o.find(x=>x.id===pinFor);if(!m||m.last_seen)hidePin()}$('tl').innerHTML=o.length?o.map(x=>`<div class="tr"><b>${esc(x.name)}</b><i>${ROLE[x.role]}${x.last_seen?' · seen '+new Date(x.last_seen).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}):' · not signed in yet'}</i><button data-rm="${x.id}">Remove</button></div>`).join(''):'<p class="mut">No assistants yet.</p>'}catch(e){}}
+$('tl').addEventListener('click',async e=>{const id=e.target.dataset.rm;if(!id)return;if(e.target.textContent!=='Sure?'){e.target.textContent='Sure?';setTimeout(()=>{if(e.target.isConnected)e.target.textContent='Remove'},3000);return}try{await call({a:'ops_remove',id});if(id===pinFor)hidePin();teamLoad()}catch(x){alertBar('Couldn\'t remove that person.')}});
 $('tf').onsubmit=async e=>{e.preventDefault();const name=$('tn').value.trim();if(!name){$('tn').focus();return}
   try{const r=await call({a:'ops_add',name,role:$('tr').value});$('tn').value='';
-    $('np').innerHTML=`<b>${esc(r.op.name)}</b> · ${ROLE[r.op.role]}<div class="pn">${r.pin}</div>Give them this PIN and the control page link. It's shown only once. If it's lost, remove them and add them again.`;$('np').classList.add('show');teamLoad()}
+    pinFor=r.op.id;$('np').innerHTML=`<b>${esc(r.op.name)}</b> · ${ROLE[r.op.role]}<div class="pn">${r.pin}</div>Give them this PIN and the control page link. It disappears once they sign in, and it's never shown again. If it's lost, remove them and add them again.`;$('np').classList.add('show');teamLoad()}
   catch(x){alertBar('Couldn\'t add that person.')}};
-setInterval(()=>{if(document.body.dataset.role==='owner'&&!$('ui').hidden)teamLoad()},20000);
+setInterval(()=>{if(document.body.dataset.role==='owner'&&!$('ui').hidden&&(pinFor||Date.now()%20000<3000))teamLoad()},3000);
 let armT=null;$('outsel').onclick=e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
  // green screen takes the show off the output: tap twice to confirm
  if(b.dataset.out==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green screen'},3000);return}
