@@ -2712,7 +2712,7 @@ if(c)c.textContent=left;if(r)r.setAttribute('stroke-dashoffset',(276.5*(1-left/M
 if(left!==lastLeft&&left<=5&&left>0)beep(0);if(left===0&&lastLeft!==0)beep(1);lastLeft=left;await sl(250,t)}}
 function sOff(){lightShow(false);beat(false);scr.innerHTML=`<div style="position:absolute;inset:0;background:#000;display:flex;align-items:center;justify-content:center"><img src="img/ndp-logo.webp" alt="NDP" style="width:18%;opacity:.35"></div>`}
 function wallTile(p,cls){const where=p.grp==='diaspora'?('🌍 Watching from '+(p.city||'abroad')):'📍 At the rally';return `<div class="pwt ${cls||''}" data-id="${p.id}"><img src="${p.url}" alt=""><div class="lb">${where.replace(/</g,'&lt;')}</div></div>`}
-async function sWall(t){lightShow(false);beat(false);scr.innerHTML=`<div class="pw"><div class="pwh" style="justify-content:center;text-align:center"><span style="color:#F7D117;font-size:40px">Thank you for your vote, your voice, and your trust.</span></div><div class="pwg" id="pwg"></div></div>`;
+async function sWall(t){lightShow(false);beat(false);scr.innerHTML=`<div class="pw"><div class="pwh" style="justify-content:center;text-align:center"><span style="color:#F7D117;font-size:34px;white-space:nowrap">Thank you for your vote, your voice, and your trust.</span></div><div class="pwg" id="pwg"></div></div>`;
 let off=0,shownIds='';while(true){const W=LIVE.wall;const g=$('pwg');if(!g)return;
 if(!W.length){g.innerHTML='<div style="grid-column:1/-1;text-align:center;font-size:28px;color:#c9c9d0">Send your rally photo to the big screen!</div>';await sl(1500,t);continue}
 const n=Math.min(6,W.length),pick=[];for(let k=0;k<n;k++)pick.push(W[(off+k)%W.length]);const ids=pick.map(p=>p.id).join();
