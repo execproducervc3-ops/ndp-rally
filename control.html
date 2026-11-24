@@ -72,6 +72,9 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
 .team form button{padding:10px 14px;border-radius:10px;border:0;background:var(--y);color:#10204a;font:800 14px Inter,sans-serif;cursor:pointer}
 .newpin{display:none;margin-top:10px;background:#0d3b1e;border:1px solid #4be38a;border-radius:12px;padding:12px;font-size:13px;color:#c8ffd9}.newpin.show{display:block}
 .newpin .pn{font:400 36px Anton,Impact,sans-serif;letter-spacing:4px;color:#fff;margin:4px 0}
+.orow{display:flex;align-items:center;gap:8px;margin-top:6px}.orow .olab{width:88px;flex:none;font:800 12px Inter,sans-serif;color:#fff;display:flex;align-items:center;gap:6px}.orow .seg{flex:1}
+.orow .dot{width:9px;height:9px;border-radius:50%;background:#55555f;display:inline-block}.orow .dot.on{background:#4be38a;box-shadow:0 0 6px #4be38a}
+.orow.off .seg{opacity:.35;pointer-events:none}.orow.off .olab::after{content:'not connected';font-weight:600;font-size:10px;color:var(--mut);margin-left:2px}
 </style>
 </head>
 <body>
@@ -109,8 +112,10 @@ body[data-role=assistant] .op-only{display:none!important}body:not([data-role=ow
         <label class="sw"><input type="checkbox" id="paused"> Pause photo sending</label>
         <label class="sw"><input type="checkbox" id="reacts"> Emoji reactions on</label>
       </div>
-      <div class="outsel"><span>Big screen output</span><div class="seg" id="outsel"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div>
-      <small id="outnote">Green screen replaces the show with emojis on green, for the AV crew to key over the camera.</small></div>
+      <div class="outsel"><span>Big screen outputs</span>
+      <div class="orow" data-o="A"><div class="olab"><i class="dot" id="dotA"></i>Output A</div><div class="seg" id="outsel"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
+      <div class="orow" data-o="B" id="rowB"><div class="olab"><i class="dot" id="dotB"></i>Output B</div><div class="seg" id="outselB"><button data-out="show">Show</button><button data-out="emoji">Show + emojis</button><button data-out="green">Green screen</button></div></div>
+      <small id="outnote">Green screen shows emojis on green for the AV crew to key over the camera. Output B unlocks when a big screen marked B is connected (press S on that screen).</small></div>
     </div>
     <div class="card">
       <h2>Live</h2>
@@ -173,6 +178,9 @@ function render(d){ST=d.state;try{autoTick(d)}catch(e){}const s=d.stats||{};
  $('now').textContent=ST.scene;document.querySelectorAll('.st').forEach(b=>b.classList.toggle('on',b.dataset.scene===ST.scene&&b.textContent.indexOf('Back')<0));
  if(!settingsDirty){$('voteS').value=ST.vote_seconds;$('shakeS').value=ST.shake_seconds;$('paused').checked=ST.sending_paused;$('reacts').checked=!!ST.reactions_open}
  document.querySelectorAll('#outsel button').forEach(b=>{b.classList.toggle('on',b.dataset.out===(ST.output_mode||'show'));if(b.classList.contains('on'))b.classList.remove('arm')});
+ document.querySelectorAll('#outselB button').forEach(b=>{b.classList.toggle('on',b.dataset.out===(ST.output_mode_b||'show'));if(b.classList.contains('on'))b.classList.remove('arm')});
+ {const sc=d.screens||{};$('dotA').classList.toggle('on',!!sc.A);$('dotB').classList.toggle('on',!!sc.B);$('rowB').classList.toggle('off',!sc.B);
+  if(window.__bWas&&!sc.B)alertBar('Output B disconnected. It keeps its last setting and picks up again when it reconnects.');if(window.__aWas&&!sc.A)alertBar('Output A (main big screen) is not connected!');window.__bWas=!!sc.B;window.__aWas=!!sc.A}
  // fireworks cue: counts down to the moment the meter smashes MAX
  const end=Date.parse(ST.scene_started_at)+ST.shake_seconds*1000,left=(end-d.now)/1000;
  if(ST.scene==='shake'&&left>-3){$('cue').classList.add('show');$('cueN').textContent=left>10?Math.ceil(left)+'s':left>0?Math.ceil(left):'FIRE!'}else $('cue').classList.remove('show');
@@ -235,11 +243,11 @@ $('tf').onsubmit=async e=>{e.preventDefault();const name=$('tn').value.trim();if
     pinFor=r.op.id;$('np').innerHTML=`<b>${esc(r.op.name)}</b> · ${ROLE[r.op.role]}<div class="pn">${r.pin}</div>Give them this PIN and the control page link. It disappears once they sign in, and it's never shown again. If it's lost, remove them and add them again.`;$('np').classList.add('show');teamLoad()}
   catch(x){alertBar('Couldn\'t add that person.')}};
 setInterval(()=>{if(document.body.dataset.role==='owner'&&!$('ui').hidden&&(pinFor||Date.now()%20000<3000))teamLoad()},3000);
-let armT=null;$('outsel').onclick=e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
- // green screen takes the show off the output: tap twice to confirm
+let armT=null;function outClick(sel,key){return e=>{const b=e.target.closest('button');if(!b||b.classList.contains('on'))return;
  if(b.dataset.out==='green'&&!b.classList.contains('arm')){b.classList.add('arm');b.textContent='Tap again';clearTimeout(armT);armT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Green screen'},3000);return}
- clearTimeout(armT);document.querySelectorAll('#outsel button').forEach(x=>{x.classList.remove('arm');if(x.dataset.out==='green')x.textContent='Green screen'});
- call({a:'settings',output:b.dataset.out}).then(()=>{document.querySelectorAll('#outsel button').forEach(x=>x.classList.toggle('on',x===b))}).catch(()=>{})};
+ clearTimeout(armT);document.querySelectorAll(sel+' button').forEach(x=>{x.classList.remove('arm');if(x.dataset.out==='green')x.textContent='Green screen'});
+ call({a:'settings',[key]:b.dataset.out}).then(()=>{document.querySelectorAll(sel+' button').forEach(x=>x.classList.toggle('on',x===b))}).catch(x=>alertBar(x===409?'Output B is not connected yet.':'Couldn\'t switch that output.'))}}
+$('outsel').onclick=outClick('#outsel','output');$('outselB').onclick=outClick('#outselB','output_b');
 $('reacts').onchange=()=>call({a:'settings',reactions:$('reacts').checked}).catch(()=>{});
 async function report(){if($('ui').hidden){setTimeout(report,5000);return}try{const r=await call({a:'report'});const t=r.diaspora_by_timezone||[],c=r.diaspora_by_city||[];
   const rows=t.slice(0,8).map(x=>`<div><span>${esc(x.place)}</span><b>${x.phones} phones · ${x.photos||0} photos</b></div>`).join('');
