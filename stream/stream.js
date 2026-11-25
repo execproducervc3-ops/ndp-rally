@@ -50,10 +50,10 @@ export const gathered = (pc, ms = 2500) => new Promise((ok) => {
   const t = setTimeout(ok, ms); pc.addEventListener("icegatheringstatechange", () => { if (pc.iceGatheringState === "complete") { clearTimeout(t); ok(); } });
 });
 
-// The private live channel for one stream. on(msg) gets every message addressed to `me` or to everyone.
-export function channel(streamId, me, on) {
+// The private live channel for one stream. on(msg) gets every message addressed to `me`, to everyone, or to `alias` (the streamer is "host").
+export function channel(streamId, me, on, alias) {
   const ch = sb.channel(`stream:${streamId}`, { config: { private: true, broadcast: { self: false } } });
-  ch.on("broadcast", { event: "m" }, ({ payload }) => { if (!payload.to || payload.to === me || payload.to === "*") on(payload); });
+  ch.on("broadcast", { event: "m" }, ({ payload }) => { if (!payload.to || payload.to === me || payload.to === "*" || (alias && payload.to === alias)) on(payload); });
   const ready = new Promise((ok, bad) => ch.subscribe((s, err) => { if (s === "SUBSCRIBED") ok(); else if (s === "CHANNEL_ERROR" || s === "TIMED_OUT") bad(err || new Error(s)); }));
   return { ready, send: (m) => ch.send({ type: "broadcast", event: "m", payload: { ...m, from: me } }), close: () => sb.removeChannel(ch) };
 }

@@ -199,7 +199,10 @@ $("#golive").onclick = async () => {
     const access = $("#access").value;
     const r = await rpc("stream_create", { p_title: $("#title").value, p_access: access, p_price: access === "free" ? null : Number($("#price").value) || null });
     streamId = r.id; joinCode = r.code;
-    ch = channel(streamId, me, onMsg); await ch.ready;
+    for (let i = 0; ; i++) { // the live channel can take a moment the first time; try a few times
+      ch = channel(streamId, me, onMsg, "host");
+      try { await ch.ready; break; } catch (e) { ch.close(); if (i >= 3) throw new Error("Couldn't open the live channel. Check your internet and try again."); await new Promise((r) => setTimeout(r, 2000)); }
+    }
     const link = new URL("watch.html", location.href); link.hash = `s=${streamId}&c=${joinCode}`; if (TEST) link.search = "?test";
     $("#link").textContent = link.href; $("#code").textContent = joinCode;
     $("#copy").onclick = () => navigator.clipboard.writeText(`${$("#title").value || "Private stream"} — watch here: ${link.href} (code ${joinCode})`).then(() => $("#copy").textContent = "Copied");
