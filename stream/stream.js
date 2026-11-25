@@ -6,12 +6,14 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 export const SB_URL = "https://qpctzuwveswsstzhjrfn.supabase.co";
 const SB_KEY = "sb_publishable_InfPSFhR8XYevv4cQB7IVQ_6nLXuw5x"; // public by design; the database rules protect the data
-export const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "ep-stream-auth" } });
+export const TEST = new URLSearchParams(location.search).has("test");
+// In ?test each tab is its own person (separate sign-in and device), so one browser can play streamer and viewers.
+const store = TEST ? sessionStorage : localStorage;
+export const sb = createClient(SB_URL, SB_KEY, { auth: { persistSession: true, storageKey: "ep-stream-auth", storage: store } });
 export const DIRECT_MAX = 3;           // viewers fed straight from the phone before switching to the relay
 export const $ = (s) => document.querySelector(s);
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 export const params = () => new URLSearchParams(location.hash.slice(1) || location.search.slice(1));
-export const TEST = new URLSearchParams(location.search).has("test");
 
 export async function signIn() {
   let { data } = await sb.auth.getSession();
@@ -21,8 +23,8 @@ export async function signIn() {
   return data.session.user.id;
 }
 export function deviceId() {
-  let d = localStorage.getItem("ep-stream-device");
-  if (!d) { d = crypto.randomUUID(); localStorage.setItem("ep-stream-device", d); }
+  let d = store.getItem("ep-stream-device");
+  if (!d) { d = crypto.randomUUID(); store.setItem("ep-stream-device", d); }
   return d;
 }
 export async function rpc(name, args) {
