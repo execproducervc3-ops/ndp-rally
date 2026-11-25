@@ -79,7 +79,7 @@ li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding
   </section>
 </main>
 <script type="module">
-import { sb, $, esc, signIn, rpc, fn, iceServers, gathered, channel, uploadSpeed, testStream, TEST, DIRECT_MAX } from "./stream.js?v=4";
+import { sb, $, esc, signIn, rpc, fn, iceServers, gathered, channel, uploadSpeed, testStream, TEST, DIRECT_MAX } from "./stream.js?v=5";
 
 let me, local, facing = "environment", streamId, joinCode, ch, relay = null, relayAvail = false, mbps = 0;
 const peers = new Map();            // viewer uid -> RTCPeerConnection (direct)
@@ -140,8 +140,8 @@ async function onMsg(m) {
   if (m.t === "hello") {
     if (!inList.some((v) => v.uid === m.from)) return;                      // only people let in
     if (relay) ch.send({ t: "relay", to: m.from, publisher: relay.session, tracks: relay.tracks });
-    else if (inList.length > directMax() && relayAvail) { await startRelay().catch((e) => { $("#err").textContent = e.message; offerTo(m.from); }); }
-    else offerTo(m.from);
+    else if (inList.length > directMax() && relayAvail) { await startRelay().catch((e) => { $("#err").textContent = e.message; return offerTo(m.from); }); }
+    else await offerTo(m.from);
   } else if (m.t === "answer") { await peers.get(m.from)?.setRemoteDescription(m.sdp).catch(() => {}); }
   else if (m.t === "ice") { await peers.get(m.from)?.addIceCandidate(m.c).catch(() => {}); }
 }
