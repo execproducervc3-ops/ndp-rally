@@ -50,16 +50,31 @@ export const gathered = (pc, ms = 2500) => new Promise((ok) => {
   const t = setTimeout(ok, ms); pc.addEventListener("icegatheringstatechange", () => { if (pc.iceGatheringState === "complete") { clearTimeout(t); ok(); } });
 });
 
-// The private live channel for one stream. on(msg) gets every message addressed to `me`, to everyone, or to `alias` (the streamer is "host").
+// The private live channel for one stream. on(msg) gets every message addressed to `me`, to everyone, or to `alias`
+// (the streamer is "host"). If the channel drops after joining, it rejoins by itself.
 export function channel(streamId, me, on, alias) {
-  const ch = sb.channel(`stream:${streamId}`, { config: { private: true, broadcast: { self: false } } });
-  ch.on("broadcast", { event: "m" }, ({ payload }) => { if (!payload.to || payload.to === me || payload.to === "*" || (alias && payload.to === alias)) on(payload); });
   if (TEST) window.__chlog = window.__chlog || [];
-  const ready = new Promise((ok, bad) => ch.subscribe((s, err) => {
-    if (TEST) window.__chlog.push(`${new Date().toISOString().slice(11, 19)} ${s} ${err?.message || ""}`);
-    if (s === "SUBSCRIBED") ok(); else if (s === "CHANNEL_ERROR" || s === "TIMED_OUT") bad(err || new Error(s));
-  }));
-  return { ready, send: (m) => ch.send({ type: "broadcast", event: "m", payload: { ...m, from: me } }), close: () => sb.removeChannel(ch) };
+  let ch, closed = false, first = true, okFirst, badFirst;
+  const ready = new Promise((ok, bad) => { okFirst = ok; badFirst = bad; });
+  const open = () => {
+    ch = sb.channel(`stream:${streamId}`, { config: { private: true, broadcast: { self: false } } });
+    ch.on("broadcast", { event: "m" }, ({ payload }) => { if (!payload.to || payload.to === me || payload.to === "*" || (alias && payload.to === alias)) on(payload); });
+    const mine = ch;
+    ch.subscribe((s, err) => {
+      if (TEST) window.__chlog.push(`${new Date().toISOString().slice(11, 19)} ${s} ${err?.message || ""}`);
+      if (s === "SUBSCRIBED") { if (first) { first = false; okFirst(); } return; }
+      if (s === "CHANNEL_ERROR" || s === "TIMED_OUT" || s === "CLOSED") {
+        if (first) { first = false; badFirst(err || new Error(s)); return; }
+        if (!closed && mine === ch) { sb.removeChannel(mine); setTimeout(() => { if (!closed) open(); }, 1000); }
+      }
+    });
+  };
+  open();
+  return {
+    ready,
+    send: (m) => ch.send({ type: "broadcast", event: "m", payload: { ...m, from: me } }),
+    close: () => { closed = true; sb.removeChannel(ch); },
+  };
 }
 
 // Upload test: sends 1 MB and times it. Returns megabits per second.
