@@ -13,7 +13,8 @@
 :root{--g0:#0a0b10;--g1:#12141c;--g2:#1b1e29;--line:rgba(255,255,255,.12);--ink:#fff;--mute:#b9bdc9;--acc:#f7d117;--live:#2ee66b}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--ink);font-family:Inter,system-ui,sans-serif;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none}
-body.tr,body.tr #wrap{background:transparent}
+html.tr,body.tr,body.tr #wrap{background:transparent}
+html.gr{background:#00b140}
 body.gr,body.gr #wrap{background:#00b140}
 #wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
 #stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;overflow:hidden}
@@ -123,7 +124,7 @@ body.ck-on #msg{bottom:230px}
 <script>
 (function(){
 const P=new URLSearchParams(location.search),CODE=(P.get('m')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6),VIEW=P.get('view')||'all',BG=P.get('bg')||'dark';
-document.body.className=BG==='transparent'?'tr':BG==='green'?'gr':'dk';
+document.body.className=BG==='transparent'?'tr':BG==='green'?'gr':'dk';document.documentElement.className=document.body.className;
 const $=id=>document.getElementById(id),E=SP.esc,stage=$('stage');
 function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='scale('+k+')'}addEventListener('resize',fit);fit();
 let S=null,lastSeq=-1,lastPop=null,popT=null,lastScore=null,boardKind=null;
