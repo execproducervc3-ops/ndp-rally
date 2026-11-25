@@ -20,7 +20,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 Inter,system-u
 html,body{max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
 @supports (overflow:clip){html,body{overflow-x:clip}}
 body{touch-action:pan-y pinch-zoom}
-nav.top .in,.gal,.scroll,.tiers{touch-action:pan-x pan-y pinch-zoom;overscroll-behavior-x:contain;max-width:100%}
+.gal,.scroll,.tiers{touch-action:pan-x pan-y pinch-zoom;overscroll-behavior-x:contain;max-width:100%}
 h1,h2,h3,.big{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.3px;line-height:1.05;margin:0;text-wrap:balance}
 h2{font-size:clamp(32px,5vw,52px)}h3{font-size:22px}
 p{margin:0 0 12px;max-width:68ch}
@@ -28,11 +28,11 @@ a{color:var(--gold)}
 .band{padding:clamp(36px,5vw,72px) max(5vw,16px)}
 .in{max-width:1240px;margin:0 auto}
 .lead{color:var(--mut);font-size:18px;margin-top:12px}
-nav.top{position:sticky;top:0;z-index:5;background:#0b0b0fee;backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
-nav.top .in{display:flex;gap:6px;align-items:center;overflow-x:auto;padding:8px max(5vw,16px)}
-nav.top a{flex:none;color:var(--ink);text-decoration:none;font-size:14px;font-weight:600;padding:10px 12px;border-radius:8px}
-nav.top a:hover,nav.top a:focus-visible{background:var(--card)}
-nav.top img{width:38px;height:30px;object-fit:contain;flex:none;margin-right:6px}
+
+
+
+
+
 .hero{background:var(--red);position:relative}
 .hero:after{content:"";position:absolute;right:0;top:0;bottom:0;width:22px;background:conic-gradient(#fff 25%,#111 0 50%,#fff 0 75%,#111 0) 0 0/11px 11px}
 .hgrid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,4vw,48px);align-items:center}
@@ -99,7 +99,7 @@ tr.tot td{font-weight:800;border-top:2px solid var(--gold)}
 @media(max-width:900px){.hgrid,.calc,.split{grid-template-columns:minmax(0,1fr)}.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.steps,.score,.kpis{grid-template-columns:minmax(0,1fr)}.bars div.r{grid-template-columns:100px minmax(0,1fr) 70px}.time{grid-template-columns:1fr}table{font-size:13px}.hero:after{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
-html{scroll-behavior:smooth;scroll-padding-top:64px}
+html{scroll-behavior:smooth;scroll-padding-top:0}
 
 /* poster elements: logo badge, RAM RACE title, charging rams, grand prize */
 .hbrand{display:flex;align-items:center;gap:16px;margin-bottom:14px}
@@ -119,14 +119,16 @@ html{scroll-behavior:smooth;scroll-padding-top:64px}
 .flags{display:flex;gap:8px;margin-top:18px}
 .flags i{width:44px;height:30px;background:conic-gradient(#fff 25%,#111 0 50%,#fff 0 75%,#111 0) 0 0/11px 11px;border-radius:3px;transform:skewY(-6deg)}
 @media (max-width:820px){.pgrid{grid-template-columns:1fr}}
+
+@media (max-width:700px){
+ #demos .demo:first-of-type{margin-left:calc(-1*max(5vw,16px));margin-right:calc(-1*max(5vw,16px));border-radius:0;padding:14px 0}
+ #demos .demo:first-of-type h3,#demos .demo:first-of-type .dbtns,#demos .demo:first-of-type #cap{padding-left:max(5vw,16px);padding-right:max(5vw,16px)}
+ #tv{aspect-ratio:3/4;border-radius:0;border-left:0;border-right:0}
+ #tv [id^=ln] span:first-of-type{font-size:13px!important}
+}
 </style>
 </head>
 <body>
-<nav class="top" aria-label="Sections"><div class="in">
-<img src="img/ram-head.png" alt="Village Ram">
-<a href="#screens">How to play</a><a href="#prize">Grand prize</a><a href="#benefits">Benefits</a><a href="#sales">Sales calculator</a><a href="#demos">Full race</a><a href="#rollout">Rollout</a><a href="#investment">Investment</a><a href="#ask">Our ask</a>
-</div></nav>
-
 <header class="band hero"><div class="in hgrid">
 <div>
 <div class="hbrand"><img src="img/logo-badge.webp" alt="Village Ram Energy Drink" width="334" height="208"><div class="kick">A partnership proposal for ECGC from Restaurant Pal</div></div>
@@ -463,7 +465,7 @@ S.beat=S.beat.bind(S);S.spool=S.spool.bind(S);S.fanfare=S.fanfare.bind(S);
 return wrap})();
 </script>
 <script>
-(function(){
+(function(){const sayPh=(a,b)=>{const o=window.RR_LAST;window.RR_LAST='ram';try{SND.say(a,b)}finally{window.RR_LAST=o}};
 const R=[{n:'Big Horn Dre',w:'#4a4a52',f:'#b88a5c',h:'#F2A900',sh:1},{n:'Ramsay',w:'#C8102E',f:'#3a2c24',h:'#f36a10'},{n:'Woolly Bully',w:'#fbfbf8',f:'#e9e2d6',h:'#9fd3f2'},{n:'Kingstown Kid',w:'#f39a1e',f:'#b88a5c',h:'#2a2a30'},{n:'Lil Ram',w:'#7fd13b',f:'#3a2c24',h:'#cdb07a',sh:1}];
 function ram(r,i,sz){let wool='';for(let k=0;k<10;k++){const a=k/10*6.283;wool+=`<circle cx="${(60+34*Math.cos(a)).toFixed(0)}" cy="${(50+16*Math.sin(a)).toFixed(0)}" r="12" fill="${r.w}"/>`}
 const eye=r.sh?`<rect x="96" y="28" width="16" height="6" rx="2" fill="#111"/>`:`<circle id="e${i}" cx="104" cy="31" r="3" fill="#fff"/>`;
@@ -471,23 +473,23 @@ return `<svg viewBox="0 0 130 90" width="${sz}" height="${sz*0.69}"><g class="la
 const tv=document.getElementById('tv'),cap=document.getElementById('cap');
 let tok=0;const sl=(ms,t)=>new Promise((res,rej)=>setTimeout(()=>t===tok?res():rej(),ms));
 const bar=`<div style="height:12%;background:#C8102E;display:flex;align-items:center;justify-content:space-between;padding:0 3%"><span style="font-family:Anton,Impact,sans-serif;font-size:clamp(14px,2.4vw,24px);letter-spacing:1px">RAM RACE · Kingstown zone</span><span id="clk" style="font-family:Anton,Impact,sans-serif;color:#F2A900;font-size:clamp(14px,2.4vw,24px)"></span></div>`;
-function lanes(){let h='';R.forEach((r,i)=>{h+=`<div style="position:relative;height:15%;margin:0.6% 3%;background:#1a1a21;border-radius:6px" id="ln${i}"><div id="tr${i}" style="position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(200,16,46,.25);border-radius:6px"></div><div style="position:absolute;right:0;top:0;bottom:0;width:10px;background:repeating-conic-gradient(#fff 0 25%,#111 0 50%) 0 0/8px 8px"></div><span style="position:absolute;left:6px;top:2px;font-size:12px;color:#c9c9d0;z-index:2">${r.n}</span><div id="rm${i}" style="position:absolute;left:-30%;bottom:-2px;transition:left .8s ease-out">${ram(r,i,Math.max(48,Math.min(84,tv.clientWidth/11)))}</div><span id="pl${i}" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-family:Anton,Impact,sans-serif;font-size:20px"></span></div>`});return h}
+function lanes(){let h='';R.forEach((r,i)=>{h+=`<div style="position:relative;height:15%;margin:0.6% 3%;background:#1a1a21;border-radius:6px" id="ln${i}"><div id="tr${i}" style="position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(200,16,46,.25);border-radius:6px"></div><div style="position:absolute;right:0;top:0;bottom:0;width:10px;background:repeating-conic-gradient(#fff 0 25%,#111 0 50%) 0 0/8px 8px"></div><span style="position:absolute;left:6px;top:2px;font-size:12px;color:#c9c9d0;z-index:2">${r.n}</span><div id="rm${i}" style="position:absolute;left:-30%;bottom:-2px;transition:left .8s ease-out">${ram(r,i,Math.max(48,Math.min(84,Math.max(tv.clientWidth/11,tv.clientHeight/8))))}</div><span id="pl${i}" style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-family:Anton,Impact,sans-serif;font-size:20px"></span></div>`});return h}
 const setCap=t=>cap.textContent=t;
 async function s0(t){setCap('1. The call: every 30 minutes the plaque baas and its eyes flash. The TV shows the ram calling, and players pop up as they tap in.');
-SND.beat(false);SND.hooves(false);SND.baa();setTimeout(()=>{if(t===tok)SND.say('The ram is calling!','call')},2300);tv.innerHTML=bar+`<div style="display:flex;height:88%"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><div style="animation:pulse .6s ease-in-out infinite">${ram(R[0],9,Math.min(260,tv.clientWidth/3))}</div><span style="font-family:Anton,Impact,sans-serif;font-size:clamp(18px,3.4vw,36px);animation:pulse .6s infinite">BAAA! THE RAM IS CALLING</span><span style="font-size:14px;color:#c9c9d0">Tap the ram on the wall to join · race in 0:30</span></div><div id="joins" style="width:32%;padding:4% 3%;display:flex;flex-direction:column;gap:6px"></div></div>`;
+SND.beat(false);SND.hooves(false);SND.baa();setTimeout(()=>{if(t===tok)sayPh('The ram is calling!','call')},2300);tv.innerHTML=bar+`<div style="display:flex;height:88%"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><div style="animation:pulse .6s ease-in-out infinite">${ram(R[0],9,Math.min(260,tv.clientWidth/3))}</div><span style="font-family:Anton,Impact,sans-serif;font-size:clamp(18px,3.4vw,36px);animation:pulse .6s infinite">BAAA! THE RAM IS CALLING</span><span style="font-size:14px;color:#c9c9d0">Tap the ram on the wall to join · race in 0:30</span></div><div id="joins" style="width:32%;padding:4% 3%;display:flex;flex-direction:column;gap:6px"></div></div>`;
 const j=document.getElementById('joins');for(const r of R){await sl(450,t);SND.pop();j.insertAdjacentHTML('beforeend',`<div style="animation:inl .35s ease-out both;background:#18181e;border-radius:6px;padding:6px 8px;font-size:13px;display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:5px;background:${r.w};border:1px solid #fff4;flex:none"></span>${r.n} joined</div>`)}await sl(5700,t)}
 let pos=[];
 async function s1(t){setCap('2. Countdown: lanes slide in and each customised ram trots to the line.');
 tv.innerHTML=bar+`<div style="height:88%;padding-top:1%">${lanes()}</div><div id="big" style="position:absolute;inset:12% 0 0;display:flex;align-items:center;justify-content:center;pointer-events:none;font-family:Anton,Impact,sans-serif;font-size:clamp(48px,12vw,130px);color:#F2A900"></div>`;
-SND.beat(true);SND.say('Racers, rev it up!');pos=R.map(()=>0);await sl(60,t);R.forEach((r,i)=>document.getElementById('rm'+i).style.left='0%');
+SND.beat(true);sayPh('Racers, rev it up!');pos=R.map(()=>0);await sl(60,t);R.forEach((r,i)=>document.getElementById('rm'+i).style.left='0%');
 const b=document.getElementById('big');
 const SH=[.95,.7,.45,.8,0];window.RR_LAUNCH=SH;
 R.forEach((r,i)=>{const ln=document.getElementById('ln'+i);ln.insertAdjacentHTML('beforeend',`<div style="position:absolute;left:6px;bottom:5px;width:90px;height:6px;background:#ffffff22;border-radius:3px;z-index:2"><i id="sm${i}" style="display:block;height:100%;width:0;background:linear-gradient(90deg,#F2A900,#C8102E);border-radius:3px;transition:width .3s"></i></div>`)});
-await sl(700,t);setCap('2. Countdown and burnout: players shake during the countdown. Their rams run in place and kick up smoke, and the harder they shake, the harder they launch at GO. No shake, nothing happens: Lil Ram\'s player isn\'t shaking, so he just stands there.');SND.say('Shake to burn out!','rev');const bo=SND.play('burnout',{loop:true,gain:.9});
+await sl(700,t);setCap('2. Countdown and burnout: players shake during the countdown. Their rams run in place and kick up smoke, and the harder they shake, the harder they launch at GO. No shake, nothing happens: Lil Ram\'s player isn\'t shaking, so he just stands there.');sayPh('Shake to burn out!','rev');const bo=SND.play('burnout',{loop:true,gain:.9});
 document.querySelectorAll('[id^=ln]').forEach(l=>l.classList.add('run'));R.forEach((r,i)=>{if(SH[i]>0)document.getElementById('rm'+i).classList.add('burn');else{const ln=document.getElementById('ln'+i);ln.classList.remove('run');ln.insertAdjacentHTML('beforeend','<span id="ns'+i+'" style="position:absolute;left:110px;bottom:4px;font-size:11px;color:#c9c9d0;z-index:2">Not shaking</span>')}});
 let smokeOn=true;const smoke=()=>{if(!smokeOn)return;R.forEach((r,i)=>{if(!SH[i])return;const lvl=Math.min(1,SH[i]*(0.85+Math.random()*.3));const m=document.getElementById('sm'+i);if(m)m.style.width=(lvl*100).toFixed(0)+'%';if(Math.random()<lvl){const rm=document.getElementById('rm'+i);if(!rm)return;const sz=10+lvl*22;rm.insertAdjacentHTML('afterbegin',`<span style="position:absolute;left:-4px;bottom:${2+Math.random()*8}px;width:${sz}px;height:${sz}px;border-radius:50%;background:radial-gradient(#e8e8ec,#9a9aa6 60%,transparent 72%);animation:puff .7s ease-out forwards;z-index:-1"></span>`);const sp=rm.firstElementChild;setTimeout(()=>sp&&sp.remove(),720)}})};const smT=setInterval(smoke,90);
 try{for(const n of ['3','2','1','GO!']){await sl(n==='3'?200:900,t);if(n==='GO!'){SND.beep(1);SND.stopClip(bo,.05);SND.play('launch',{gain:1.1})}else{SND.beep(0);SND.play('rev',{gain:.8})}b.innerHTML=`<span style="animation:pop .65s ease-out both;display:inline-block;${n==='GO!'?'color:#22e06b':''}">${n}</span>`}}finally{smokeOn=false;clearInterval(smT);R.forEach((r,i)=>{const e=document.getElementById('rm'+i);e&&e.classList.remove('burn')})}
-SND.say('Launch!','go');await sl(150,t)}
+sayPh('Launch!','go');await sl(150,t)}
 const spd=[0.92,0.96,0.9,0.86,0.8];let EN=[],BL=[];
 function aura(host,ms){if(!host)return;const sv=host.querySelector('svg');const W=sv?sv.clientWidth:70,H=sv?sv.clientHeight:50;const PW=W*1.9,PH=H*2.1;
 const d=document.createElement('div');d.className='aura';d.style.cssText=`position:absolute;left:${-(PW-W)/2}px;top:${-(PH-H)/2-H*.15}px;width:${PW}px;height:${PH}px;pointer-events:none;z-index:-1`;
@@ -499,13 +501,13 @@ let b='';const n=2+Math.floor(Math.random()*3);for(let k=0;k<n;k++){const p=zz(M
 tick();const iv=setInterval(tick,70);setTimeout(()=>{clearInterval(iv);d.style.transition='opacity .3s';d.style.opacity=0;setTimeout(()=>d.remove(),320)},ms)}
 function frame(){R.forEach((r,i)=>{const rm=document.getElementById('rm'+i),tr=document.getElementById('tr'+i);if(!rm)return;rm.style.transition='none';rm.style.left=(pos[i]*0.86)+'%';tr.style.width=(pos[i]*0.86+6)+'%'});
 pos.map((p,i)=>[BL[i]?-1:p,i]).sort((a,b)=>b[0]-a[0]).forEach(([p,i],k)=>{const el=document.getElementById('pl'+i);if(el){el.textContent=BL[i]?'DNF':k+1;el.style.color=BL[i]?'#C8102E':k===0?'#F2A900':'#fff'}})}
-function blowUp(i,t){BL[i]=true;const rm=document.getElementById('rm'+i),ln=document.getElementById('ln'+i),tr=document.getElementById('tr'+i);SND.play('explosion',{gain:1.3});setTimeout(()=>{if(t===tok)SND.play('blow',{gain:.5})},700);setTimeout(()=>{if(t===tok)SND.say(R[i].n.toUpperCase()+' BLOWS AN ENGINE!','blown')},250);
+function blowUp(i,t){BL[i]=true;const rm=document.getElementById('rm'+i),ln=document.getElementById('ln'+i),tr=document.getElementById('tr'+i);SND.play('explosion',{gain:1.3});setTimeout(()=>{if(t===tok)SND.play('blow',{gain:.5})},700);setTimeout(()=>{if(t===tok)sayPh(R[i].n.toUpperCase()+' BLOWS AN ENGINE!','blown')},250);
 setCap('Blown engine: '+R[i].n+' ran out of Village Ram energy mid-race and blew an engine. That ram is out of this race. Players who keep their ram fed never have this problem.');
 if(ln)ln.classList.remove('run');if(tr)tr.style.background='rgba(120,120,130,.25)';if(rm){rm.classList.add('burn');rm.style.filter='grayscale(.8) brightness(.7)';
 const fb=document.createElement('div');fb.style.cssText='position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px;border-radius:50%;background:radial-gradient(#fffbe0,#ffd23a 25%,#f36a10 55%,#c8102e 70%,transparent 75%);animation:boom 1.3s ease-out forwards;z-index:6';const hx=rm.offsetLeft+rm.offsetWidth/2,hy=rm.offsetTop+rm.offsetHeight/2;fb.style.left=hx+'px';fb.style.top=hy+'px';ln.appendChild(fb);const ring=document.createElement('div');ring.style.cssText='position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px;border-radius:50%;border:4px solid #ffd23a;animation:ring .7s ease-out forwards;z-index:6';ring.style.left=hx+'px';ring.style.top=hy+'px';ln.appendChild(ring);setTimeout(()=>{fb.remove();ring.remove();rm.classList.remove('burn')},1350);tv.animate([{transform:'translate(0,0)'},{transform:'translate(-8px,5px)'},{transform:'translate(7px,-6px)'},{transform:'translate(-5px,-3px)'},{transform:'translate(4px,4px)'},{transform:'translate(0,0)'}],{duration:450});const fl2=document.createElement('div');fl2.style.cssText='position:absolute;inset:0;background:#fff3c4;opacity:.7;transition:opacity .35s;z-index:7;pointer-events:none';tv.appendChild(fl2);requestAnimationFrame(()=>requestAnimationFrame(()=>fl2.style.opacity=0));setTimeout(()=>fl2.remove(),400);
 let k=0;const iv=setInterval(()=>{if(!rm.isConnected||k++>60){clearInterval(iv);return}const sz=14+Math.random()*20;rm.insertAdjacentHTML('beforeend',`<span style="position:absolute;left:${40+Math.random()*30}%;top:10%;width:${sz}px;height:${sz}px;border-radius:50%;background:radial-gradient(#3a3a40,#1b1b1f 60%,transparent 72%);animation:smk 1.4s ease-out forwards;z-index:4"></span>`);const sp=rm.lastElementChild;setTimeout(()=>sp&&sp.remove(),1450)},110)}
 if(ln)ln.insertAdjacentHTML('beforeend','<span style="position:absolute;left:45%;top:-4px;background:#C8102E;color:#fff;font-weight:800;font-size:13px;padding:3px 8px;border-radius:5px;animation:pop 1.6s ease-out both;z-index:5">BLOWN ENGINE!</span>')}
-function boost(){SND.spool();aura(document.getElementById('rm0'),1700);SND.say('Zess Boost!','boost');setCap('4. Boost: the player shakes past the Boost line. Their lane turns green, the ram surges ahead and a ZESS BOOST tag pops up. The plaque in the bar flashes at the same moment.');
+function boost(){SND.spool();aura(document.getElementById('rm0'),1700);sayPh('Zess Boost!','boost');setCap('4. Boost: the player shakes past the Boost line. Their lane turns green, the ram surges ahead and a ZESS BOOST tag pops up. The plaque in the bar flashes at the same moment.');
 document.getElementById('tr0').style.background='rgba(34,224,107,.35)';const ee=document.getElementById('ee0');if(ee)ee.innerHTML='<rect x="96" y="28" width="16" height="6" rx="2" fill="#22e06b"/>';
 document.getElementById('ln0').insertAdjacentHTML('beforeend','<span style="position:absolute;left:50%;top:-4px;background:#22e06b;color:#06351a;font-weight:800;font-size:13px;padding:3px 8px;border-radius:5px;animation:pop 1.6s ease-out both;z-index:3">ZESS BOOST!</span>')}
 async function race(t,dur,boostAt){SND.hooves(true);window.RR_ENG&&SND.stopClip(window.RR_ENG,.05);const engSrc=SND.play('race_engine',{gain:.55,loop:true});window.RR_ENG=engSrc;EN=[92,80,17.5,70,40];BL=[false,false,false,false,false];R.forEach((r,i)=>{const ln=document.getElementById('ln'+i);if(ln&&!document.getElementById('en'+i))ln.insertAdjacentHTML('beforeend',`<div style="position:absolute;right:46px;top:6px;width:80px;height:6px;background:#ffffff22;border-radius:3px;z-index:2"><i id="en${i}" style="display:block;height:100%;width:${EN[i]}%;background:#22e06b;border-radius:3px"></i></div><span style="position:absolute;right:132px;top:0;font-size:10px;color:#c9c9d0;z-index:2">energy</span>`)});setTimeout(()=>{window.RR_LAUNCH=null},1400);document.querySelectorAll('[id^=ln]').forEach(l=>l.classList.add('run'));const st=performance.now();let boosted=false;
@@ -516,11 +518,11 @@ async function s2(t,full){if(!document.getElementById('ln0'))await s1(t);setCap(
 async function s3(t){if(!document.getElementById('ln0'))await s1(t);pos=pos.map(p=>Math.max(p,35));await race(t,4,0.1)}
 async function s4(t){if(!document.getElementById('ln0')){await s1(t);pos=[86,84,78,72,66];frame()}
 while(pos[0]<100){pos[0]=Math.min(100,pos[0]+1.6);frame();await sl(40,t)}
-document.querySelectorAll('[id^=ln]').forEach(l=>l.classList.remove('run'));SND.hooves(false);SND.beat(false);SND.impact();SND.say('Photo finish!','finish');
+document.querySelectorAll('[id^=ln]').forEach(l=>l.classList.remove('run'));SND.hooves(false);SND.beat(false);SND.impact();sayPh('Photo finish!','finish');
 setCap('5. Finish: the screen flashes white, freezes on a photo finish, and zooms in on the winner with their customised look.');
 tv.insertAdjacentHTML('beforeend','<div id="fl" style="position:absolute;inset:0;background:#fff;opacity:1;transition:opacity .5s"></div>');await sl(80,t);document.getElementById('fl').style.opacity=0;await sl(500,t);
-tv.insertAdjacentHTML('beforeend',`<div style="position:absolute;inset:12% 0 0;background:rgba(11,11,15,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;animation:inl .4s both"><span style="font-size:13px;font-weight:800;color:#F2A900">Photo finish</span><div style="animation:pulse 1s ease-in-out infinite">${ram(R[0],8,Math.min(280,tv.clientWidth/3))}</div><span style="font-family:Anton,Impact,sans-serif;font-size:clamp(20px,3.6vw,38px)">BIG HORN DRE WINS BY 0.4 S</span><span style="font-size:14px;color:#c9c9d0">Gold horns · shades · Kingstown zone</span></div>`);await sl(3400,t)}
-async function s5(t){SND.fanfare();setTimeout(()=>{if(t===tok)SND.say('Ram of the night!','results')},700);setCap('6. Results: podium blocks rise with the top 3 rams on top, points go to the zone leaderboard, and a "Ram of the night" strip credits the Village Ram purchases behind the winning look.');
+tv.insertAdjacentHTML('beforeend',`<div style="position:absolute;inset:12% 0 0;background:rgba(11,11,15,.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;animation:inl .4s both;z-index:7;padding:0 4%;text-align:center"><span style="font-size:13px;font-weight:800;color:#F2A900">Photo finish</span><div style="animation:pulse 1s ease-in-out infinite">${ram(R[0],8,Math.min(280,tv.clientWidth/3))}</div><span style="font-family:Anton,Impact,sans-serif;font-size:clamp(20px,3.6vw,38px)">BIG HORN DRE WINS BY 0.4 S</span><span style="font-size:14px;color:#c9c9d0">Gold horns · shades · Kingstown zone</span></div>`);await sl(3400,t)}
+async function s5(t){SND.fanfare();setTimeout(()=>{if(t===tok)sayPh('Ram of the night!','results')},700);setCap('6. Results: podium blocks rise with the top 3 rams on top, points go to the zone leaderboard, and a "Ram of the night" strip credits the Village Ram purchases behind the winning look.');
 const top=[1,0,3],hgt=[58,78,42],lbl=['2nd','1st','3rd'];let p='';top.forEach((ri,k)=>{p+=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:24%;height:100%"><div style="animation:inl .4s ${0.6+k*0.2}s both">${ram(R[ri],20+k,Math.min(130,tv.clientWidth/7))}</div><div style="width:100%;height:${hgt[k]}%;background:${k===1?'#F2A900':'#2a2a33'};color:${k===1?'#412402':'#fff'};border-radius:6px 6px 0 0;display:flex;flex-direction:column;align-items:center;padding-top:6px;animation:rise .6s ${k*0.15}s cubic-bezier(.2,.9,.3,1.2) both"><span style="font-family:Anton,Impact,sans-serif;font-size:22px">${lbl[k]}</span><span style="font-size:12px">${R[ri].n}</span></div></div>`});
 tv.innerHTML=bar+`<div style="height:66%;display:flex;align-items:flex-end;justify-content:center;gap:2%;padding:0 10%">${p}</div><div style="height:22%;background:#15151b;display:flex;align-items:center;gap:4%;padding:0 4%;animation:inl .5s 1.2s both"><div style="flex:1"><div style="font-size:12px;font-weight:800;color:#F2A900">Ram of the night</div><div style="font-weight:800;font-size:clamp(12px,2vw,18px)">Big Horn Dre: gold horns earned with 50 Village Rams</div></div><div style="font-size:13px;color:#c9c9d0">+10 pts · Kingstown zone<br>Next race in 8 min</div></div>`;await sl(3000,t)}
 const S=[s0,s1,t=>s2(t,false),s3,s4,s5];
@@ -571,13 +573,13 @@ lower.querySelectorAll('.sw').forEach(e=>e.classList.toggle('on',tab==='gear'?st
 function celebrate(){SND.chime();SND.impact();const r=$('mrays');r.innerHTML=[0,1,2].map(i=>`<div style="position:absolute;left:50%;top:45%;width:240px;height:240px;margin:-120px;border-radius:50%;border:3px solid #F2A900;animation:ray 1.2s ${i*.25}s ease-out both"></div>`).join('');setTimeout(()=>r.innerHTML='',1800)}
 async function tapAt(k,t){const e=lower.querySelector(`.sw[data-k="${k}"]`);if(e){e.style.transform='scale(.9)';await sl(140,t);e.style.transform=''}}
 async function demo(){window.RR_LAST='ram';const t=++tok;Object.assign(st,{wool:'Charcoal',hs:'Curl',hf:'Natural',gear:{Shades:false,Chain:false,Bandana:false,Crown:false}});owned.hf=['Natural','Flame'];
-try{mark(0);sub.textContent='Home · fed 9 hours ago';draw();home();SND.say('Your ram','myram');await sl(2200,t);
-SND.say('Make him yours','yours');mark(1);$('mcust').style.transform='scale(.96)';await sl(200,t);pen('wool');await sl(2600,t);
-SND.say('Pick your wool','wool');mark(2);for(const k of['Cream','Zess lime','Charcoal']){await tapAt(k,t);pick(k);await sl(800,t)}
-SND.say('Swap the horns','horns');mark(3);pen('hs');await sl(500,t);for(const k of['Spiral','Ridge','Spiral']){await tapAt(k,t);pick(k);await sl(800,t)}pen('hf');await sl(500,t);await tapAt('Flame',t);pick('Flame');await sl(900,t);
-SND.say('Gear up','gear');mark(4);pen('gear');await sl(500,t);for(const k of['Shades','Chain']){await tapAt(k,t);pick(k);await sl(900,t)}
-SND.say('Locked: earn it','locked');mark(5);pen('hf');await sl(500,t);pick('Gold');await sl(3700,t);
-SND.say('Gold horns unlocked!','unlocked');mark(6);home();sub.textContent='Fed just now · feed #50';await sl(400,t);showToast('<b>New gear unlocked: Gold horns</b><br>Earned with 50 Village Ram feeds',2600);owned.hf.push('Gold');celebrate();st.hf='Gold';draw(true);await sl(2800,t);mark(-1)}catch(e){}}
+try{mark(0);sub.textContent='Home · fed 9 hours ago';draw();home();sayPh('Your ram','myram');await sl(2200,t);
+sayPh('Make him yours','yours');mark(1);$('mcust').style.transform='scale(.96)';await sl(200,t);pen('wool');await sl(2600,t);
+sayPh('Pick your wool','wool');mark(2);for(const k of['Cream','Zess lime','Charcoal']){await tapAt(k,t);pick(k);await sl(800,t)}
+sayPh('Swap the horns','horns');mark(3);pen('hs');await sl(500,t);for(const k of['Spiral','Ridge','Spiral']){await tapAt(k,t);pick(k);await sl(800,t)}pen('hf');await sl(500,t);await tapAt('Flame',t);pick('Flame');await sl(900,t);
+sayPh('Gear up','gear');mark(4);pen('gear');await sl(500,t);for(const k of['Shades','Chain']){await tapAt(k,t);pick(k);await sl(900,t)}
+sayPh('Locked: earn it','locked');mark(5);pen('hf');await sl(500,t);pick('Gold');await sl(3700,t);
+sayPh('Gold horns unlocked!','unlocked');mark(6);home();sub.textContent='Fed just now · feed #50';await sl(400,t);showToast('<b>New gear unlocked: Gold horns</b><br>Earned with 50 Village Ram feeds',2600);owned.hf.push('Gold');celebrate();st.hf='Gold';draw(true);await sl(2800,t);mark(-1)}catch(e){}}
 $('mpl').onclick=demo;window.RR_RAM=demo;draw();home();
 let started=false;const io=new IntersectionObserver(es=>{if(es[0].isIntersecting&&!started){started=true;demo()}},{threshold:.4});io.observe($('ph'));
 })();
