@@ -79,14 +79,14 @@ li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding
   </section>
 </main>
 <script type="module">
-import { sb, $, esc, signIn, rpc, fn, iceServers, gathered, channel, uploadSpeed, testStream, TEST, DIRECT_MAX } from "./stream.js?v=3";
+import { sb, $, esc, signIn, rpc, fn, iceServers, gathered, channel, uploadSpeed, testStream, TEST, DIRECT_MAX } from "./stream.js?v=4";
 
 let me, local, facing = "environment", streamId, joinCode, ch, relay = null, relayAvail = false, mbps = 0;
 const peers = new Map();            // viewer uid -> RTCPeerConnection (direct)
 let inList = [];
 
 async function camera() {
-  if (TEST) { local = testStream("Event Pal test"); $("#me").srcObject = local; return; }
+  if (TEST) { local = testStream("Event Pal test"); $("#me").srcObject = local; window.__ep = { peers, get inList() { return inList; } }; return; }
   try {
     const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 30 } }, audio: { echoCancellation: true, noiseSuppression: true } });
     if (local) { // swap tracks on every live connection
@@ -200,7 +200,7 @@ $("#golive").onclick = async () => {
     const r = await rpc("stream_create", { p_title: $("#title").value, p_access: access, p_price: access === "free" ? null : Number($("#price").value) || null });
     streamId = r.id; joinCode = r.code;
     for (let i = 0; ; i++) { // the live channel can take a moment the first time; try a few times
-      ch = channel(streamId, me, onMsg, "host");
+      ch = channel(streamId, me, (m) => onMsg(m).catch((e) => { if (TEST) $("#err").textContent = "debug: " + m.t + ": " + e.message; }), "host");
       try { await ch.ready; break; } catch (e) { ch.close(); if (i >= 3) throw new Error("Couldn't open the live channel. Check your internet and try again."); await new Promise((r) => setTimeout(r, 2000)); }
     }
     const link = new URL("watch.html", location.href); link.hash = `s=${streamId}&c=${joinCode}`; if (TEST) link.search = "?test";

@@ -45,7 +45,7 @@ video{width:100%;height:100%;object-fit:contain;display:block;pointer-events:non
   <div class="mute">This stream is private. Please don't record or share it.</div>
 </main>
 <script type="module">
-import { $, esc, signIn, rpc, fn, iceServers, gathered, channel, deviceId, params, TEST } from "./stream.js?v=3";
+import { $, esc, signIn, rpc, fn, iceServers, gathered, channel, deviceId, params, TEST } from "./stream.js?v=4";
 
 const P = params(), streamId = P.get("s"); let code = P.get("c") || "", me, info, ch, pc, helloTimer, poll, myName = "";
 const show = (t, s = "") => { $("#over").classList.toggle("hide", !t); $("#otext").textContent = t || ""; $("#osub").textContent = s; };
@@ -98,7 +98,7 @@ async function waitIn() {
     if (s.status === "removed") return ended("The streamer removed you from this stream.");
     if (s.status === "in" && !ch) {
       show("Connecting…");
-      ch = channel(streamId, me, onMsg);
+      ch = channel(streamId, me, (m) => onMsg(m).catch((e) => { if (TEST) $("#osub").textContent = "debug: " + m.t + ": " + e.message; }));
       try { await ch.ready; hello(); } catch { ch.close(); ch = null; }
     }
   }, 2000);
