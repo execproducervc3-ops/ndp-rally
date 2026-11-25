@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Event Pal · Scoreboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--g0:#0a0b10;--g1:#12141c;--g2:#1b1e29;--line:rgba(255,255,255,.12);--ink:#fff;--mute:#b9bdc9;--acc:#f7d117;--live:#2ee66b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;color:var(--ink);font-family:Inter,system-ui,sans-serif;overscroll-behavior:none;touch-action:none;-webkit-user-select:none;user-select:none}
+body.tr,body.tr #wrap{background:transparent}
+body.gr,body.gr #wrap{background:#00b140}
+#wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000}
+#stage{position:relative;width:1920px;height:1080px;flex:none;transform-origin:center center;overflow:hidden}
+body.dk #stage{background:radial-gradient(ellipse at 50% 30%,#1a2030 0%,#0b0d14 55%,#050609 100%)}
+.cd{font-family:'Barlow Condensed',Inter,sans-serif}
+/* corner score (football, netball) */
+#bug{position:absolute;left:70px;top:56px;display:flex;align-items:stretch;height:64px;border-radius:10px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.45);transition:opacity .4s,transform .4s}
+#bug.off{opacity:0;transform:translateY(-20px)}
+#bug .tm{display:flex;align-items:center;gap:0}
+#bug .tm+.tm{border-left:4px solid #06070a}
+#bug .sw{width:12px;align-self:stretch}
+#bug .nm{background:var(--g1);font:700 34px/1 'Barlow Condensed',sans-serif;letter-spacing:1px;padding:0 16px;min-width:96px;height:100%;display:flex;align-items:center;justify-content:center}
+#bug .sc{background:#fff;color:#111;font:800 40px/1 'Barlow Condensed',sans-serif;min-width:58px;height:100%;display:flex;align-items:center;justify-content:center;padding:0 10px;transition:background .3s}
+#bug .sc.bump{animation:bump .9s ease-out}
+#bug .ck{background:var(--g2);font:700 34px/1 'Barlow Condensed',sans-serif;padding:0 18px;display:flex;align-items:center;gap:10px;min-width:150px;justify-content:center;font-variant-numeric:tabular-nums}
+#bug .ck small{font:700 18px 'Barlow Condensed',sans-serif;color:var(--acc);letter-spacing:.5px}
+#bug .ad{background:var(--acc);color:#111;font:800 26px/1 'Barlow Condensed',sans-serif;padding:0 10px;display:flex;align-items:center}
+#bug .cp{width:14px;height:14px;border-radius:50%;background:var(--acc);margin:0 0 0 10px;box-shadow:0 0 10px var(--acc)}
+#bugT{position:absolute;left:70px;top:22px;font:700 22px 'Barlow Condensed',sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.8);transition:opacity .4s}
+@keyframes bump{0%{background:var(--acc);transform:scale(1)}30%{transform:scale(1.18)}100%{background:#fff;transform:scale(1)}}
+/* cricket bar */
+#ckb{position:absolute;left:50%;bottom:54px;transform:translateX(-50%);width:1760px;transition:opacity .4s,transform .4s}
+#ckb.off{opacity:0;transform:translate(-50%,30px)}
+#ckb .main{display:flex;height:84px;border-radius:12px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,.5);background:var(--g1)}
+#ckb .bat{display:flex;align-items:center;gap:16px;padding:0 24px;min-width:420px}
+#ckb .bat .nm{font:800 38px 'Barlow Condensed',sans-serif;letter-spacing:1px}
+#ckb .bat .rs{font:800 52px/1 'Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums}
+#ckb .bat .ov{font:600 26px 'Barlow Condensed',sans-serif;opacity:.85}
+#ckb .bts{flex:1;display:flex;flex-direction:column;justify-content:center;padding:0 22px;gap:2px;border-right:1px solid var(--line)}
+#ckb .bt{display:flex;justify-content:space-between;font:600 28px/1.15 'Barlow Condensed',sans-serif;color:var(--mute)}
+#ckb .bt.on{color:#fff}
+#ckb .bt.on .n::before{content:'▸ ';color:var(--acc)}
+#ckb .bt b{font-weight:800;font-variant-numeric:tabular-nums}
+#ckb .bw{width:330px;display:flex;flex-direction:column;justify-content:center;padding:0 22px;border-right:1px solid var(--line)}
+#ckb .bw .n{font:600 28px/1.1 'Barlow Condensed',sans-serif}
+#ckb .bw .f{font:800 28px/1.1 'Barlow Condensed',sans-serif;color:var(--acc);font-variant-numeric:tabular-nums}
+#ckb .ovr{display:flex;align-items:center;gap:8px;padding:0 20px;min-width:330px}
+#ckb .ball{min-width:40px;height:40px;border-radius:20px;background:var(--g2);display:flex;align-items:center;justify-content:center;font:700 22px 'Barlow Condensed',sans-serif;padding:0 8px}
+#ckb .ball.k4{background:#1f6feb}#ckb .ball.k6{background:#8a3ffc}#ckb .ball.kw{background:#e5484d}#ckb .ball.kx{background:#4a4d59}
+#ckb .strip{display:flex;justify-content:space-between;margin:0 14px;padding:8px 18px;background:rgba(8,9,13,.92);border-radius:0 0 12px 12px;font:600 26px 'Barlow Condensed',sans-serif;color:var(--mute);letter-spacing:.5px}
+#ckb .strip b{color:#fff;font-weight:700}
+#ckb .strip .fh{color:#111;background:var(--acc);padding:0 12px;border-radius:6px;font-weight:800}
+/* boards */
+#board{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s}
+#board.on{opacity:1}
+body.tr #board.on,body.gr #board.on{background:rgba(0,0,0,.35)}
+.bd{width:1500px;background:linear-gradient(180deg,rgba(20,22,31,.97),rgba(10,11,16,.97));border:1px solid var(--line);border-radius:22px;padding:44px 56px;box-shadow:0 30px 80px rgba(0,0,0,.6);transform:translateY(24px) scale(.98);transition:transform .45s}
+#board.on .bd{transform:none}
+.bd .hd{text-align:center;font:700 30px 'Barlow Condensed',sans-serif;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:6px}
+.bd .vn{text-align:center;font:500 22px Inter,sans-serif;color:var(--mute);margin-bottom:26px}
+.sb{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:30px}
+.sb .t{display:flex;flex-direction:column;align-items:center;gap:14px}
+.sb .badge{width:150px;height:150px;border-radius:24px;display:flex;align-items:center;justify-content:center;font:800 64px 'Barlow Condensed',sans-serif;letter-spacing:2px;box-shadow:0 14px 30px rgba(0,0,0,.4)}
+.sb .tn{font:800 44px/1.05 'Barlow Condensed',sans-serif;text-transform:uppercase;text-align:center;letter-spacing:1px}
+.sb .big{font:800 190px/1 'Barlow Condensed',sans-serif;display:flex;gap:30px;align-items:center;font-variant-numeric:tabular-nums}
+.sb .big i{font-style:normal;color:var(--mute);font-size:120px}
+.sb .st{text-align:center;font:700 32px 'Barlow Condensed',sans-serif;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-top:6px}
+.evs{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:34px;font:600 28px/1.5 'Barlow Condensed',sans-serif}
+.evs div:first-child{text-align:right}
+.evs .yc,.evs .rc{display:inline-block;width:16px;height:22px;border-radius:3px;vertical-align:-3px;margin:0 6px}
+.evs .yc{background:#f7d117}.evs .rc{background:#e5484d}
+table.tb{width:100%;border-collapse:collapse;font:600 30px 'Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums}
+table.tb th{font:700 22px 'Barlow Condensed',sans-serif;letter-spacing:1.5px;color:var(--mute);text-transform:uppercase;text-align:right;padding:6px 12px;border-bottom:1px solid var(--line)}
+table.tb th:first-child,table.tb td:first-child{text-align:left}
+table.tb td{padding:7px 12px;text-align:right;border-bottom:1px solid rgba(255,255,255,.06)}
+table.tb td.how{text-align:left;color:var(--mute);font-weight:500;font-size:24px}
+table.tb tr.on td:first-child::before{content:'▸ ';color:var(--acc)}
+table.tb tr.tot td{font-weight:800;color:#fff;border-bottom:0;padding-top:12px}
+table.tb .sw{display:inline-block;width:14px;height:26px;border-radius:3px;vertical-align:-4px;margin-right:12px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:50px}
+.lu h3{font:800 38px 'Barlow Condensed',sans-serif;text-transform:uppercase;padding:10px 16px;border-radius:10px;margin-bottom:12px}
+.lu li{list-style:none;font:600 30px/1.45 'Barlow Condensed',sans-serif;display:flex;gap:16px}
+.lu li b{min-width:44px;text-align:right;color:var(--acc)}
+.note{font:500 22px Inter,sans-serif;color:var(--mute);margin-top:18px;text-align:center}
+/* pop-up */
+#pop{position:absolute;left:50%;bottom:200px;transform:translate(-50%,40px);opacity:0;transition:opacity .35s,transform .45s cubic-bezier(.2,.9,.3,1.25);pointer-events:none}
+#pop.on{opacity:1;transform:translate(-50%,0)}
+.pp{display:flex;align-items:stretch;border-radius:16px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.55);min-width:900px;background:var(--g1)}
+.pp .k{padding:18px 40px;display:flex;align-items:center;font:800 96px/1 'Barlow Condensed',sans-serif;letter-spacing:3px}
+.pp .tx{padding:16px 34px;display:flex;flex-direction:column;justify-content:center}
+.pp .tx b{font:800 46px/1.05 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:1px}
+.pp .tx span{font:600 30px/1.2 'Barlow Condensed',sans-serif;color:var(--mute)}
+.burst{font:800 260px/1 'Barlow Condensed',sans-serif;letter-spacing:10px;color:#fff;text-shadow:0 0 40px rgba(247,209,23,.8),0 10px 0 rgba(0,0,0,.4);text-align:center}
+#pop.on .burst{animation:burst .9s cubic-bezier(.2,.9,.3,1.3)}
+@keyframes burst{0%{transform:scale(.3) rotate(-6deg);opacity:0}60%{transform:scale(1.12) rotate(2deg);opacity:1}100%{transform:scale(1) rotate(0)}}
+.burst small{display:block;font:700 46px 'Barlow Condensed',sans-serif;letter-spacing:2px;text-shadow:0 3px 10px rgba(0,0,0,.8)}
+/* message lower third */
+#msg{position:absolute;left:70px;bottom:70px;max-width:1300px;display:flex;align-items:stretch;border-radius:12px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.5);opacity:0;transform:translateX(-80px);transition:transform .55s cubic-bezier(.2,.9,.3,1.1),opacity .4s}
+#msg.on{transform:none;opacity:1}
+#msg .bar{width:14px;background:var(--acc)}
+#msg .tx{background:var(--g1);padding:16px 30px;font:700 40px/1.15 'Barlow Condensed',sans-serif}
+body.ck-on #msg{bottom:230px}
+#wait{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 40px 'Barlow Condensed',sans-serif;color:var(--mute);letter-spacing:2px;text-transform:uppercase}
+</style>
+</head>
+<body class="dk">
+<div id="wrap"><div id="stage">
+<div id="wait">Connecting…</div>
+<div id="bugT"></div>
+<div id="bug" class="off"></div>
+<div id="ckb" class="off"></div>
+<div id="board"><div class="bd" id="bd"></div></div>
+<div id="msg"><div class="bar"></div><div class="tx" id="msgT"></div></div>
+<div id="pop"></div>
+</div></div>
+<script src="core.js"></script>
+<script>
+(function(){
+const P=new URLSearchParams(location.search),CODE=(P.get('m')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6),VIEW=P.get('view')||'all',BG=P.get('bg')||'dark';
+document.body.className=BG==='transparent'?'tr':BG==='green'?'gr':'dk';
+const $=id=>document.getElementById(id),E=SP.esc,stage=$('stage');
+function fit(){const k=Math.min(innerWidth/1920,innerHeight/1080);stage.style.transform='scale('+k+')'}addEventListener('resize',fit);fit();
+let S=null,lastSeq=-1,lastPop=null,popT=null,lastScore=null,boardKind=null;
+const T=s=>S[s]||{},col=s=>T(s).color||'#444',sh=s=>E(T(s).short||'');
+// ---------- football / netball corner score ----------
+function bugHTML(){
+ if(S.sport==='football'){const fb=S.fb,c=SP.fbClock(fb);const per={'1H':'1st','2H':'2nd','ET1':'ET','ET2':'ET'}[fb.period]||'';
+  return tm('home',fb.h)+tm('away',fb.a)+`<div class="ck"><span id="clk">${c.text}</span>${per&&c.live?`<small>${per}</small>`:''}</div>`+(fb.added&&c.live?`<div class="ad">+${fb.added}</div>`:'')+`<div class="ad" id="ovr" style="display:none"></div>`}
+ if(S.sport==='netball'){const nb=S.nb,c=SP.nbClock(nb);
+  return tm('home',nb.h,nb.cp==='home'&&!nb.done&&nb.q)+tm('away',nb.a,nb.cp==='away'&&!nb.done&&nb.q)+`<div class="ck"><small>${E(c.label==='Starts soon'?'':c.label)}</small><span id="clk">${c.text}</span></div>`}
+ return ''}
+function tm(s,score,cp){return `<div class="tm"><div class="sw" style="background:${col(s)}"></div><div class="nm">${sh(s)}${cp?'<span class="cp" title="Centre pass"></span>':''}</div><div class="sc" id="sc-${s}">${score}</div></div>`}
+// ---------- cricket bar ----------
+function ckHTML(){const ck=S.ck,I=ck.inns[ck.cur];if(!I)return '';
+ const bat=I.bat,ballCls=t=>/W/.test(t)?'kw':/^6$/.test(t)||t==='nb+6'?'k6':/^4$/.test(t)||t==='nb+4'?'k4':/wd|nb|b|lb/.test(t)?'kx':'';
+ const b1=I.bt[I.str],b2=I.bt[I.non],B=I.bw[I.cbw];
+ const bt=(b,on)=>b?`<div class="bt${on?' on':''}"><span class="n">${E(b.name)}</span><b>${b.r} <small style="font-weight:600;color:var(--mute)">(${b.b})</small></b></div>`:'';
+ let strip;
+ if(ck.result)strip=`<span><b>${E(resText(ck.result.text))}</b></span>`;
+ else if(ck.brk||I.done)strip=`<span><b>${I.dec?'Declared':'End of innings'}</b> · ${E(T(bat).name)} ${SP.ckInnsTxt(ck,I)}</span><span>${ck.fmt==='test'?'Day '+ck.day:''}</span>`;
+ else{const n=SP.need(ck,I),lead=SP.ckLead(ck),pp=SP.ckPP(ck,I),mid=`<span>${ck.freeHit?'<span class="fh">FREE HIT</span>':pp?'<b style="color:var(--acc)">'+pp+'</b>':ck.fmt==='test'?'Day <b>'+ck.day+'</b>':''}</span>`;
+  if(n&&n.balls!=null)strip=`<span>Need <b>${n.runs}</b> off <b>${n.balls}</b> ball${n.balls===1?'':'s'}</span>${mid}<span>CRR <b>${SP.crr(I)}</b> · RRR <b>${n.rrr}</b></span>`;
+  else if(n)strip=`<span>Need <b>${n.runs}</b> to win</span>${mid}<span>CRR <b>${SP.crr(I)}</b> · P'ship <b>${I.ps.r} (${I.ps.b})</b></span>`;
+  else if(lead!=null)strip=`<span>${lead>=0?'Lead by':'Trail by'} <b>${Math.abs(lead)}</b></span>${mid}<span>CRR <b>${SP.crr(I)}</b> · P'ship <b>${I.ps.r} (${I.ps.b})</b></span>`;
+  else strip=`<span>${E(S.title||T(bat).name+' batting')}</span>${mid}<span>CRR <b>${SP.crr(I)}</b> · P'ship <b>${I.ps.r} (${I.ps.b})</b></span>`}
+ return `<div class="main"><div class="bat" style="background:${col(bat)};color:${SP.ink(col(bat))}"><span class="nm">${sh(bat)}</span>${prevInns(ck,I)}<span class="rs">${I.runs}/${I.wk}</span><span class="ov">${SP.ov(I.balls)} ov</span></div>
+ <div class="bts">${bt(b1,1)}${bt(b2,0)}</div>
+ <div class="bw"><div class="n">${B?E(B.name):''}</div><div class="f">${B?B.w+'-'+B.r+' <small style="color:var(--mute);font-weight:600">('+SP.ovShort(B.balls)+')</small>':''}</div></div>
+ <div class="ovr">${(I.over||[]).map(o=>`<span class="ball ${ballCls(o.t)}">${E(o.t)}</span>`).join('')||'<span style="color:var(--mute);font:600 24px Barlow Condensed,sans-serif">New over</span>'}</div></div>
+ <div class="strip">${strip}</div>`}
+function prevInns(ck,I){const p=ck.inns.filter((x,i)=>i<ck.cur&&x.bat===I.bat);return p.length?`<span class="ov" style="opacity:.9">${p.map(x=>SP.ckInnsTxt(ck,x)).join(' & ')} &amp;</span>`:''}
+function resText(t){return String(t||'').replace(/\{(home|away)\}/g,(m,s)=>T(s).name||s)}
+// ---------- boards ----------
+function header(){return `<div class="hd">${E(S.title||({football:'Football',netball:'Netball',cricket:'Cricket'})[S.sport])}</div><div class="vn">${E(S.venue||'')}</div>`}
+function fbBoard(kind){const fb=S.fb;
+ if(kind==='lineups'){const lu=s=>`<div class="lu"><h3 style="background:${col(s)};color:${SP.ink(col(s))}">${E(T(s).name)}</h3><ul>${(T(s).players||[]).map(p=>`<li><b>${E(p.no)}</b>${E(p.name)}</li>`).join('')||'<li style="color:var(--mute)">No line-up entered</li>'}</ul></div>`;return header()+`<div class="cols">${lu('home')+lu('away')}</div>`}
+ const st=SP.FB_LABEL[fb.period]||'';
+ const ev=s=>fb.events.filter(e=>e.team===s).map(e=>{const mn=e.min?` ${E(e.min)}'`:'';
+  if(e.k==='goal'||e.k==='pen'||e.k==='og')return `<div>⚽ ${E(e.player||'Goal')}${mn}${e.k==='pen'?' (pen)':e.k==='og'?' (OG)':''}</div>`;
+  if(e.k==='yc'||e.k==='rc')return `<div><span class="${e.k}"></span>${E(e.player||'')}${mn}</div>`;return ''}).join('');
+ let pens='';if(fb.period==='PEN'||(fb.pens&&(fb.pens.home.length||fb.pens.away.length))){const ps=s=>fb.pens[s].filter(Boolean).length;pens=`<div class="st" style="color:#fff">Penalties ${ps('home')} – ${ps('away')}</div>`}
+ return header()+`<div class="sb"><div class="t"><div class="badge" style="background:${col('home')};color:${SP.ink(col('home'))}">${sh('home')}</div><div class="tn">${E(T('home').name)}</div></div>
+  <div><div class="big">${fb.h}<i>–</i>${fb.a}</div><div class="st">${E(st)}</div>${pens}</div>
+  <div class="t"><div class="badge" style="background:${col('away')};color:${SP.ink(col('away'))}">${sh('away')}</div><div class="tn">${E(T('away').name)}</div></div></div>
+  <div class="evs"><div>${ev('home')}</div><div>${ev('away')}</div></div>`}
+function nbBoard(kind){const nb=S.nb;
+ if(kind==='lineups')return fbBoard('lineups');
+ if(kind==='shooting'){const row=(s,p)=>{const x=nb.shots[s][p];return `<tr><td><span class="sw" style="background:${col(s)}"></span>${sh(s)} ${p}</td><td>${x.g}</td><td>${x.a}</td><td>${x.a?Math.round(x.g*100/x.a)+'%':'–'}</td></tr>`};
+  return header()+`<table class="tb"><tr><th>Shooter</th><th>Goals</th><th>Attempts</th><th>Accuracy</th></tr>${row('home','GS')+row('home','GA')+row('away','GS')+row('away','GA')}</table>`}
+ const qs=[0,1,2,3].map(i=>nb.qs[i]||null);const st=nb.done?'Full-time':nb.q?'Quarter '+nb.q:'Starts soon';
+ const qrow=s=>`<tr><td><span class="sw" style="background:${col(s)}"></span>${E(T(s).name)}</td>${qs.map(q=>`<td>${q?q[s==='home'?'h':'a']:'–'}</td>`).join('')}<td style="font-weight:800;color:#fff">${s==='home'?nb.h:nb.a}</td></tr>`;
+ return header()+`<div class="sb" style="margin-bottom:30px"><div class="t"><div class="badge" style="background:${col('home')};color:${SP.ink(col('home'))}">${sh('home')}</div></div><div><div class="big">${nb.h}<i>–</i>${nb.a}</div><div class="st">${st}</div></div><div class="t"><div class="badge" style="background:${col('away')};color:${SP.ink(col('away'))}">${sh('away')}</div></div></div>
+  <table class="tb"><tr><th>Team</th><th>Q1</th><th>Q2</th><th>Q3</th><th>Q4</th><th>Total</th></tr>${qrow('home')+qrow('away')}</table>`}
+function ckBoard(kind){const ck=S.ck,I=ck.inns[ck.cur];
+ if(kind==='lineups')return fbBoard('lineups');
+ if(!I)return header()+`<div class="note" style="font-size:30px">${E(T(ck.batFirst).name)} to bat first. ${ck.overs?ck.overs+' overs per side.':'Two innings each.'}</div>`;
+ if(kind==='bowling'){return header()+`<div class="hd" style="color:#fff;margin-bottom:16px">${E(T(SP.other(I.bat)).name)} bowling</div><table class="tb"><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>Econ</th></tr>${I.bw.filter(b=>b.balls||b===I.bw[I.cbw]).map((b,i)=>`<tr class="${b===I.bw[I.cbw]&&!I.done?'on':''}"><td>${E(b.name)}</td><td>${SP.ov(b.balls).replace(/\.0$/,'')}</td><td>${b.m}</td><td>${b.r}</td><td>${b.w}</td><td>${b.balls?(b.r*6/b.balls).toFixed(2):'–'}</td></tr>`).join('')}</table>`}
+ if(kind==='summary'||kind==='result'){const r=ck.inns.map(x=>`<tr><td><span class="sw" style="background:${col(x.bat)}"></span>${E(T(x.bat).name)}${ck.fmt==='test'?' <small style="color:var(--mute)">'+['1st','1st','2nd','2nd'][ck.inns.indexOf(x)]+' inns'+(x.fo?' (f/o)':'')+'</small>':''}</td><td style="font-weight:800;color:#fff">${SP.ckInnsTxt(ck,x)}</td><td>${SP.ovShort(x.balls)} ov</td><td>${x.balls?(x.runs*6/x.balls).toFixed(2):'–'} rpo</td></tr>`).join('');
+  return header()+`<table class="tb"><tr><th>Innings</th><th>Score</th><th>Overs</th><th>Rate</th></tr>${r}</table><div class="st" style="text-align:center;font:800 54px 'Barlow Condensed',sans-serif;color:var(--acc);margin-top:30px">${ck.result?E(resText(ck.result.text)):(I.target!=null&&!I.done?E(T(I.bat).name)+' need '+(I.target-I.runs)+' to win':SP.ckLead(ck)!=null?E(T(I.bat).name)+(SP.ckLead(ck)>=0?' lead by ':' trail by ')+Math.abs(SP.ckLead(ck)):'')}</div>`}
+ const ex=I.ex,ext=ex.w+ex.nb+ex.b+ex.lb;
+ const rows=I.bt.map((b,i)=>`<tr class="${(i===I.str)&&!b.out&&!I.done?'on':''}"><td>${E(b.name)}</td><td class="how">${b.out?E(b.out):(i===I.str||i===I.non)&&!I.done?'not out':'not out'}</td><td style="font-weight:800;color:#fff">${b.r}</td><td>${b.b}</td><td>${b.f}</td><td>${b.s}</td><td>${b.b?(b.r*100/b.b).toFixed(1):'–'}</td></tr>`).join('');
+ return header()+`<div class="hd" style="color:#fff;margin-bottom:16px">${E(T(I.bat).name)} batting</div><table class="tb"><tr><th>Batter</th><th style="text-align:left"></th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr>${rows}
+ <tr><td>Extras</td><td class="how">wd ${ex.w}, nb ${ex.nb}, b ${ex.b}, lb ${ex.lb}</td><td>${ext}</td><td colspan="4"></td></tr>
+ <tr class="tot"><td>Total</td><td class="how" style="color:#fff">${SP.ov(I.balls)} overs · RR ${SP.crr(I)}</td><td>${I.runs}/${I.wk}</td><td colspan="4"></td></tr></table>
+ ${I.fow.length?`<div class="note" style="text-align:left">Fall of wickets: ${I.fow.map(f=>`${f.runs}-${f.wk} (${E(f.name)}, ${f.ov})`).join(' · ')}</div>`:''}`}
+function resultBoard(){if(S.sport==='cricket')return ckBoard('result');const isF=S.sport==='football',h=isF?S.fb.h:S.nb.h,a=isF?S.fb.a:S.nb.a;
+ let line=h===a?'Draw':(h>a?T('home').name:T('away').name)+' win';
+ if(isF&&S.fb.pens&&(S.fb.pens.home.length||S.fb.pens.away.length)){const ph=S.fb.pens.home.filter(Boolean).length,pa=S.fb.pens.away.filter(Boolean).length;if(ph!==pa)line=(ph>pa?T('home').name:T('away').name)+` win ${Math.max(ph,pa)}–${Math.min(ph,pa)} on penalties`}
+ return (isF?fbBoard('score'):nbBoard('score'))+`<div class="st" style="text-align:center;font:800 54px 'Barlow Condensed',sans-serif;color:var(--acc);margin-top:24px">${E(line)}</div>`}
+function boardHTML(kind){if(kind==='result')return resultBoard();return S.sport==='football'?fbBoard(kind):S.sport==='netball'?nbBoard(kind):ckBoard(kind)}
+function defaultBoard(){return S.sport==='cricket'?(S.ck.result?'result':'batting'):'score'}
+// ---------- pop-ups ----------
+function popHTML(p){const tc=p.team?col(p.team):'#f7d117',ti=SP.ink(tc);
+ if(['four','six','mile'].includes(p.kind))return `<div class="burst">${E(p.title)}<small>${E(p.sub||'')}</small></div>`;
+ const per={'Half-time':'HT','Full-time':'FT','After extra time':'AET'}[p.title]||(/^End of Q(\d)/.exec(p.title||'')||[])[0]&&('Q'+(/Q(\d)/.exec(p.title)[1]))||(/^Day (\d)/.exec(p.title||'')?'DAY':'');
+ const key={goal:'GOAL',pen:'GOAL',og:'GOAL',yc:'',rc:'',sub:'SUB',wicket:'OUT',period:per,added:'+',inns:'INNS',result:'FT'}[p.kind];
+ if(key===undefined||key===''&&!['yc','rc'].includes(p.kind))return `<div class="pp"><div style="width:16px;background:${tc}"></div><div class="tx"><b>${E(resText(p.title))}</b>${p.sub?`<span>${E(p.sub)}</span>`:''}</div></div>`;
+ const sw=p.kind==='yc'?'<span style="display:inline-block;width:46px;height:64px;border-radius:6px;background:#f7d117"></span>':p.kind==='rc'?'<span style="display:inline-block;width:46px;height:64px;border-radius:6px;background:#e5484d"></span>':E(key||p.title);
+ return `<div class="pp"><div class="k" style="background:${tc};color:${ti}">${sw}</div><div class="tx"><b>${E(resText(p.title))}</b>${p.sub?`<span>${E(p.sub)}</span>`:''}${p.note?`<span>${E(p.note)}</span>`:''}</div></div>`}
+function showPop(p){if(boardKind&&['period','inns','result'].includes(p.kind))return;const el=$('pop');el.style.bottom=boardKind?'28px':'';el.innerHTML=popHTML(p);el.classList.remove('on');void el.offsetWidth;el.classList.add('on');clearTimeout(popT);popT=setTimeout(()=>el.classList.remove('on'),['four','six','mile','fh'].includes(p.kind)?3600:6500)}
+// ---------- render ----------
+function render(){
+ $('wait').style.display='none';const ui=S.ui||{};
+ const isCk=S.sport==='cricket';document.body.classList.toggle('ck-on',isCk&&ui.bug!==false&&VIEW!=='board');
+ const showBug=ui.bug!==false&&VIEW!=='board';
+ if(isCk){$('ckb').innerHTML=ckHTML();$('ckb').classList.toggle('off',!showBug);$('bug').classList.add('off');$('bugT').style.opacity=0}
+ else{$('bug').innerHTML=bugHTML();$('bug').classList.toggle('off',!showBug);$('ckb').classList.add('off');$('bugT').textContent=S.title||'';$('bugT').style.opacity=showBug&&S.title?1:0;
+  const sc=S.sport==='football'?[S.fb.h,S.fb.a]:[S.nb.h,S.nb.a];if(lastScore){if(sc[0]!==lastScore[0])$('sc-home').classList.add('bump');if(sc[1]!==lastScore[1])$('sc-away').classList.add('bump')}lastScore=sc}
+ let kind=VIEW==='board'?(ui.board||defaultBoard()):(VIEW==='bug'?null:ui.board);
+ if(kind){$('bd').innerHTML=boardHTML(kind);$('board').classList.add('on')}else $('board').classList.remove('on');
+ boardKind=kind;
+ const m=ui.msg&&ui.msg.text&&VIEW!=='board';$('msgT').textContent=m?ui.msg.text:'';$('msg').classList.toggle('on',!!m);
+ const p=ui.popup;
+ if(lastPop===null){lastPop=p?p.id:'';if(p&&SP.now()-(p.at||0)<8000)showPop(p)}
+ else if(p&&p.id!==lastPop){lastPop=p.id;if(SP.now()-(p.at||0)<20000)showPop(p)}
+ tick();
+}
+function tick(){if(!S)return;const el=document.getElementById('clk');if(!el)return;
+ if(S.sport==='football'){const c=SP.fbClock(S.fb);el.textContent=c.text;const o=document.getElementById('ovr');if(o){o.style.display=c.over?'flex':'none';o.textContent=c.over}}
+ else if(S.sport==='netball'){el.textContent=SP.nbClock(S.nb).text}}
+setInterval(tick,250);
+async function poll(){if(!CODE){$('wait').textContent='No match code in the link';return}
+ try{const j=await SP.fetchMatch(CODE);if(j&&j.seq!==lastSeq){lastSeq=j.seq;S=j;render()}}catch(e){if(!S)$('wait').textContent='Match '+CODE+' not found yet…'}
+ setTimeout(poll,1000)}
+// keep the screen awake where supported, and block zoom and drift
+try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{})}catch(e){}
+document.addEventListener('gesturestart',e=>e.preventDefault());document.addEventListener('dblclick',e=>e.preventDefault());
+SP.syncTime().then(()=>poll());setInterval(()=>SP.syncTime(),120000);
+})();
+</script>
+</body>
+</html>

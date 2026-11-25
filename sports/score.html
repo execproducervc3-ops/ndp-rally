@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Event Pal · Scorer pad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0f;--card:#16161c;--c2:#20202a;--line:#2a2a33;--ink:#f4f4f6;--mute:#a3a3ad;--acc:#f7d117;--ok:#2ee66b;--bad:#ff6b6b}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 Inter,system-ui,sans-serif;overflow-x:hidden;overscroll-behavior:none}
+button,input,select{font:inherit}
+button{touch-action:manipulation;cursor:pointer}
+main{max-width:720px;margin:0 auto;padding:10px 12px 110px}
+.top{position:sticky;top:0;z-index:5;background:rgba(11,11,15,.96);backdrop-filter:blur(6px);margin:0 -12px;padding:8px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.top .sum{flex:1;font:800 24px/1.1 'Barlow Condensed',sans-serif;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sum small{display:block;font:600 13px Inter,sans-serif;color:var(--mute);letter-spacing:0}
+.dot{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);white-space:nowrap}
+.dot i{width:10px;height:10px;border-radius:50%;background:var(--mute)}
+.dot.ok i{background:var(--ok)}.dot.busy i{background:var(--acc)}.dot.bad i{background:var(--bad)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-top:12px}
+h2{font:700 18px 'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;color:var(--mute);margin:0 0 8px}
+.clock{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.clock .t{font:800 54px/1 'Barlow Condensed',sans-serif;font-variant-numeric:tabular-nums;min-width:150px}
+.clock .t small{display:block;font:700 15px Inter,sans-serif;color:var(--acc);letter-spacing:.5px}
+.b{background:var(--c2);color:var(--ink);border:1px solid var(--line);border-radius:12px;min-height:52px;padding:8px 14px;font-weight:700;font-size:16px}
+.b.big{min-height:64px;font:800 24px 'Barlow Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase}
+.b.acc{background:var(--acc);color:#111;border-color:var(--acc)}
+.b.go{background:#1d7a3e;border-color:#1d7a3e}.b.stop{background:#8a2a2a;border-color:#8a2a2a}
+.b.on{outline:3px solid var(--acc);outline-offset:-3px}
+.b:disabled{opacity:.4}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.grid4 .b.big{font-size:21px;padding:8px 4px}
+.b{min-width:0;overflow-wrap:anywhere}
+.team{border-radius:14px;overflow:hidden;border:1px solid var(--line);background:var(--card)}
+.team .hd{padding:10px 12px;font:800 22px/1.1 'Barlow Condensed',sans-serif;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.team .hd .s{font-size:40px}
+.team .bd{padding:10px;display:grid;gap:8px}
+.mini{display:flex;gap:8px}.mini .b{flex:1;min-height:40px;font-size:14px;color:var(--mute)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>*{flex:1}
+input[type=text]{width:100%;background:#0f0f14;border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:12px;font-size:16px}
+.ballbar{display:flex;gap:6px;flex-wrap:wrap;min-height:34px;align-items:center}
+.ballbar span{min-width:32px;height:32px;border-radius:16px;background:var(--c2);display:inline-flex;align-items:center;justify-content:center;padding:0 8px;font:700 16px 'Barlow Condensed',sans-serif}
+.bats div{display:flex;justify-content:space-between;padding:8px 4px;border-bottom:1px solid var(--line);font:700 20px 'Barlow Condensed',sans-serif}
+.bats div.on span:first-child::before{content:'▸ ';color:var(--acc)}
+.note{color:var(--mute);font-size:13px;margin:6px 0 0}
+.undo{position:fixed;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));z-index:6;display:flex;gap:10px;width:min(696px,calc(100% - 24px))}
+.undo .b{flex:1;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:20;display:none;align-items:flex-end;justify-content:center}
+#sheet.on{display:flex}
+#sheet .in{background:#15151b;border-top:1px solid var(--line);border-radius:18px 18px 0 0;width:min(720px,100%);max-height:86vh;overflow:auto;padding:16px 14px max(18px,env(safe-area-inset-bottom))}
+#sheet h3{font:800 24px 'Barlow Condensed',sans-serif;text-transform:uppercase;margin:0 0 10px}
+#sheet .opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:10px}
+.chk{display:flex;gap:8px;align-items:center;margin:4px 0 10px;font-weight:600}
+.chk input{width:22px;height:22px}
+#err{position:fixed;left:12px;right:12px;top:70px;background:#3a1515;border:1px solid var(--bad);color:#ffd7d7;padding:12px;border-radius:12px;display:none;z-index:30}
+.links{display:flex;gap:8px;flex-wrap:wrap}.links a{color:var(--acc);font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><div class="sum" id="sum">Loading…</div><div class="dot" id="dot"><i></i><span>Connecting</span></div></div>
+<div id="app"></div>
+<div class="card"><h2>Graphics</h2>
+<div class="row"><button class="b" id="gBug">Corner score: on</button></div>
+<div class="grid3" id="gBoards" style="margin-top:8px"></div>
+<div class="row" style="margin-top:8px"><input type="text" id="msgIn" maxlength="90" placeholder="Message for the screens, e.g. Drinks break"></div>
+<div class="row" style="margin-top:8px"><button class="b" id="msgShow">Show message</button><button class="b" id="msgClr">Clear message</button></div>
+<div class="row" style="margin-top:8px" id="quick"></div>
+<p class="note">Screen links: <span class="links" id="slinks"></span></p>
+</div>
+</main>
+<div class="undo"><button class="b big" id="undo">Undo</button></div>
+<div id="sheet"><div class="in" id="sheetIn"></div></div>
+<div id="err"></div>
+<script src="core.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id),E=SP.esc;
+const P=new URLSearchParams(location.search),CODE=(P.get('m')||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);
+let KEY=(new URLSearchParams(location.hash.slice(1))).get('k')||'';
+try{if(KEY)localStorage.setItem('sk_'+CODE,KEY);else KEY=localStorage.getItem('sk_'+CODE)||''}catch(e){}
+if(KEY&&location.hash)history.replaceState(null,'',location.pathname+location.search); // keep the key out of the address bar
+let S=null,undo=[],pending=false,sending=false;
+const T=s=>S[s],nm=s=>S[s].name,col=s=>S[s].color;
+function err(m){const e=$('err');e.textContent=m;e.style.display='block';clearTimeout(err.t);err.t=setTimeout(()=>e.style.display='none',5000)}
+function dot(cls,txt){$('dot').className='dot '+cls;$('dot').lastChild.textContent=txt}
+// ---------- sending ----------
+function save(){try{localStorage.setItem('ss_'+CODE,JSON.stringify(S))}catch(e){}}
+async function send(){pending=true;save();if(sending)return;sending=true;
+ while(pending){pending=false;dot('busy','Sending');try{await SP.api({a:'update',code:CODE,key:KEY,state:S});dot('ok','Live')}catch(e){pending=true;dot('bad','Offline, retrying');if(/recognised/.test(e.message)){err(e.message);pending=false;break}await new Promise(r=>setTimeout(r,2000))}}
+ sending=false}
+function act(fn,popup){undo.push(JSON.stringify(S));if(undo.length>80)undo.shift();fn();if(popup)S.ui.popup=Object.assign({id:SP.uid(),at:SP.now()},popup);render();send()}
+$('undo').onclick=()=>{if(!undo.length)return;S=JSON.parse(undo.pop());S.ui.popup=null;render();send()};
+// ---------- bottom sheet ----------
+function sheet(title,opts,o){o=o||{};return new Promise(res=>{const el=$('sheetIn');
+ el.innerHTML=`<h3>${E(title)}</h3>${(o.checks||[]).map((c,i)=>`<label class="chk"><input type="checkbox" data-c="${i}">${E(c)}</label>`).join('')}<div class="opts">${opts.map((x,i)=>`<button class="b${x.cls?' '+x.cls:''}" data-i="${i}">${E(x.label)}</button>`).join('')}</div>
+ ${o.input?`<div class="row"><input type="text" id="shIn" maxlength="40" placeholder="${E(o.input)}" list="shDl"><datalist id="shDl">${(o.list||[]).map(n=>`<option value="${E(n)}">`).join('')}</datalist><button class="b acc" id="shOk" style="flex:none">OK</button></div>`:''}
+ <div class="row" style="margin-top:12px"><button class="b" id="shX">Cancel</button></div>`;
+ $('sheet').classList.add('on');const done=v=>{$('sheet').classList.remove('on');const checks=[...el.querySelectorAll('[data-c]')].map(c=>c.checked);res(v===null?null:{v,checks})};
+ el.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>done(opts[+b.dataset.i].value));
+ $('shX').onclick=()=>done(null);if(o.input){const i=$('shIn');$('shOk').onclick=()=>{if(i.value.trim())done(i.value.trim())};i.onkeydown=e=>{if(e.key==='Enter'&&i.value.trim())done(i.value.trim())};if(!opts.length)setTimeout(()=>i.focus(),50)}})}
+const players=s=>(T(s).players||[]);
+async function pickPlayer(s,title,extra,checks){const opts=players(s).map(p=>({label:SP.pname(p),value:p.name}));if(extra)opts.push(...extra);
+ const r=await sheet(title,opts,{input:'Type a name',list:players(s).map(p=>p.name),checks});return r}
+// ---------- football ----------
+function fbView(){const fb=S.fb,c=SP.fbClock(fb),live=['1H','2H','ET1','ET2'].includes(fb.period);
+ const nexts={pre:[['1H','Kick-off']],'1H':[['HT','Half-time']],HT:[['2H','Start 2nd half']],'2H':[['FT','Full-time']],FT:[['ET1','Extra time'],['PEN','Penalties']],ET1:[['ETB','End of ET 1st half']],ETB:[['ET2','Start ET 2nd half']],ET2:[['AET','End of extra time']],AET:[['PEN','Penalties']],PEN:[['END','Shoot-out over']],END:[]}[fb.period]||[];
+ const team=s=>`<div class="team"><div class="hd" style="background:${col(s)};color:${SP.ink(col(s))}"><span>${E(T(s).short)}</span><span class="s">${s==='home'?fb.h:fb.a}</span></div><div class="bd">
+  ${fb.period==='PEN'?`<button class="b big acc" data-fb="pen-in" data-s="${s}">Pen scored</button><button class="b" data-fb="pen-out" data-s="${s}">Pen missed</button><div class="note">${fb.pens[s].map(x=>x?'●':'○').join(' ')||'No kicks yet'}</div>`
+  :`<button class="b big acc" data-fb="goal" data-s="${s}">Goal</button><div class="grid2"><button class="b" data-fb="yc" data-s="${s}">🟨 Yellow</button><button class="b" data-fb="rc" data-s="${s}">🟥 Red</button></div><button class="b" data-fb="sub" data-s="${s}">Substitution</button>`}
+  <div class="mini"><button class="b" data-fb="minus" data-s="${s}">− 1</button><button class="b" data-fb="plus" data-s="${s}">+ 1</button></div></div></div>`;
+ return `<div class="card"><h2>${E(SP.FB_LABEL[fb.period])}</h2><div class="clock"><div class="t"><span id="clk">${c.text}</span><small id="ovr">${c.over}</small></div>
+  ${live?`<button class="b ${fb.clock.run?'stop':'go'}" data-fb="clock">${fb.clock.run?'Stop clock':'Start clock'}</button>`:''}</div>
+  <div class="row" style="margin-top:10px">${nexts.map(([p,l])=>`<button class="b acc" data-fb="period" data-p="${p}">${l} ▸</button>`).join('')}</div>
+  ${live?`<div class="row" style="margin-top:10px"><span style="flex:none;color:var(--mute)">Added time</span><button class="b" data-fb="add-">−</button><b style="flex:none;font:800 26px 'Barlow Condensed',sans-serif;min-width:40px;text-align:center">+${fb.added}</b><button class="b" data-fb="add+">+</button><button class="b" data-fb="setclk">Set clock</button></div>`:''}</div>
+  <div class="grid2" style="margin-top:12px">${team('home')}${team('away')}</div>`}
+async function fbDo(k,s,el){const fb=S.fb,c=SP.fbClock(fb),min=c.minute;
+ if(k==='clock')return act(()=>{fb.clock.run?SP.stopClock(fb.clock):SP.startClock(fb.clock)});
+ if(k==='period'){const p=el.dataset.p;return act(()=>{SP.stopClock(fb.clock);SP.resetClock(fb.clock);fb.added=0;fb.period=p;if(['1H','2H','ET1','ET2'].includes(p))SP.startClock(fb.clock);
+   if(['HT','FT','AET','END'].includes(p))S.ui.board=p==='HT'?'score':'result'; else if(S.ui.board==='score'||S.ui.board==='result')S.ui.board=null},
+   ['HT','FT','AET'].includes(p)?{kind:'period',title:SP.FB_LABEL[p],sub:`${nm('home')} ${fb.h} – ${fb.a} ${nm('away')}`}:null)}
+ if(k==='add+'||k==='add-')return act(()=>{fb.added=Math.max(0,Math.min(15,fb.added+(k==='add+'?1:-1)))},k==='add+'&&fb.added<15?{kind:'added',title:'Added time: '+(fb.added+1)+' min',sub:''}:null);
+ if(k==='setclk'){const r=await sheet('Set clock (minutes into this period)',[],{input:'e.g. 23:40'});if(!r)return;const m=/^(\d{1,3})(?::(\d{1,2}))?$/.exec(r.v);if(!m)return err('Use minutes:seconds, e.g. 23:40');
+   return act(()=>{const ms=(+m[1]*60+(+m[2]||0))*1000-SP.fbStart(fb.period,fb.half)*60000;const run=fb.clock.run;fb.clock.base=Math.max(0,ms);fb.clock.at=SP.now();fb.clock.run=run})}
+ if(k==='plus')return act(()=>{s==='home'?fb.h++:fb.a++});
+ if(k==='minus')return act(()=>{if(s==='home')fb.h=Math.max(0,fb.h-1);else fb.a=Math.max(0,fb.a-1)});
+ if(k==='goal'){const r=await pickPlayer(s,'Goal: '+nm(s),[{label:'Own goal by opponent',value:'__og'},{label:'Not sure',value:''}],['Penalty']);if(!r)return;
+   let player=r.v,kind='goal';if(player==='__og'){const o=await pickPlayer(SP.other(s),'Own goal: who?',[{label:'Not sure',value:''}]);if(!o)return;player=o.v;kind='og'}
+   const pen=r.checks&&r.checks[0];if(pen)kind='pen';
+   return act(()=>{s==='home'?fb.h++:fb.a++;fb.events.push({id:SP.uid(),k:kind,team:s,player,min})},{kind:'goal',team:s,title:'GOAL'+(player?': '+player:'!'),sub:`${nm(s)}${min?' · '+min+"'":''}${kind==='og'?' · own goal':kind==='pen'?' · penalty':''}`,note:`${S.home.short} ${fb.h+(s==='home'?1:0)} – ${fb.a+(s==='away'?1:0)} ${S.away.short}`})}
+ if(k==='yc'||k==='rc'){const r=await pickPlayer(s,(k==='yc'?'Yellow card: ':'Red card: ')+nm(s),[{label:'Not sure',value:''}]);if(!r)return;
+   return act(()=>{fb.events.push({id:SP.uid(),k,team:s,player:r.v,min})},{kind:k,team:s,title:(k==='yc'?'Yellow card':'Red card')+(r.v?': '+r.v:''),sub:nm(s)+(min?' · '+min+"'":'')})}
+ if(k==='sub'){const off=await pickPlayer(s,'Player coming OFF');if(!off)return;const on=await pickPlayer(s,'Player coming ON');if(!on)return;
+   return act(()=>{fb.events.push({id:SP.uid(),k:'sub',team:s,player:on.v,off:off.v,min})},{kind:'sub',team:s,title:'On: '+on.v,sub:'Off: '+off.v,note:nm(s)})}
+ if(k==='pen-in'||k==='pen-out')return act(()=>{fb.pens[s].push(k==='pen-in')},{kind:k==='pen-in'?'goal':'sub',team:s,title:k==='pen-in'?'Penalty scored':'Penalty missed',sub:nm(s),note:`Shoot-out ${fb.pens.home.filter(Boolean).length+(s==='home'&&k==='pen-in'?1:0)} – ${fb.pens.away.filter(Boolean).length+(s==='away'&&k==='pen-in'?1:0)}`})}
+// ---------- netball ----------
+function nbView(){const nb=S.nb,c=SP.nbClock(nb);
+ const team=s=>`<div class="team"><div class="hd" style="background:${col(s)};color:${SP.ink(col(s))}"><span>${E(T(s).short)}${nb.cp===s&&nb.q&&!nb.done?' <small style="font-size:14px">● centre pass</small>':''}</span><span class="s">${s==='home'?nb.h:nb.a}</span></div><div class="bd">
+  <div class="grid2"><button class="b big acc" data-nb="g" data-p="GS" data-s="${s}" ${nb.q&&!nb.done?'':'disabled'}>Goal GS</button><button class="b big acc" data-nb="g" data-p="GA" data-s="${s}" ${nb.q&&!nb.done?'':'disabled'}>Goal GA</button></div>
+  <div class="grid2"><button class="b" data-nb="m" data-p="GS" data-s="${s}" ${nb.q&&!nb.done?'':'disabled'}>Miss GS</button><button class="b" data-nb="m" data-p="GA" data-s="${s}" ${nb.q&&!nb.done?'':'disabled'}>Miss GA</button></div>
+  <div class="note">GS ${nb.shots[s].GS.g}/${nb.shots[s].GS.a} · GA ${nb.shots[s].GA.g}/${nb.shots[s].GA.a}</div>
+  <div class="mini"><button class="b" data-nb="minus" data-s="${s}">− 1</button><button class="b" data-nb="plus" data-s="${s}">+ 1</button></div></div></div>`;
+ const next=nb.done?'':!nb.q?'Start Q1':nb.q<4?'Start Q'+(nb.q+1):'End match';
+ return `<div class="card"><h2>${nb.done?'Full-time':nb.q?'Quarter '+nb.q:'Before the start'}</h2><div class="clock"><div class="t"><span id="clk">${c.text}</span><small>${nb.q&&!nb.done?'time left':''}</small></div>
+  ${nb.q&&!nb.done?`<button class="b ${nb.clock.run?'stop':'go'}" data-nb="clock">${nb.clock.run?'Stop clock':'Start clock'}</button>`:''}</div>
+  <div class="row" style="margin-top:10px">${next?`<button class="b acc" data-nb="next">${next} ▸</button>`:''}${nb.q&&!nb.done?'<button class="b" data-nb="flip">Switch centre pass</button>':''}</div>
+  ${!nb.q?`<div class="row" style="margin-top:10px"><span style="flex:none;color:var(--mute)">First centre pass</span><button class="b${nb.cpFirst==='home'?' on':''}" data-nb="first" data-s="home">${E(S.home.short)}</button><button class="b${nb.cpFirst==='away'?' on':''}" data-nb="first" data-s="away">${E(S.away.short)}</button></div>`:''}</div>
+  <div class="grid2" style="margin-top:12px">${team('home')}${team('away')}</div>`}
+function nbDo(k,s,el){const nb=S.nb;
+ if(k==='clock')return act(()=>{nb.clock.run?SP.stopClock(nb.clock):SP.startClock(nb.clock)});
+ if(k==='first')return act(()=>{nb.cpFirst=s;nb.cp=s});
+ if(k==='flip')return act(()=>{nb.cp=SP.other(nb.cp)});
+ if(k==='next'){const q=nb.q;return act(()=>{SP.stopClock(nb.clock);SP.resetClock(nb.clock);if(q>=4){nb.done=true;S.ui.board='result'}else{nb.q=q+1;nb.qs[q]=nb.qs[q]||{h:0,a:0};nb.cp=(nb.q%2===1)?nb.cpFirst:SP.other(nb.cpFirst);if(S.ui.board==='score'||S.ui.board==='result')S.ui.board=null}},
+   q>=1?{kind:'period',title:q>=4?'Full-time':'End of Q'+q,sub:`${nm('home')} ${nb.h} – ${nb.a} ${nm('away')}`}:null)}
+ if(k==='g'||k==='m'){const p=el.dataset.p;return act(()=>{const x=nb.shots[s][p];x.a++;if(k==='g'){x.g++;s==='home'?nb.h++:nb.a++;const q=nb.qs[nb.q-1]||(nb.qs[nb.q-1]={h:0,a:0});q[s==='home'?'h':'a']++;nb.cp=SP.other(nb.cp)}})}
+ if(k==='plus'||k==='minus')return act(()=>{const d=k==='plus'?1:-1;if(s==='home')nb.h=Math.max(0,nb.h+d);else nb.a=Math.max(0,nb.a+d);const q=nb.qs[Math.max(0,nb.q-1)];if(q){const f=s==='home'?'h':'a';q[f]=Math.max(0,q[f]+d)}})}
+// ---------- cricket ----------
+let ckFo=false;const ORD=['1st','2nd','3rd','4th'];
+function ckView(){const ck=S.ck,I=ck.inns[ck.cur];
+ if(ck.cur<0||ck.brk){const n=ck.inns.length,isTest=ck.fmt==='test';
+  const foOK=isTest&&n===2&&(ck.inns[0].runs-ck.inns[1].runs)>=SP.ckFollowOn(ck);if(!foOK)ckFo=false;
+  const bat=SP.ckNextBat(ck,ckFo),bowl=SP.other(bat);const pl=s=>players(s).map(p=>`<option value="${E(p.name)}">`).join('');
+  const final=n===(ck.maxInns||2)-1,tgtRuns=final?SP.runsOf(ck,bowl)-SP.runsOf(ck,bat)+1:0;
+  const tgt=final?`<p class="note" style="font-size:15px;color:#fff">${E(nm(bat))} need ${tgtRuns} to win${ck.overs?' from '+ck.overs+' overs':''}.</p>`:'';
+  const fo=foOK?`<div class="row" style="margin-top:8px"><button class="b${!ckFo?' on':''}" data-ck="fo" data-v="0">${E(T(ck.inns[0].bat).short)} bat again</button><button class="b${ckFo?' on':''}" data-ck="fo" data-v="1">Enforce follow-on</button></div><p class="note">${E(nm(ck.inns[0].bat))} lead by ${ck.inns[0].runs-ck.inns[1].runs}, so the follow-on is available.</p>`:'';
+  const lead=isTest&&n>0?`<p class="note">${ck.inns.map(x=>E(T(x.bat).short)+' '+SP.ckInnsTxt(ck,x)).join(' · ')}</p>`:'';
+  return `<div class="card"><h2>${n===0?'Start the match':ORD[n]+' innings'}</h2>${lead}${fo}${tgt}<p class="note">${E(nm(bat))} batting, ${E(nm(bowl))} bowling. ${ck.overs?ck.overs+' overs, ':''}${ck.ppl} players a side.</p>
+  <datalist id="dlB">${pl(bat)}</datalist><datalist id="dlW">${pl(bowl)}</datalist>
+  <div class="grid2" style="margin-top:8px"><input type="text" id="o1" list="dlB" placeholder="Opener on strike" value="${E((players(bat)[0]||{}).name||'')}"><input type="text" id="o2" list="dlB" placeholder="Other opener" value="${E((players(bat)[1]||{}).name||'')}"></div>
+  <input type="text" id="ob" list="dlW" placeholder="Opening bowler" style="margin-top:8px">
+  <button class="b big acc" data-ck="start" style="width:100%;margin-top:10px">Start innings ▸</button></div>`}
+ const n=SP.need(ck,I),S1=I.bt[I.str],S2=I.bt[I.non],B=I.bw[I.cbw];
+ const dis=I.done||ck.result?'disabled':'';
+ const lead=SP.ckLead(ck),pp=SP.ckPP(ck,I);
+ return `<div class="card"><h2>${E(nm(I.bat))} · ${ORD[ck.cur]} innings${ck.fmt==='test'?' · Day '+ck.day:''}${I.fo?' (follow-on)':''}</h2>
+  <div style="font:800 46px/1 'Barlow Condensed',sans-serif">${I.runs}/${I.wk} <span style="font-size:26px;color:var(--mute)">${SP.ov(I.balls)}${ck.overs?' / '+ck.overs:''} ov</span></div>
+  <p class="note">${n?`Need ${n.runs}${n.balls!=null?' off '+n.balls+' · RRR '+n.rrr:''} · `:''}${lead!=null&&!n?(lead>=0?'Lead by '+lead:'Trail by '+(-lead))+' · ':''}CRR ${SP.crr(I)}${pp?' · '+pp:''}${ck.freeHit?' · <b style="color:var(--acc)">FREE HIT</b>':''}</p>
+  <div class="bats" style="margin-top:8px">${S1?`<div class="on"><span>${E(S1.name)}</span><span>${S1.r} (${S1.b})</span></div>`:''}${S2?`<div><span>${E(S2.name)}</span><span>${S2.r} (${S2.b})</span></div>`:''}
+  <div><span style="color:var(--mute)">Bowling: ${B?E(B.name):''}</span><span>${B?B.w+'-'+B.r+' ('+SP.ovShort(B.balls)+')':''}</span></div></div>
+  <div class="ballbar" style="margin-top:8px">${(I.over||[]).map(o=>`<span>${E(o.t)}</span>`).join('')||'<span style="background:none;color:var(--mute);font:600 14px Inter">New over</span>'}</div>
+  <div class="grid4" style="margin-top:10px">${[0,1,2,3].map(r=>`<button class="b big" data-ck="run" data-r="${r}" ${dis}>${r===0?'Dot':r}</button>`).join('')}
+   <button class="b big acc" data-ck="run" data-r="4" ${dis}>Four</button><button class="b big acc" data-ck="run" data-r="6" ${dis}>Six</button><button class="b big" data-ck="run" data-r="5" ${dis}>5</button><button class="b big stop" data-ck="wkt" ${dis}>Wicket</button>
+   <button class="b" data-ck="wd" ${dis}>Wide</button><button class="b" data-ck="nb" ${dis}>No-ball</button><button class="b" data-ck="b" ${dis}>Bye</button><button class="b" data-ck="lb" ${dis}>Leg bye</button></div>
+  <div class="row" style="margin-top:8px"><button class="b" data-ck="swap" ${dis}>Swap strike</button><button class="b" data-ck="bowler" ${dis}>Change bowler</button><button class="b" data-ck="rename">Fix a name</button></div>
+  ${I.done&&!ck.result&&ck.cur===0?'':''}${ck.result?`<p class="note" style="font-size:16px;color:var(--acc)">${E(ck.result.text.replace(/\{(home|away)\}/g,(m,x)=>nm(x)))}</p>`:''}
+  ${!I.done&&!ck.result?`<div class="row" style="margin-top:8px">${ck.fmt==='test'&&I.target==null?'<button class="b" data-ck="declare">Declare</button>':''}<button class="b" data-ck="end">End innings now</button></div>`:''}
+  ${ck.fmt==='test'&&!ck.result?`<div class="row" style="margin-top:8px"><span style="flex:none;color:var(--mute)">Day</span><button class="b" data-ck="day-">−</button><b style="flex:none;font:800 26px 'Barlow Condensed',sans-serif;min-width:30px;text-align:center">${ck.day}</b><button class="b" data-ck="day+">+</button><button class="b" data-ck="draw">Match drawn</button></div>`:''}</div>`}
+const usedNames=I=>I.bt.map(b=>b.name.toLowerCase());
+async function ckAfter(res,I){const ck=S.ck;
+ if(res.needBatter){const left=players(I.bat).map(p=>p.name).filter(n=>!usedNames(I).includes(n.toLowerCase()));
+  const r=await sheet('New batter',left.map(n=>({label:n,value:n})),{input:'Batter name',list:left});const name=r?r.v:'Batter '+(I.bt.length+1);
+  act(()=>SP.ckReplace(ck,name))}
+ if(res.overDone&&!I.done&&!ck.result){await chooseBowler(I,true)}}
+async function chooseBowler(I,afterOver){const ck=S.ck,last=I.bw[I.cbw];
+ const mx=ck.maxBowl,full=b=>mx&&b.balls>=mx*6;
+ const prev=I.bw.filter(b=>!(afterOver&&b===last)).map(b=>({label:b.name+' '+b.w+'-'+b.r+' ('+SP.ovShort(b.balls)+')'+(full(b)?' · max':''),value:b.name}));
+ const fresh=players(SP.other(I.bat)).map(p=>p.name).filter(n=>!I.bw.some(b=>b.name.toLowerCase()===n.toLowerCase()));
+ const r=await sheet(afterOver?'Over complete: next bowler':'Change bowler',prev.concat(fresh.map(n=>({label:n,value:n}))),{input:'Other bowler name',list:fresh});if(!r)return;
+ if(afterOver&&last&&r.v.toLowerCase()===last.name.toLowerCase())return err('The same bowler cannot bowl two overs in a row.');
+ const ex=I.bw.find(b=>b.name.toLowerCase()===r.v.toLowerCase());if(ex&&full(ex))return err(ex.name+' has bowled the maximum '+mx+' overs.');
+ act(()=>SP.ckBowler(S.ck,r.v))}
+function popFrom(res,I){const pr=['result','inns','wicket','mile','six','four','fh'];const p=res.pops.slice().sort((a,b)=>pr.indexOf(a.kind)-pr.indexOf(b.kind))[0];if(!p)return null;
+ const team=p.kind==='wicket'?SP.other(I.bat):I.bat;return Object.assign({team},p,p.kind==='result'?{title:p.title.replace(/\{(home|away)\}/g,(m,x)=>nm(x))}:{})}
+async function ckDo(k,s,el){const ck=S.ck,I=ck.inns[ck.cur];
+ if(k==='fo'){ckFo=el.dataset.v==='1';return render()}
+ if(k==='start'){const o1=$('o1').value.trim()||'Batter 1',o2=$('o2').value.trim()||'Batter 2',ob=$('ob').value.trim()||'Bowler 1';const bat=SP.ckNextBat(ck,ckFo),n=ck.inns.length;
+  return act(()=>{SP.ckInnings(ck,bat,[o1,o2],ob);S.ui.board=null;ckFo=false},n>0?{kind:'inns',team:bat,title:ORD[n]+' innings'+(ck.inns[n]&&ck.inns[n].fo?' (follow-on)':''),sub:ck.inns[n]&&ck.inns[n].target!=null?`${nm(bat)} need ${ck.inns[n].target} to win`:`${nm(bat)} batting`}:null)}
+ if(k==='day+'||k==='day-')return act(()=>{ck.day=Math.max(1,Math.min(ck.days||5,ck.day+(k==='day+'?1:-1)))},k==='day+'?{kind:'period',title:'Day '+Math.min(ck.days||5,ck.day+1),sub:S.title||''}:null);
+ if(k==='declare'){const r=await sheet('Declare the innings at '+I.runs+'/'+I.wk+'?',[{label:'Yes, declare',value:'y',cls:'acc'}]);if(!r)return;let pops;return act(()=>{pops=SP.ckDeclare(ck);S.ui.board=ck.result?'result':'summary'},{kind:'inns',team:I.bat,title:'DECLARED',sub:`${nm(I.bat)} ${I.runs}/${I.wk} dec`})}
+ if(k==='draw'){const r=await sheet('End the match as a draw?',[{label:'Yes, match drawn',value:'y',cls:'stop'}]);if(!r)return;return act(()=>{SP.ckDraw(ck);S.ui.board='result'},{kind:'result',title:'Match drawn',sub:''})}
+ if(k==='swap')return act(()=>{const t=I.str;I.str=I.non;I.non=t});
+ if(k==='bowler')return chooseBowler(I,false);
+ if(k==='end'){const r=await sheet('End this innings now?',[{label:'Yes, end innings',value:'y',cls:'stop'}]);if(!r)return;return act(()=>{SP.ckEnd(ck);S.ui.board=ck.result?'result':'summary'})}
+ if(k==='rename'){const opts=I.bt.map((b,i)=>({label:'Bat: '+b.name,value:'b'+i})).concat(I.bw.map((b,i)=>({label:'Bowl: '+b.name,value:'w'+i})));const r=await sheet('Which name?',opts);if(!r)return;
+  const n=await sheet('New name',[],{input:'Name'});if(!n)return;return act(()=>{const i=+r.v.slice(1);(r.v[0]==='b'?I.bt:I.bw)[i].name=n.v})}
+ let kind,runs=0,wk=null;
+ if(k==='run'){kind='run';runs=+el.dataset.r}
+ else if(k==='wd'){const r=await sheet('Wide: extra runs',[{label:'Just the wide',value:0},{label:'+1 run',value:1},{label:'+2 runs',value:2},{label:'+3 runs',value:3},{label:'+4 (boundary)',value:4}]);if(!r)return;kind='wd';runs=r.v}
+ else if(k==='nb'){const r=await sheet('No-ball: runs off the bat',[0,1,2,3,4,6].map(v=>({label:v===0?'No runs':v===4?'Four':v===6?'Six':v+' run'+(v>1?'s':''),value:v})));if(!r)return;kind='nb';runs=r.v}
+ else if(k==='b'||k==='lb'){const r=await sheet((k==='b'?'Byes':'Leg byes')+': runs',[1,2,3,4].map(v=>({label:v===4?'4 (boundary)':String(v),value:v})));if(!r)return;kind=k;runs=r.v}
+ else if(k==='wkt'){const how=await sheet('How out?',['bowled','caught','lbw','run out','stumped','caught & bowled','hit wicket'].map(h=>({label:h[0].toUpperCase()+h.slice(1),value:h})));if(!how)return;
+  wk={how:how.v,who:'str'};kind='run';
+  if(how.v==='caught'||how.v==='stumped'||how.v==='run out'){const f=await sheet('Fielder (optional)',players(SP.other(I.bat)).map(p=>({label:p.name,value:p.name})).concat([{label:'Skip',value:''}]),{input:'Fielder name'});wk.fielder=f?f.v:''}
+  if(how.v==='run out'){const w=await sheet('Who is run out?',[{label:'Striker: '+I.bt[I.str].name,value:'str'},{label:'Non-striker: '+I.bt[I.non].name,value:'non'}]);if(!w)return;wk.who=w.v;
+   const rr=await sheet('Runs completed before the run out',[0,1,2,3].map(v=>({label:String(v),value:v})));if(!rr)return;runs=rr.v}}
+ let res;act(()=>{res=SP.ckBall(S.ck,kind,runs,wk);const p=popFrom(res,S.ck.inns[S.ck.cur]);if(p)S.ui.popup=Object.assign({id:SP.uid(),at:SP.now()},p);if(S.ck.result)S.ui.board='result';else if(S.ck.brk)S.ui.board='summary'});
+ await ckAfter(res,S.ck.inns[S.ck.cur])}
+// ---------- graphics panel ----------
+const BOARDS={football:[['score','Scoreboard'],['lineups','Line-ups'],['result','Result']],netball:[['score','Scoreboard'],['shooting','Shooting'],['lineups','Line-ups'],['result','Result']],cricket:[['batting','Batting card'],['bowling','Bowling'],['summary','Summary'],['lineups','Line-ups'],['result','Result']]};
+const QUICK={football:['Injury break','Cooling break','VAR check'],netball:['Injury time','Timeout'],cricket:['Drinks break','Rain delay','Strategic timeout','DRS review'],test:['Lunch','Tea','Stumps','Bad light','Rain delay','Drinks break']};
+function gfx(){const ui=S.ui;$('gBug').textContent='Corner score: '+(ui.bug!==false?'on':'off');$('gBug').classList.toggle('on',ui.bug!==false);
+ $('gBoards').innerHTML=BOARDS[S.sport].map(([k,l])=>`<button class="b${ui.board===k?' on':''}" data-g="${k}">${l}</button>`).join('')+`<button class="b" data-g="">Hide board</button>`;
+ $('quick').innerHTML=QUICK[S.sport==='cricket'&&S.ck.fmt==='test'?'test':S.sport].map(q=>`<button class="b" data-q="${E(q)}">${E(q)}</button>`).join('');
+ const base=location.href.replace(/score\.html.*$/,'show.html?m='+CODE);$('slinks').innerHTML=`<a href="${E(base)}" target="_blank">Screen</a> <a href="${E(base)}&bg=transparent" target="_blank">Stream overlay</a> <a href="${E(base)}&view=board" target="_blank">Side screen</a>`}
+$('gBug').onclick=()=>act(()=>{S.ui.bug=S.ui.bug===false});
+$('gBoards').onclick=e=>{const b=e.target.closest('[data-g]');if(b)act(()=>{S.ui.board=b.dataset.g||null})};
+$('msgShow').onclick=()=>{const t=$('msgIn').value.trim();if(t)act(()=>{S.ui.msg={id:SP.uid(),text:t.slice(0,90)}})};
+$('msgClr').onclick=()=>act(()=>{S.ui.msg=null});
+$('quick').onclick=e=>{const b=e.target.closest('[data-q]');if(b){$('msgIn').value=b.dataset.q;act(()=>{S.ui.msg={id:SP.uid(),text:b.dataset.q}})}};
+// ---------- render ----------
+function summary(){const h=S.home,a=S.away;let sc='',sub='';
+ if(S.sport==='football'){sc=`${h.short} ${S.fb.h}–${S.fb.a} ${a.short}`;sub=SP.FB_LABEL[S.fb.period]}
+ if(S.sport==='netball'){sc=`${h.short} ${S.nb.h}–${S.nb.a} ${a.short}`;sub=S.nb.done?'Full-time':S.nb.q?'Q'+S.nb.q:'Before the start'}
+ if(S.sport==='cricket'){const I=S.ck.inns[S.ck.cur];sc=I?`${T(I.bat).short} ${I.runs}/${I.wk} (${SP.ov(I.balls)})`:`${h.short} v ${a.short}`;sub=(S.title||'Cricket')}
+ $('sum').innerHTML=`${E(sc)}<small>${E(sub)} · ${E(CODE)}</small>`}
+function render(){summary();$('app').innerHTML=S.sport==='football'?fbView():S.sport==='netball'?nbView():ckView();gfx();$('undo').disabled=!undo.length}
+$('app').onclick=e=>{const b=e.target.closest('[data-fb],[data-nb],[data-ck]');if(!b||b.disabled)return;
+ if(b.dataset.fb)fbDo(b.dataset.fb,b.dataset.s,b);else if(b.dataset.nb)nbDo(b.dataset.nb,b.dataset.s,b);else ckDo(b.dataset.ck,b.dataset.s,b)};
+setInterval(()=>{if(!S)return;const el=$('clk');if(!el)return;if(S.sport==='football'){const c=SP.fbClock(S.fb);el.textContent=c.text;const o=$('ovr');if(o)o.textContent=c.over}else if(S.sport==='netball')el.textContent=SP.nbClock(S.nb).text},250);
+// stop double-tap zoom and pinch on the pad
+document.addEventListener('gesturestart',e=>e.preventDefault());let lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lt<350&&!e.target.closest('input'))e.preventDefault();lt=n},{passive:false});
+async function boot(){if(!CODE||!KEY){$('sum').textContent='Open this pad from the scorer link';dot('bad','No key');return}
+ await SP.syncTime();
+ try{const r=await SP.api({a:'get',code:CODE,key:KEY});S=r.state;
+  try{const loc=JSON.parse(localStorage.getItem('ss_'+CODE)||'null');if(loc&&loc.sport===S.sport&&JSON.stringify(loc)!==JSON.stringify(S)&&confirm('This phone has unsent changes from earlier. Use them?')){S=loc;send()}}catch(e){}
+  S.ui=S.ui||{bug:true,board:null,popup:null,msg:null};dot('ok','Live');render()}
+ catch(e){try{const loc=JSON.parse(localStorage.getItem('ss_'+CODE)||'null');if(loc){S=loc;render();dot('bad','Offline, retrying');send();return}}catch(x){}$('sum').textContent=e.message;dot('bad','Error')}}
+boot();
+})();
+</script>
+</body>
+</html>

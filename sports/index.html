@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Event Pal · Sports graphics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0b0f;--card:#16161c;--line:#2a2a33;--ink:#f4f4f6;--mute:#a3a3ad;--acc:#f7d117}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;overflow-x:hidden}
+main{max-width:860px;margin:0 auto;padding:22px 16px 60px}
+h1{font:800 34px/1.05 'Barlow Condensed',Inter,sans-serif;letter-spacing:.5px;margin:0 0 4px;text-transform:uppercase}
+h2{font:700 22px 'Barlow Condensed',Inter,sans-serif;text-transform:uppercase;letter-spacing:.5px;margin:0 0 10px}
+p.lead{color:var(--mute);margin:0 0 20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:16px}
+.sports{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.sports button{background:#1e1e26;border:2px solid var(--line);color:var(--ink);border-radius:12px;padding:14px 8px;font:700 20px 'Barlow Condensed',sans-serif;text-transform:uppercase;cursor:pointer}
+.sports button span{display:block;font:400 12px Inter,sans-serif;color:var(--mute);text-transform:none;margin-top:2px}
+.sports button.on{border-color:var(--acc);background:#25231a}
+label{display:block;font-size:13px;color:var(--mute);margin:10px 0 4px}
+input[type=text],input[type=number],textarea,select{width:100%;background:#0f0f14;border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:10px 11px;font:15px Inter,sans-serif}
+textarea{min-height:120px;resize:vertical;font-size:14px}
+.teams{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row{display:flex;gap:10px;align-items:flex-end}
+.row>div{flex:1}
+input[type=color]{width:52px;height:44px;border:1px solid var(--line);border-radius:9px;background:#0f0f14;padding:3px}
+.go{width:100%;background:var(--acc);color:#111;border:0;border-radius:12px;padding:15px;font:800 22px 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
+.go:disabled{opacity:.6}
+.err{color:#ff8a8a;margin-top:10px;min-height:1em}
+.links a{color:var(--acc);word-break:break-all}
+.lk{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.lk b{display:block;font-size:14px}.lk small{color:var(--mute);display:block}
+.btn{background:#24242d;color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font:600 14px Inter,sans-serif;cursor:pointer;text-decoration:none;white-space:nowrap}
+.qr{display:flex;gap:16px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.qr div:first-child{background:#fff;padding:8px;border-radius:10px;width:170px;height:170px}
+.warn{color:#ffd27a;font-size:13px}
+.mine a{color:var(--ink)}
+.mine .m{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+@media(max-width:620px){.teams{grid-template-columns:1fr}.sports button{font-size:17px}}
+</style>
+</head>
+<body>
+<main>
+<h1>Event Pal <span style="color:var(--acc)">Sports</span></h1>
+<p class="lead">Set up a match, then score it from a phone. The score updates live on TVs, LED walls and the stream.</p>
+
+<form id="f" class="card" autocomplete="off">
+<h2>1. Sport</h2>
+<div class="sports" id="sp">
+<button type="button" data-s="football" class="on">Football<span>Soccer</span></button>
+<button type="button" data-s="netball">Netball<span>4 quarters</span></button>
+<button type="button" data-s="cricket">Cricket<span>Limited overs</span></button>
+</div>
+<label for="title">Competition or match title (optional)</label>
+<input type="text" id="title" maxlength="60" placeholder="e.g. Inter-Secondary Schools Final">
+<label for="venue">Venue (optional)</label>
+<input type="text" id="venue" maxlength="50" placeholder="e.g. Arnos Vale Playing Field">
+
+<h2 style="margin-top:20px">2. Teams</h2>
+<div class="teams">
+<div><div class="row"><div><label for="hn">Home team</label><input type="text" id="hn" maxlength="30" required placeholder="Home team name"></div><div style="flex:none"><label for="hc">Colour</label><input type="color" id="hc" value="#1f6feb"></div></div>
+<label for="hs">Short name (2–4 letters)</label><input type="text" id="hs" maxlength="4" placeholder="e.g. KGT">
+<label for="hp">Players (optional, one per line, number first)</label><textarea id="hp" placeholder="1 Jordan Browne&#10;7 Kemar Samuel&#10;10 Akeem Lewis"></textarea></div>
+<div><div class="row"><div><label for="an">Away team</label><input type="text" id="an" maxlength="30" required placeholder="Away team name"></div><div style="flex:none"><label for="ac">Colour</label><input type="color" id="ac" value="#f7d117"></div></div>
+<label for="as">Short name (2–4 letters)</label><input type="text" id="as" maxlength="4" placeholder="e.g. GEO">
+<label for="ap">Players (optional, one per line, number first)</label><textarea id="ap" placeholder="1 Devon Charles&#10;4 Ryan John&#10;9 Shane Peters"></textarea></div>
+</div>
+
+<h2 style="margin-top:20px">3. Match settings</h2>
+<div id="opt-football"><label for="half">Length of each half (minutes)</label><input type="number" id="half" min="5" max="60" value="45"></div>
+<div id="opt-netball" hidden><label for="qlen">Length of each quarter (minutes)</label><input type="number" id="qlen" min="5" max="20" value="15"></div>
+<div id="opt-cricket" hidden>
+<label>Format</label>
+<div class="sports" id="fmt" style="grid-template-columns:repeat(4,1fr)">
+<button type="button" data-f="t20" class="on">T20<span>20 overs</span></button>
+<button type="button" data-f="odi">ODI<span>50 overs</span></button>
+<button type="button" data-f="test">Test<span>2 innings each</span></button>
+<button type="button" data-f="custom">Custom<span>Set the overs</span></button>
+</div>
+<div class="row"><div id="oversW" hidden><label for="overs">Overs per innings</label><input type="number" id="overs" min="1" max="50" value="10"></div><div id="daysW" hidden><label for="days">Days scheduled</label><input type="number" id="days" min="1" max="5" value="5"></div><div><label for="ppl">Players per side</label><input type="number" id="ppl" min="2" max="11" value="11"></div></div>
+<p class="warn" id="fmtNote" style="color:var(--mute)">20 overs a side, free hit after a no-ball, powerplay in overs 1–6, 4 overs per bowler.</p>
+<label for="bat">Batting first</label><select id="bat"><option value="home">Home team</option><option value="away">Away team</option></select>
+</div>
+<p class="err" id="err"></p>
+<button class="go" id="go">Create match</button>
+</form>
+
+<div class="card links" id="done" hidden>
+<h2>Match ready: <span id="code"></span></h2>
+<p class="warn">Keep the scorer link private. Anyone who has it can change the score.</p>
+<div class="lk"><div><b>Scorer pad</b><small>Open on the scorer's phone</small><a id="lScore" target="_blank"></a></div><button class="btn" data-copy="lScore">Copy</button></div>
+<div class="qr"><div id="qrS"></div><div class="warn" style="max-width:360px">Scan with the scorer's phone to open the pad.</div></div>
+<div class="lk"><div><b>Screen (TV or LED wall)</b><small>Score in the corner, pop-ups, boards when you show them</small><a id="lShow" target="_blank"></a></div><button class="btn" data-copy="lShow">Copy</button></div>
+<div class="lk"><div><b>Stream overlay</b><small>Transparent background, to lay over the camera picture</small><a id="lOver" target="_blank"></a></div><button class="btn" data-copy="lOver">Copy</button></div>
+<div class="lk"><div><b>Side screen</b><small>Full scoreboard at all times</small><a id="lBoard" target="_blank"></a></div><button class="btn" data-copy="lBoard">Copy</button></div>
+<button class="btn" id="again" style="margin-top:14px">Set up another match</button>
+</div>
+
+<div class="card mine" id="mine" hidden><h2>Your matches on this device</h2><div id="mlist"></div></div>
+</main>
+<script src="qr.js"></script>
+<script src="core.js"></script>
+<script>
+(function(){
+let sport='football';const $=id=>document.getElementById(id);
+let fmt='t20';const FMTN={t20:'20 overs a side, free hit after a no-ball, powerplay in overs 1–6, 4 overs per bowler.',odi:'50 overs a side, free hit after a no-ball, three powerplays, 10 overs per bowler.',test:'Two innings each, no over limit, declarations and the follow-on, lead and trail shown, no free hits.',custom:'Set the overs for local and school games. Free hit after a no-ball; each bowler may bowl a fifth of the overs.'};
+document.querySelectorAll('#fmt button').forEach(b=>b.onclick=()=>{fmt=b.dataset.f;document.querySelectorAll('#fmt button').forEach(x=>x.classList.toggle('on',x===b));$('oversW').hidden=fmt!=='custom';$('daysW').hidden=fmt!=='test';$('fmtNote').textContent=FMTN[fmt]});
+document.querySelectorAll('#sp button').forEach(b=>b.onclick=()=>{sport=b.dataset.s;document.querySelectorAll('#sp button').forEach(x=>x.classList.toggle('on',x===b));['football','netball','cricket'].forEach(s=>$('opt-'+s).hidden=s!==sport)});
+const short=(s,n)=>(s||n.replace(/[^A-Za-z0-9 ]/g,'').split(/\s+/).map(w=>w[0]).join('').slice(0,3)||n.slice(0,3)).toUpperCase().slice(0,4);
+const num=(id,lo,hi,d)=>{const v=parseInt($(id).value,10);return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):d};
+function base(){return location.href.replace(/[^/]*([?#].*)?$/,'')}
+function links(code,key){return{score:base()+'score.html?m='+code+'#k='+key,show:base()+'show.html?m='+code,over:base()+'show.html?m='+code+'&bg=transparent',board:base()+'show.html?m='+code+'&view=board'}}
+function mine(){try{return JSON.parse(localStorage.getItem('sports_matches')||'[]')}catch(e){return[]}}
+function saveMine(m){try{const l=mine().filter(x=>x.code!==m.code);l.unshift(m);localStorage.setItem('sports_matches',JSON.stringify(l.slice(0,20)))}catch(e){}}
+function listMine(){const l=mine();$('mine').hidden=!l.length;$('mlist').innerHTML=l.map(m=>{const L=links(m.code,m.key);return `<div class="m"><span>${SP.esc(m.label)} <small style="color:#a3a3ad">· ${SP.esc(m.sport)} · ${SP.esc(m.code)}</small></span><span><a class="btn" href="${SP.esc(L.score)}" target="_blank">Score</a> <a class="btn" href="${SP.esc(L.show)}" target="_blank">Screen</a></span></div>`}).join('')}
+$('f').onsubmit=async e=>{e.preventDefault();$('err').textContent='';
+ const hn=$('hn').value.trim(),an=$('an').value.trim();if(!hn||!an){$('err').textContent='Enter both team names.';return}
+ const team=(n,s,c,p)=>({name:n.slice(0,30),short:short(s.trim(),n),color:c,players:SP.parseRoster(p)});
+ const st={v:1,sport,title:$('title').value.trim().slice(0,60),venue:$('venue').value.trim().slice(0,50),home:team(hn,$('hs').value,$('hc').value,$('hp').value),away:team(an,$('as').value,$('ac').value,$('ap').value),ui:{bug:true,board:null,popup:null,msg:null}};
+ if(sport==='football'){st.fb=SP.fbNew();st.fb.half=num('half',5,60,45)}
+ if(sport==='netball'){st.nb=SP.nbNew(num('qlen',5,20,15))}
+ if(sport==='cricket'){st.ck=SP.ckNew(fmt,num('overs',1,50,10),num('ppl',2,11,11),$('bat').value,num('days',1,5,5));if(!st.title)st.title=SP.CK_FMT[fmt]}
+ $('go').disabled=true;$('go').textContent='Creating…';
+ try{const r=await SP.api({a:'create',sport,state:st});const L=links(r.code,r.key);
+  $('code').textContent=r.code;[['lScore','score'],['lShow','show'],['lOver','over'],['lBoard','board']].forEach(([id,k])=>{$(id).href=L[k];$(id).textContent=L[k]});
+  const q=qrcode(0,'M');q.addData(L.score);q.make();$('qrS').innerHTML=q.createSvgTag({cellSize:4,margin:0,scalable:true});
+  saveMine({code:r.code,key:r.key,sport,label:st.home.short+' v '+st.away.short+(st.title?' · '+st.title:'')});
+  $('f').hidden=true;$('done').hidden=false;listMine();window.scrollTo(0,0);
+ }catch(err){$('err').textContent='Could not create the match: '+err.message}
+ $('go').disabled=false;$('go').textContent='Create match'};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;const t=$(b.dataset.copy).href;navigator.clipboard&&navigator.clipboard.writeText(t).then(()=>{b.textContent='Copied';setTimeout(()=>b.textContent='Copy',1500)})});
+$('again').onclick=()=>{$('done').hidden=true;$('f').hidden=false};
+listMine();
+})();
+</script>
+</body>
+</html>
