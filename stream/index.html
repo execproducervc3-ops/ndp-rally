@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Go live · Event Pal private stream</title>
+<style>
+:root{--bg:#0b0b10;--card:#15151f;--line:#2a2a3c;--ink:#ececf3;--mute:#a7a7ba;--acc:#f5b942;--ok:#4cc38a;--bad:#ff7a6b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px 14px 60px;display:flex;flex-direction:column;gap:14px}
+h1{margin:4px 0 0;font-size:24px}h2{margin:0;font-size:18px}.mute{color:var(--mute);font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}
+label{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--mute)}
+input,select{font:inherit;min-height:46px;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#0f0f16;color:var(--ink)}
+button{font:inherit;min-height:46px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:#1e1e2b;color:var(--ink);cursor:pointer}
+button.go{background:var(--acc);color:#1a1408;border:0;font-weight:700}button.red{background:#3a1c1a;border-color:#6b2e28;color:#ffd6d0}
+button:disabled{opacity:.5;cursor:default}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.vid{position:relative;background:#000;border-radius:14px;overflow:hidden;aspect-ratio:16/9}video{width:100%;height:100%;object-fit:cover;display:block}
+.badge{position:absolute;top:10px;left:10px;background:#c0392b;color:#fff;font-weight:700;font-size:13px;padding:3px 8px;border-radius:6px;display:none}
+.badge.on{display:block}.rec{left:auto;right:10px;background:#000a;border:1px solid #fff4}
+.meter{height:8px;border-radius:9px;background:#22222f;overflow:hidden}.meter i{display:block;height:100%;width:0;background:var(--ok)}
+.share{font-size:15px;word-break:break-all;background:#0f0f16;border:1px dashed var(--line);border-radius:10px;padding:10px}
+.code{font-size:28px;font-weight:800;letter-spacing:.15em;color:var(--acc)}
+ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#101018}
+.tag{font-size:12px;padding:2px 7px;border-radius:99px;background:#22222f;color:var(--mute)}.tag.in{background:#163a2c;color:#bff3da}
+.err{color:var(--bad);font-size:14px;min-height:1em}.hide{display:none!important}
+.passes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}.passes div{font-family:ui-monospace,monospace;padding:6px 8px;border-radius:8px;border:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<main>
+  <div><div class="mute">Event Pal · private stream</div><h1 id="hdr">Go live from your phone</h1></div>
+
+  <div class="vid"><video id="me" autoplay muted playsinline></video><span class="badge" id="live">LIVE</span><span class="badge rec" id="recb">● REC</span></div>
+  <div class="row"><button id="flip">Switch camera</button><button id="mic">Mute mic</button><span class="mute" id="camerr"></span></div>
+
+  <section class="card" id="setup">
+    <h2>Before you start</h2>
+    <label>What are you streaming?<input id="title" maxlength="80" placeholder="e.g. Thanksgiving service for Mum"></label>
+    <label>Who can watch?
+      <select id="access">
+        <option value="free">Free · I let each person in</option>
+        <option value="mixed">Mixed · free if I let them in, or a pass</option>
+        <option value="paid">Paid · pass needed</option>
+      </select></label>
+    <label id="pricel" class="hide">Pass price (EC$)<input id="price" type="number" min="1" step="1" inputmode="decimal" placeholder="20"></label>
+    <div><div class="row" style="justify-content:space-between"><b>Signal check</b><button id="check">Check again</button></div>
+      <div class="meter"><i id="bar"></i></div><div class="mute" id="sig">Checking your connection…</div></div>
+    <div class="err" id="err"></div>
+    <button class="go" id="golive">Go live</button>
+    <div class="mute">Nothing is recorded unless you turn on recording. Viewers can't download the stream.</div>
+  </section>
+
+  <section class="card hide" id="sharebox">
+    <h2>Share with your viewers</h2>
+    <div class="share" id="link"></div>
+    <div class="row"><span class="mute">Code</span><span class="code" id="code"></span></div>
+    <div class="row"><button id="copy">Copy link</button><button id="wa">Send on WhatsApp</button></div>
+    <div class="mute" id="mode"></div>
+  </section>
+
+  <section class="card hide" id="peoplebox">
+    <div class="row" style="justify-content:space-between"><h2>Viewers <span id="count" class="tag">0 watching</span></h2></div>
+    <ul id="people"><li class="mute">Nobody yet. Share the link.</li></ul>
+  </section>
+
+  <section class="card hide" id="passbox">
+    <h2>Passes</h2>
+    <div class="mute">Make passes, give one to each paying viewer, and tap it once it's paid for so it works. Online payment is coming.</div>
+    <div class="row"><input id="pn" type="number" min="1" max="50" value="10" style="width:90px"><button id="makep">Make passes</button></div>
+    <div class="passes" id="plist"></div>
+  </section>
+
+  <section class="card hide" id="endbox">
+    <div class="row"><button id="rec">Record to this phone</button><button class="red" id="end">End stream</button></div>
+    <div class="mute" id="recnote">Recording saves on this phone only, when you stop it or end the stream.</div>
+  </section>
+</main>
+<script type="module">
+import { sb, $, esc, signIn, rpc, fn, iceServers, gathered, channel, uploadSpeed, testStream, TEST, DIRECT_MAX } from "./stream.js";
+
+let me, local, facing = "environment", streamId, joinCode, ch, relay = null, relayAvail = false, mbps = 0;
+const peers = new Map();            // viewer uid -> RTCPeerConnection (direct)
+let inList = [];
+
+async function camera() {
+  if (TEST) { local = testStream("Event Pal test"); $("#me").srcObject = local; return; }
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 30, max: 30 } }, audio: { echoCancellation: true, noiseSuppression: true } });
+    if (local) { // swap tracks on every live connection
+      for (const t of s.getTracks()) { for (const pc of [...peers.values(), relay?.pc].filter(Boolean)) { const snd = pc.getSenders().find((x) => x.track?.kind === t.kind); if (snd) await snd.replaceTrack(t); } }
+      local.getTracks().forEach((t) => t.stop());
+    }
+    local = s; $("#me").srcObject = s; $("#camerr").textContent = "";
+  } catch (e) { $("#camerr").textContent = "Allow the camera and microphone to go live."; throw e; }
+}
+
+async function check() {
+  $("#sig").textContent = "Checking your connection…"; $("#bar").style.width = "10%";
+  try {
+    mbps = await uploadSpeed(); const direct = Math.max(0, Math.min(DIRECT_MAX, Math.floor(mbps * 0.7 / 1.5)));
+    $("#bar").style.width = Math.min(100, mbps * 10) + "%"; $("#bar").style.background = direct >= 2 ? "var(--ok)" : direct === 1 ? "var(--acc)" : "var(--bad)";
+    $("#sig").textContent = `Upload about ${mbps.toFixed(1)} Mbps. ` + (direct ? `Good for ${direct} viewer${direct > 1 ? "s" : ""} straight from your phone` : "Weak for sending straight from your phone") +
+      (relayAvail ? ", more through the relay." : relayAvail === false ? ". (Relay not set up yet, so keep to a few viewers.)" : ".") + (direct < 2 ? " Tip: move closer to the router or to better signal." : "");
+  } catch { $("#sig").textContent = "Couldn't test your connection. You can still go live."; }
+}
+const directMax = () => Math.max(1, Math.min(DIRECT_MAX, Math.floor(mbps * 0.7 / 1.5) || 1));
+
+// ---------- direct connections ----------
+async function offerTo(uid) {
+  peers.get(uid)?.close();
+  const pc = new RTCPeerConnection({ iceServers: await iceServers() }); peers.set(uid, pc);
+  local.getTracks().forEach((t) => pc.addTrack(t, local));
+  pc.onicecandidate = (e) => e.candidate && ch.send({ t: "ice", to: uid, c: e.candidate });
+  pc.onconnectionstatechange = () => { if (pc.connectionState === "failed") { pc.close(); peers.delete(uid); } };
+  const o = await pc.createOffer(); await pc.setLocalDescription(o);
+  for (const s of pc.getSenders()) if (s.track?.kind === "video") { const p = s.getParameters(); p.encodings = p.encodings?.length ? p.encodings : [{}]; p.encodings[0].maxBitrate = 1_200_000; s.setParameters(p).catch(() => {}); }
+  ch.send({ t: "offer", to: uid, sdp: pc.localDescription });
+}
+
+// ---------- relay ----------
+async function startRelay() {
+  if (relay || !relayAvail) return;
+  const pc = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.cloudflare.com:3478" }], bundlePolicy: "max-bundle" });
+  const tx = local.getTracks().map((t) => pc.addTransceiver(t, { direction: "sendonly" }));
+  await pc.setLocalDescription(await pc.createOffer()); await gathered(pc);
+  const tracks = tx.map((t) => ({ mid: t.mid, trackName: t.sender.track.kind }));
+  const r = await fn("publish", { stream: streamId, offer: { type: "offer", sdp: pc.localDescription.sdp }, tracks });
+  await pc.setRemoteDescription(r.answer);
+  relay = { pc, session: r.sessionId, tracks: tracks.map((t) => t.trackName) };
+  ch.send({ t: "relay", to: "*", publisher: relay.session, tracks: relay.tracks });
+  setTimeout(() => { for (const [, pc] of peers) pc.close(); peers.clear(); }, 15000); // viewers move to the relay meanwhile
+  mode();
+}
+const mode = () => $("#mode").textContent = relay ? "Sending through the relay (good for up to 10 viewers)." : `Sending straight from your phone (up to ${directMax()} viewers, then the relay takes over).`;
+
+async function onMsg(m) {
+  if (m.t === "hello") {
+    if (!inList.some((v) => v.uid === m.from)) return;                      // only people let in
+    if (relay) ch.send({ t: "relay", to: m.from, publisher: relay.session, tracks: relay.tracks });
+    else if (inList.length > directMax() && relayAvail) { await startRelay().catch((e) => { $("#err").textContent = e.message; offerTo(m.from); }); }
+    else offerTo(m.from);
+  } else if (m.t === "answer") { await peers.get(m.from)?.setRemoteDescription(m.sdp).catch(() => {}); }
+  else if (m.t === "ice") { await peers.get(m.from)?.addIceCandidate(m.c).catch(() => {}); }
+}
+
+// ---------- viewers ----------
+async function refresh() {
+  if (!streamId) return;
+  let list; try { list = await rpc("stream_viewers_list", { p_id: streamId }); } catch { return; }
+  inList = list.filter((v) => v.status === "in");
+  for (const uid of [...peers.keys()]) if (!inList.some((v) => v.uid === uid)) { peers.get(uid).close(); peers.delete(uid); ch?.send({ t: "bye", to: uid }); }
+  $("#count").textContent = `${inList.length} watching`; $("#count").className = "tag" + (inList.length ? " in" : "");
+  $("#people").innerHTML = list.length ? list.map((v) => `<li><span><b>${esc(v.name)}</b> <span class="tag ${v.status === "in" ? "in" : ""}">${v.status === "in" ? "watching" : "waiting"}</span>
+     ${v.pass ? `<span class="tag">pass ${esc(v.pass)}</span>` : ""}${v.note ? `<div class="mute">${esc(v.note)}</div>` : ""}</span>
+     <span class="row">${v.status === "waiting" ? `<button class="go" data-in="${v.id}">Let in</button>` : ""}<button data-out="${v.id}">Remove</button></span></li>`).join("")
+    : `<li class="mute">Nobody yet. Share the link.</li>`;
+  if (inList.length > directMax() && !relay && relayAvail) startRelay().catch(() => {});
+}
+$("#people").onclick = async (e) => {
+  const b = e.target.closest("button"); if (!b) return; b.disabled = true;
+  try { if (b.dataset.in) await rpc("stream_admit", { p_viewer: b.dataset.in }); else await rpc("stream_remove", { p_viewer: b.dataset.out }); } catch (x) { alert(x.message); }
+  refresh();
+};
+
+// ---------- passes ----------
+async function passes(list) {
+  list = list || await rpc("stream_passes_list", { p_id: streamId });
+  $("#plist").innerHTML = list.map((p) => `<div><span>${esc(p.code)}</span>${p.status === "active" ? `<span class="tag in">${p.used ? "in use" : "sold"}</span>` : `<button data-sell="${esc(p.code)}" style="min-height:34px;padding:0 8px">Paid</button>`}</div>`).join("");
+}
+$("#makep").onclick = async () => { try { passes(await rpc("stream_passes_make", { p_id: streamId, p_n: Number($("#pn").value) })); } catch (e) { alert(e.message); } };
+$("#plist").onclick = async (e) => { const c = e.target.dataset.sell; if (!c) return; try { await rpc("stream_pass_sell", { p_id: streamId, p_code: c }); passes(); } catch (x) { alert(x.message); } };
+
+// ---------- recording (this phone only) ----------
+let rec, chunks = [];
+$("#rec").onclick = () => {
+  if (rec) { rec.stop(); return; }
+  const type = ["video/mp4", "video/webm;codecs=vp9,opus", "video/webm"].find((t) => window.MediaRecorder?.isTypeSupported?.(t));
+  if (!type) { alert("This phone can't record in the browser."); return; }
+  chunks = []; rec = new MediaRecorder(local, { mimeType: type, videoBitsPerSecond: 2_500_000 });
+  rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+  rec.onstop = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(chunks, { type })); a.download = `stream-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.${type.includes("mp4") ? "mp4" : "webm"}`; a.click();
+    rec = null; $("#rec").textContent = "Record to this phone"; $("#recb").classList.remove("on"); };
+  rec.start(2000); $("#rec").textContent = "Stop recording"; $("#recb").classList.add("on");
+};
+
+// ---------- go live / end ----------
+$("#access").onchange = () => $("#pricel").classList.toggle("hide", $("#access").value === "free");
+$("#check").onclick = check;
+$("#flip").onclick = async () => { facing = facing === "environment" ? "user" : "environment"; if (!TEST) await camera().catch(() => {}); };
+$("#mic").onclick = () => { const a = local?.getAudioTracks()[0]; if (!a) return; a.enabled = !a.enabled; $("#mic").textContent = a.enabled ? "Mute mic" : "Unmute mic"; };
+$("#golive").onclick = async () => {
+  $("#err").textContent = "";
+  if (!local) { $("#err").textContent = "Allow the camera and microphone first."; await camera().catch(() => {}); if (!local) return; }
+  $("#golive").disabled = true;
+  try {
+    const access = $("#access").value;
+    const r = await rpc("stream_create", { p_title: $("#title").value, p_access: access, p_price: access === "free" ? null : Number($("#price").value) || null });
+    streamId = r.id; joinCode = r.code;
+    ch = channel(streamId, me, onMsg); await ch.ready;
+    const link = new URL("watch.html", location.href); link.hash = `s=${streamId}&c=${joinCode}`; if (TEST) link.search = "?test";
+    $("#link").textContent = link.href; $("#code").textContent = joinCode;
+    $("#copy").onclick = () => navigator.clipboard.writeText(`${$("#title").value || "Private stream"} — watch here: ${link.href} (code ${joinCode})`).then(() => $("#copy").textContent = "Copied");
+    $("#wa").onclick = () => open(`https://wa.me/?text=${encodeURIComponent(`${$("#title").value || "Private stream"} — watch here: ${link.href} (code ${joinCode})`)}`);
+    $("#hdr").textContent = $("#title").value || "Private stream"; $("#live").classList.add("on");
+    $("#setup").classList.add("hide"); ["#sharebox", "#peoplebox", "#endbox"].forEach((s) => $(s).classList.remove("hide"));
+    if (access !== "free") { $("#passbox").classList.remove("hide"); passes(); }
+    mode(); refresh(); setInterval(refresh, 3000);
+    addEventListener("beforeunload", (e) => { e.preventDefault(); e.returnValue = ""; });
+  } catch (e) { $("#err").textContent = e.message; $("#golive").disabled = false; }
+};
+$("#end").onclick = async () => {
+  if (!confirm("End the stream for everyone?")) return;
+  rec?.stop(); ch?.send({ t: "end", to: "*" });
+  try { await rpc("stream_end", { p_id: streamId }); } catch { /* still end locally */ }
+  for (const [, pc] of peers) pc.close(); relay?.pc.close(); local?.getTracks().forEach((t) => t.stop()); ch?.close();
+  $("#live").classList.remove("on"); $("#hdr").textContent = "Stream ended"; ["#sharebox", "#peoplebox", "#endbox", "#passbox"].forEach((s) => $(s).classList.add("hide"));
+};
+
+(async () => {
+  try { me = await signIn(); } catch (e) { $("#err").textContent = e.message; return; }
+  try { relayAvail = (await fn("config")).relay; } catch { relayAvail = false; }
+  await camera().catch(() => {}); check();
+})();
+</script>
+</body>
+</html>
