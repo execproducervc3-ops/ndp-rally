@@ -13,6 +13,11 @@
    "text": "Your Telegram's linked to your account, so AVA knows who you are. She only shows you your own fetes, and she checks with you before anything goes public."
   },
   {
+   "id": "secure",
+   "title": "Locked down",
+   "text": "Your fete is locked down. No one sees your ticket sales or event information. Every login has its own role, every change is logged, and our codes are signed, so they can't be forged."
+  },
+  {
    "id": "drop",
    "title": "The drop",
    "text": "Approve it, and the fete goes live. The flyer, the tiers and the countdown are listed on AVA, and shared to your socials in one tap."
@@ -75,12 +80,12 @@
   {
    "id": "nudges",
    "title": "Drink nudges",
-   "text": "Send an offer straight to phones. Two for one at the Beach Bar, for fifteen minutes. A quiet bar fills up, and a long line clears. Fans opt in, nudges are capped, and late in the night they turn to water, food, and a safe ride home."
+   "text": "Send an offer straight to phones. Two for one at the Cocktail Bar, for fifteen minutes. A quiet bar fills up, and a long line clears. Fans opt in, nudges are capped, and late in the night they turn to food, and a safe ride home."
   },
   {
    "id": "screens",
    "title": "The big screens",
-   "text": "The big screens run from the Event Pal Box, in up to 4K. The DJ, the lineup, shout-outs, and graphics made for your fete. Every graphic is made from your own flyers and promo media, so it all matches your theme."
+   "text": "The big screens run from the Event Pal Box, in up to 4K. The DJ, the lineup, shout-outs, and graphics made for your fete. Every graphic is made from your own flyers and promo media, so it all matches your theme. Announcements go up on the big screen too, from set times to last call."
   },
   {
    "id": "sponsors",
@@ -101,11 +106,6 @@
    "id": "votes",
    "title": "Votes, shout-outs and photos",
    "text": "The crowd votes for the next tune. Birthdays and crews buy a shout-out on the big screen. And the best photos go up in the sponsor's frame."
-  },
-  {
-   "id": "mic",
-   "title": "AVA on the mic",
-   "text": "AVA's voice runs through the PA. Set times, last call, and announcements, ready in a second. Anything new waits for your OK before it plays."
   },
   {
    "id": "stream",
