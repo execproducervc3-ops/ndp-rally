@@ -55,8 +55,10 @@ const V = { fete: "Event Pal for fetes", sports: "Event Pal for sport" };
 window.EP_AUDIO = new Audio(); EP_AUDIO.preload = "auto";
 const unlock = (which) => {
   const A = EP_AUDIO; A.onended = A.onerror = null; try { A.pause(); } catch (_) {}
-  const u = new URL(which + "/audio/stepintro.mp3", location.href).href; A.src = u; A.muted = true;
-  const p = A.play(); if (p && p.then) p.then(() => { if (A.src === u && A.muted) { A.pause(); } A.muted = false; }).catch(() => { A.muted = false; });
+  // Safari only counts an unmuted play started inside the click, so start the intro voice right here;
+  // the video picks it up from where it is when it loads.
+  const u = new URL(which + "/audio/stepintro.mp3", location.href).href; A.muted = false; A.src = u;
+  try { const p = A.play(); if (p && p.catch) p.catch(() => {}); } catch (_) {}
 };
 const pick = (which, play) => {
   if (play) unlock(which);
