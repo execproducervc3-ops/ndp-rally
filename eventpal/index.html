@@ -7,19 +7,21 @@
 <meta name="description" content="Event Pal explained: one system for fetes, and one system for national sport, all watched over by AVA.">
 <meta property="og:title" content="Event Pal · powered by AVA">
 <meta property="og:description" content="Event Pal explained: one system for fetes, and one system for national sport, all watched over by AVA.">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-  :root{--y:#FFE000;--c:#3FD0FF;--bg:#0b0b10;--mut:#a3a3ad}
+  :root{--y:#F5B82E;--c:#F5B82E;--bg:#26282D;--mut:#A3A7AE}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:#f4f4f6;font-family:Inter,system-ui,sans-serif}
   .wrap{max-width:1240px;margin:0 auto;padding:20px 16px 30px}
-  h1{font:400 clamp(26px,4vw,42px) Anton,Impact,sans-serif;letter-spacing:1px;margin:0;color:var(--y)}h1 span{color:var(--c)}
+  h1{font:800 clamp(26px,4vw,42px) "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.5px;margin:0;color:#F4F7FA;display:flex;align-items:center;gap:12px;flex-wrap:wrap}h1::before{content:"";width:7px;height:.85em;border-radius:3px;background:var(--y)}h1 span{color:var(--y)}
   .lead{color:var(--mut);margin:6px 0 14px}
   .tabs{display:flex;gap:8px;margin:0 0 12px}
-  .tabs button{font:800 15px Inter,sans-serif;letter-spacing:.5px;padding:10px 22px;min-height:44px;border-radius:999px;border:1px solid #33333f;background:#15151c;color:#d8d8e2;cursor:pointer}
-  .tabs button[aria-selected="true"]{background:var(--y);color:#111;border-color:var(--y)}
-  iframe{display:block;width:100%;aspect-ratio:16/12;min-height:600px;border:0;border-radius:14px;background:#0b0b10}
+  .tabs button{font:800 15px Inter,sans-serif;letter-spacing:.5px;padding:10px 22px;min-height:44px;border-radius:999px;border:1px solid #3A3D44;background:#1C1D21;color:#F4F7FA;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+  .tabs button[aria-selected="true"]{background:var(--y);color:#1A1B1F;border-color:var(--y);box-shadow:0 3px 0 #8F6510,inset 0 1px 0 rgba(255,255,255,.45)}
+  iframe{display:block;width:100%;aspect-ratio:16/12;min-height:600px;border:0;border-radius:14px;background:#26282D}
   html.embed .wrap{padding:6px}html.embed h1,html.embed .lead{display:none}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url%28%2523g%29'/%3E%3C/svg%3E")}
+  .wrap,main,body>*{position:relative}
 </style>
 <script>if(/embed/.test(location.search))document.documentElement.classList.add('embed')</script>
 </head>
