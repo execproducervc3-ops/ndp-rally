@@ -291,6 +291,7 @@ h1 span{color:var(--y)}
 @media (max-width:700px){.epp .nm{font-size:10px}.epp .now{flex-basis:100%;order:9}}
 @media (max-width:600px){.ctl.epp{padding:10px 10px 12px;gap:8px;border-radius:12px}.epp .nm{display:none}.epp .pbar{gap:3px}.epp .prow{gap:8px;flex-wrap:wrap}.epp #ptime{font-size:12px;white-space:nowrap}.epp #nb,.epp #fs{height:34px;padding:0 9px;font-size:12px;white-space:nowrap}.epp .now{font-size:13px}.ctl.epp #pp,.ctl.epp #nb{flex:none}.epp #nb{margin-left:auto}.epp .prow{gap:6px}.epp #pp{width:46px;height:46px;flex:none}.epp .ib{width:34px;height:34px}html.embed .introhtml{display:none!important}.mcap{display:none!important}}
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html.full,html.full body{background:#0b0b0e}html.full .wrap{max-width:none;padding:0;margin:0}html.full h1,html.full .lead,html.full .sec,html.full .credit,html.full .introhtml,html.full .mcap,html.full .cap{display:none!important}html.full .vp{width:min(100vw,calc((100vh - 84px)*16/9));margin:0 auto;border-radius:0;border:0}html.full .ctl.epp{box-sizing:border-box;width:min(100vw,calc((100vh - 84px)*16/9));max-width:100vw;margin:6px auto 0;border-radius:0}html.full .epp .pbar,html.full .epp .prow{width:100%;min-width:0;box-sizing:border-box}@media (max-height:520px){html.full .epp .nm{display:none}html.full .ctl.epp{padding:6px 12px 8px;gap:5px;margin-top:2px}html.full .epp .prow{flex-wrap:nowrap}html.full .epp .now{flex-basis:auto;order:0;flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}html.full .epp #pp{width:40px;height:40px}}
 @media (max-width:400px){.epp #pprev{display:none}}
 @media (max-width:700px){html,body{overflow-x:hidden;max-width:100%}.wrap{overflow-x:hidden}.mcap{min-height:0!important;padding:10px 12px!important}.mcap .t{font-size:19px!important}.mcap .d{font-size:13px!important}}
 :fullscreen .wrap{max-width:none;padding:10px}
@@ -607,7 +608,17 @@ function draw(){const el=live&&playing?Math.min(performance.now()-t0,(inIntro?IN
 $('pp').onclick=()=>{if(playing){tok++;playing=false;narrStop();ppState(false);draw()}else run(cur,true)};
 $('pprev').onclick=()=>run(Math.max(0,cur-1),playing);
 $('pnext').onclick=()=>run(Math.min(S.length-1,cur+1),playing);
-$('fs').onclick=()=>{const el=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(el.requestFullscreen)el.requestFullscreen().catch(()=>{})};
+// Full screen: the real thing where the browser allows it (computers, iPad, Android). iPhone Safari doesn't allow it for
+// pages, and an embed box without permission blocks it, so then the video opens in its own tab sized to fill the screen.
+const FULLPAGE=/[?&]full\b/.test(location.search);if(FULLPAGE)document.documentElement.classList.add('full');
+const openFull=()=>{const u=new URL(location.href);u.search='?full=1&s='+(inIntro?0:cur);if(FULLPAGE){document.documentElement.classList.toggle('full');return}
+ if(playing){tok++;playing=false;narrStop();ppState(false);draw()}window.open(u.href,'_blank')};
+$('fs').onclick=()=>{const d=document,el=d.documentElement,on=d.fullscreenElement||d.webkitFullscreenElement;
+ if(on){(d.exitFullscreen||d.webkitExitFullscreen).call(d);return}
+ const req=el.requestFullscreen||el.webkitRequestFullscreen;
+ const isOn=()=>d.fullscreenElement||d.webkitFullscreenElement;
+ if(req&&(d.fullscreenEnabled||d.webkitFullscreenEnabled)){let done=false;const fb=()=>{if(!done&&!isOn()){done=true;openFull()}};try{const r=req.call(el);if(r&&r.then)r.then(()=>{done=true},fb);else setTimeout(fb,500)}catch(_){fb()}}else openFull()};
+if(FULLPAGE){const k=+(new URLSearchParams(location.search).get('s')||0);if(k>0)setTimeout(()=>run(k,false),300)}
 $('nb').addEventListener('click',()=>{$('nb').textContent=narrOn?'Voice on':'Voice off'});
 // a browser that won't play sound without a tap on this page: stop, and ask for one tap
 window.soundBlocked=()=>{if(document.querySelector('.sndblk'))return;tok++;playing=false;narrStop();ppState(false);draw();
