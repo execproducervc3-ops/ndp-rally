@@ -2,22 +2,100 @@
  "title": "Event Pal for national sport · powered by AVA",
  "intro": "Alright, this is Event Pal for national sport. One system that runs a whole tournament, from the first fixture to the last ball, at every venue, on every island. And it's all powered by AVA.",
  "steps": [
-  {"id":"plan","title":"The tournament plan","text":"It starts with the plan. Teams, venues and dates go in once, and AVA builds the fixture list. Change a date, and every screen, ticket and report updates with it."},
-  {"id":"venues","title":"Venue to venue","text":"The tournament moves from ground to ground, and Event Pal moves with it. The gates, the screens and the bars are set up the same way, at every venue."},
-  {"id":"tickets","title":"Tickets and season passes","text":"Fans buy a day ticket or a pass for the whole tournament, online or at an outlet. Every ticket only works once it's sold, so a lost or stolen ticket opens nothing."},
-  {"id":"schools","title":"Schools and youth days","text":"Schools and youth groups get free passes. Each one is counted at the gate, so you know exactly how many young people came out."},
-  {"id":"gates","title":"Gates and crowd safety","text":"At the gate, every ticket is scanned. You see the crowd at each venue in real time, and AVA warns you well before a stand gets too full. The police and stewards see the same numbers."},
-  {"id":"screens","title":"The big screens","text":"On the big screens, there's a proper scoreboard for every sport. Cricket, football and netball, with the score, the clock and the run rate, plus replays and announcements."},
-  {"id":"sponsors","title":"Sponsors","text":"Sponsors get their slots in rotation, and a report afterwards showing exactly when and how often they were on screen. That makes the next sponsorship much easier to win."},
-  {"id":"food","title":"Food and drink at the grounds","text":"Food stalls and bars sell from the same system. Every sale is recorded, by stall and by match."},
-  {"id":"stream","title":"Streaming to the diaspora","text":"Matches can be streamed to fans overseas and on the other islands. It can be free, or a paid pass, and only people with access can watch."},
-  {"id":"fans","title":"Fans in the stands","text":"Fans join in from their phones. Crowd games, the photo wall, and the vote for player of the match, right there on the big screen."},
-  {"id":"stats","title":"Results and statistics","text":"Every result goes straight into the points table and the player statistics. Season after season, it builds a proper record of national sport."},
-  {"id":"ava","title":"AVA","text":"AVA answers the public. When's the next match? What's the score? Where do I park? And behind the scenes, she watches every venue, and alerts the team the moment something goes wrong."},
-  {"id":"monitor","title":"Pal Monitor","text":"With Pal Monitor, the ministry sees every venue at a glance. Crowds, gates, screens and sales, all as simple counts, with no personal data."},
-  {"id":"accounts","title":"Accountability","text":"After every match, the gate count, the ticket sales and the bar takings line up, by venue and by day. Clear reports, ready for the ministry and the auditors."},
-  {"id":"signal","title":"Built for bad signal","text":"And if the signal drops at a rural ground, nothing stops. The gates, the tills and the screens keep working, and everything syncs when the signal is back."},
-  {"id":"report","title":"The morning-after report","text":"The next morning, the report is waiting. Attendance, income, sponsor plays, incidents and highlights, for every match."},
-  {"id":"close","title":"One system for national sport","text":"Event Pal. One system for national sport, from the first fixture to the trophy. Powered by AVA."}
+  {
+   "id": "plan",
+   "title": "The tournament plan",
+   "text": "It starts with the plan. Teams, venues and dates go in once, and AVA builds the fixture list. Change a date, and every screen, ticket and report updates with it."
+  },
+  {
+   "id": "venues",
+   "title": "Venue to venue",
+   "text": "The tournament moves from ground to ground, and Event Pal moves with it. The gates, the screens and the bars are set up the same way, at every venue."
+  },
+  {
+   "id": "tickets",
+   "title": "Tickets and season passes",
+   "text": "Fans buy a day ticket or a pass for the whole tournament, online or at an outlet. Every ticket only works once it's sold, so a lost or stolen ticket opens nothing."
+  },
+  {
+   "id": "schools",
+   "title": "Schools and youth days",
+   "text": "Schools and youth groups get free passes. Each one is counted at the gate, so you know exactly how many young people came out."
+  },
+  {
+   "id": "gates",
+   "title": "Gates and crowd safety",
+   "text": "At the gate, every ticket is scanned. You see the crowd at each venue in real time, and AVA warns you well before a stand gets too full. The police and stewards see the same numbers."
+  },
+  {
+   "id": "screens",
+   "title": "The big screens",
+   "text": "On the big screens, there's a proper scoreboard for every sport. Cricket, football and netball, with the score, the clock and the run rate, plus replays and announcements."
+  },
+  {
+   "id": "scoreboard",
+   "title": "The scoreboard",
+   "text": "The scoreboard runs straight from the scorer's pad. Every ball, every goal, every point, updates the big screen instantly. And it's broadcast in 4K, so it's sharp from every seat in the ground."
+  },
+  {
+   "id": "branding",
+   "title": "Team branding, one standard",
+   "text": "Every team brings its own colours and crest, and they carry through the scoreboard, the line-ups and the stats. But the look stays the same, at every venue, and in every sport. So the whole tournament holds one national standard."
+  },
+  {
+   "id": "sponsors",
+   "title": "Sponsors",
+   "text": "Sponsors get their slots in rotation, and a report afterwards showing exactly when and how often they were on screen. That makes the next sponsorship much easier to win."
+  },
+  {
+   "id": "food",
+   "title": "Food and drink at the grounds",
+   "text": "Food stalls and bars sell from the same system. Every sale is recorded, by stall and by match."
+  },
+  {
+   "id": "stream",
+   "title": "Streaming to the diaspora",
+   "text": "Matches can be streamed to fans overseas and on the other islands. It can be free, or a paid pass, and only people with access can watch."
+  },
+  {
+   "id": "fans",
+   "title": "Fans in the stands",
+   "text": "Fans join in from their phones. Crowd games, the photo wall, and the vote for player of the match, right there on the big screen."
+  },
+  {
+   "id": "stats",
+   "title": "Results and statistics",
+   "text": "Every result goes straight into the points table and the player statistics. Season after season, it builds a proper record of national sport."
+  },
+  {
+   "id": "ava",
+   "title": "AVA",
+   "text": "AVA answers the public. When's the next match? What's the score? Where do I park? And behind the scenes, she watches every venue, and alerts the team the moment something goes wrong."
+  },
+  {
+   "id": "monitor",
+   "title": "Pal Monitor",
+   "text": "With Pal Monitor, the ministry sees every venue at a glance. Crowds, gates, screens and sales, all as simple counts, with no personal data."
+  },
+  {
+   "id": "accounts",
+   "title": "Accountability",
+   "text": "After every match, the gate count, the ticket sales and the bar takings line up, by venue and by day. Clear reports, ready for the ministry and the auditors."
+  },
+  {
+   "id": "signal",
+   "title": "Built for bad signal",
+   "text": "And if the signal drops at a rural ground, nothing stops. The gates, the tills and the screens keep working, and everything syncs when the signal is back."
+  },
+  {
+   "id": "report",
+   "title": "The morning-after report",
+   "text": "The next morning, the report is waiting. Attendance, income, sponsor plays, incidents and highlights, for every match."
+  },
+  {
+   "id": "close",
+   "title": "One system for national sport",
+   "text": "Event Pal. One system for national sport, from the first fixture to the trophy. Powered by AVA."
+  }
  ]
 }
