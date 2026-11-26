@@ -522,9 +522,9 @@ close: async (t,at)=>{$('bs').innerHTML=`<div class="sc" style="background:linea
 
 const STEPS=S.map(s=>SF[s.id]);
 // ---------- narration ----------
-const NA=new Audio();NA.preload='auto';let narrEnd=null;
+const NA=(()=>{try{if(parent!==window&&parent.EP_AUDIO)return parent.EP_AUDIO}catch(_){}return new Audio()})();NA.preload='auto';let narrEnd=null;
 function narrStop(){try{NA.pause()}catch(_){}if(narrEnd){narrEnd();narrEnd=null}}
-function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promise(res=>{narrEnd=res;NA.src='audio/step'+n+'.mp3';NA.onended=()=>{narrEnd=null;res()};NA.onerror=()=>{narrEnd=null;res()};const p=NA.play();if(p&&p.catch)p.catch(()=>{narrEnd=null;res();if(window.soundBlocked)soundBlocked()})})}
+function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promise(res=>{narrEnd=res;NA.src=new URL('audio/step'+n+'.mp3',location.href).href;NA.muted=false;NA.onended=()=>{narrEnd=null;res()};NA.onerror=()=>{narrEnd=null;res()};const p=NA.play();if(p&&p.catch)p.catch(()=>{narrEnd=null;res();if(window.soundBlocked)soundBlocked()})})}
 $('nb').onclick=()=>{narrOn=!narrOn;$('nb').textContent=narrOn?'Voice on':'Voice off';$('nb').setAttribute('aria-pressed',narrOn);if(!narrOn)narrStop()};
 // ---------- animated intro ----------
 function introShow(){const o=$('intro');o.className='on'}

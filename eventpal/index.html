@@ -51,7 +51,15 @@
 // One viewer, two videos. Picking one in the list plays it straight away (the click lets the browser play sound).
 // ?v=sports opens on the sports video; ?embed hides this page's heading. generic/ also shows the fete video; the old one is at generic-old/.
 const V = { fete: "Event Pal for fetes", sports: "Event Pal for sport" };
+// One audio player, owned by this page: the click on a video card unlocks it, and the video in the frame plays its voice through it.
+window.EP_AUDIO = new Audio(); EP_AUDIO.preload = "auto";
+const unlock = (which) => {
+  const A = EP_AUDIO; A.onended = A.onerror = null; try { A.pause(); } catch (_) {}
+  const u = new URL(which + "/audio/stepintro.mp3", location.href).href; A.src = u; A.muted = true;
+  const p = A.play(); if (p && p.then) p.then(() => { if (A.src === u && A.muted) { A.pause(); } A.muted = false; }).catch(() => { A.muted = false; });
+};
 const pick = (which, play) => {
+  if (play) unlock(which);
   document.querySelectorAll(".vid").forEach(b => { const on = b.dataset.v === which; b.setAttribute("aria-current", String(on)); b.querySelector("em").textContent = on && play ? "NOW PLAYING" : ""; });
   const f = document.getElementById("v"); f.title = V[which]; f.src = which + "/?embed" + (play ? "&autoplay=1" : "");
 };
