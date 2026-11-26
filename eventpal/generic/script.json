@@ -145,7 +145,12 @@
   {
    "id": "nextyear",
    "title": "Next year",
-   "text": "And AVA keeps your crowd. Everyone who asked about this fete gets the alert when the next one drops. One fete. One system. Event Pal."
+   "text": "And AVA keeps your crowd. Everyone who asked about this fete gets the alert when the next one drops."
+  },
+  {
+   "id": "yourway",
+   "title": "Your fete, your way",
+   "text": "This was just one way a fete could be configured and managed. It doesn't set how your event should flow, and it's not everything Event Pal can do. Use the parts you need, in the order you want. Your fete, your way, managed by Event Pal."
   }
  ]
 }
