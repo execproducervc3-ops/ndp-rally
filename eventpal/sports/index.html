@@ -285,6 +285,8 @@ h1 span{color:var(--y)}
 .epp .now{font:600 14px Inter,system-ui,sans-serif;color:#F4F7FA;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
 .epp .now em{font-style:normal;color:#A3A7AE;font-weight:500}
 .epp #nb,.epp #fs{height:36px;padding:0 12px;border-radius:8px;border:1px solid #3A3D44;background:#26282D;color:#F4F7FA;font:600 13px Inter,system-ui,sans-serif;box-shadow:none}
+.sndblk{position:absolute;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(7,7,11,.72)}
+.sndblk button{display:flex;align-items:center;gap:12px;padding:18px 28px;border:0;border-radius:999px;background:#F5B82E;color:#1A1B1F;font:800 20px Inter,system-ui,sans-serif;cursor:pointer;box-shadow:0 4px 0 #8F6510,inset 0 1px 0 rgba(255,255,255,.45)}
 .epp #fs{width:36px;padding:0;display:flex;align-items:center;justify-content:center}
 @media (max-width:700px){.epp .nm{font-size:10px}.epp .now{flex-basis:100%;order:9}}
 :fullscreen .wrap{max-width:none;padding:10px}
@@ -522,7 +524,7 @@ const STEPS=S.map(s=>SF[s.id]);
 // ---------- narration ----------
 const NA=new Audio();NA.preload='auto';let narrEnd=null;
 function narrStop(){try{NA.pause()}catch(_){}if(narrEnd){narrEnd();narrEnd=null}}
-function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promise(res=>{narrEnd=res;NA.src='audio/step'+n+'.mp3';NA.onended=()=>{narrEnd=null;res()};NA.onerror=()=>{narrEnd=null;res()};const p=NA.play();if(p&&p.catch)p.catch(()=>{narrEnd=null;res()})})}
+function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promise(res=>{narrEnd=res;NA.src='audio/step'+n+'.mp3';NA.onended=()=>{narrEnd=null;res()};NA.onerror=()=>{narrEnd=null;res()};const p=NA.play();if(p&&p.catch)p.catch(()=>{narrEnd=null;res();if(window.soundBlocked)soundBlocked()})})}
 $('nb').onclick=()=>{narrOn=!narrOn;$('nb').textContent=narrOn?'Voice on':'Voice off';$('nb').setAttribute('aria-pressed',narrOn);if(!narrOn)narrStop()};
 // ---------- animated intro ----------
 function introShow(){const o=$('intro');o.className='on'}
@@ -603,6 +605,10 @@ $('pprev').onclick=()=>run(Math.max(0,cur-1),playing);
 $('pnext').onclick=()=>run(Math.min(S.length-1,cur+1),playing);
 $('fs').onclick=()=>{const el=document.documentElement;if(document.fullscreenElement)document.exitFullscreen();else if(el.requestFullscreen)el.requestFullscreen().catch(()=>{})};
 $('nb').addEventListener('click',()=>{$('nb').textContent=narrOn?'Voice on':'Voice off'});
+// a browser that won't play sound without a tap on this page: stop, and ask for one tap
+window.soundBlocked=()=>{if(document.querySelector('.sndblk'))return;tok++;playing=false;narrStop();ppState(false);draw();
+ const o=document.createElement('div');o.className='sndblk';o.innerHTML='<button type="button"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z" fill="#1A1B1F"/></svg>Tap to play with sound</button>';
+ o.querySelector('button').onclick=()=>{o.remove();run(cur,true)};document.querySelector('.vp').appendChild(o)};
 draw();
 if(/[?&]autoplay/.test(location.search))setTimeout(()=>run(0,true),300);
 })();
