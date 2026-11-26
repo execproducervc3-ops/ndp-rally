@@ -70,7 +70,7 @@
   {
    "id": "restock",
    "title": "Restocking",
-   "text": "Stock is issued to each bar, and confirmed with a PIN. When a bar runs low, a runner gets the alert. The runner collects the drinks, each case tagged with a QR code, and scans them in at the bar. At close, you see what's missing, bar by bar."
+   "text": "Stock is issued to each bar, and confirmed with a PIN. When a bar runs low, a runner gets the alert. The runner collects the drinks, each case tagged with a QR code, and scans them in at the bar."
   },
   {
    "id": "food",
