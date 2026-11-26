@@ -424,6 +424,7 @@ Object.assign(BS,{
  opener:()=>`<div class="sc evbg"><div class="evt">EMBER<br>MAS</div><div class="evs">2027 · THREE SECTIONS · MARDI GRAS</div><div class="wipe"></div></div>`,
  live:()=>`<div class="sc"><div class="stage"><i class="beam" style="left:20%"></i><i class="beam" style="left:70%;animation-delay:1s"></i></div><div class="l3"><i></i><div><b>EMBER MAS</b><span>ON THE ROAD · MARDI GRAS</span></div></div></div>`,
  crossing:()=>`<div class="sc evbg"><div class="evs" style="letter-spacing:3px">CROSSING THE STAGE NOW</div><div class="evt" style="font-size:44px">EMBER MAS</div><div class="evs">SECTION · FIRE DANCERS · 412 MASQUERADERS</div><div class="wipe"></div></div>`,
+ report:()=>`<div class="sc evbg"><div class="evs" style="letter-spacing:3px">AFTER THE ROAD</div><div class="evt" style="font-size:40px">EMBER MAS</div><div class="evs">REPORT READY · 612 MASQUERADERS</div></div>`,
  finale:()=>`<div class="sc evbg"><div class="evt" style="font-size:40px">YOUR BAND.<br>YOUR WAY.</div><div class="evs">EVENT PAL · POWERED BY AVA</div></div>`
 });
 Object.assign(GATE,{
@@ -431,7 +432,7 @@ Object.assign(GATE,{
  ok:(t,n)=>`<div class="res ok"><b>✓ IN</b><span>${t}</span></div><div class="gcount"><span>In the band</span><b>${n}</b></div>`,
 });
 Object.assign(TILL,{
- sell:()=>TILL.house('Tanisha Browne','EC$295','EC$355'),
+ sell:()=>`<div class="thd"><span>BAND HOUSE · TILL 1</span><span>● online</span></div><div style="position:absolute;inset:24px 8px 8px;display:flex;align-items:center;justify-content:center;text-align:center;font:700 10px Inter;color:#aaa">Scan a masquerader's QR code</div>`,
  house:(who,paid,owed,extra)=>`<div class="thd"><span>BAND HOUSE · TILL 1</span><span>● online</span></div><div style="padding:26px 10px 8px;display:flex;flex-direction:column;gap:6px"><b style="font-size:13px;color:#fff">${who}</b><span style="font-size:9px;color:#aaa">EM-7Q4K · Fire Dancers · backline · M</span><div style="display:flex;gap:6px"><div style="flex:1;background:#1c1d21;border-radius:6px;padding:5px"><small style="font-size:8px;color:#aaa;display:block">Paid</small><b style="color:#6ee0a4;font-size:12px">${paid}</b></div><div style="flex:1;background:#1c1d21;border-radius:6px;padding:5px"><small style="font-size:8px;color:#aaa;display:block">Owed</small><b style="color:#f7b57a;font-size:12px">${owed}</b></div></div>${extra||''}</div>`,
  grid:(head,items,hit,foot)=>`<div class="thd"><span>${head}</span><span>● online</span></div><div class="tgrid">${items.map((x,i)=>`<div class="${hit===i?'hit':''}">${x[0]}<small>${x[1]}</small></div>`).join('')}</div><div class="cart"><span>${foot||''}</span></div>`,
 });
@@ -533,15 +534,15 @@ monitor: async (t,at)=>{bs('live');tb('<div class="h">Pal Monitor · Ember Mas</
  const M=[['On the road','612'],['Drinks served','4,120'],['Meals','1,180'],['Truck 1','Bay Street'],['Truck 2','Halifax Street']];
  for(const [i,[a,b]] of M.entries()){await at(.08+i*.13);tbAdd(`<div class="row new"><i>${a}</i><b>${b}</b></div>`)}
  await at(.97)},
-report: async (t,at)=>{bs('finale');tb('<div class="h">After the road · by section</div>');
- const R=[['Fire Dancers','EC$118k in · EC$4k owed · 188 of 190'],['Ocean Spirit','EC$97k in · EC$9k owed · 176 of 180'],['Golden Hour','EC$121k in · EC$2k owed · 241 of 242']];
+report: async (t,at)=>{bs('report');tb('<div class="h">After the road · by section</div>');
+ const R=[['Fire Dancers','EC$118k · owes 4k · 188/190'],['Ocean Spirit','EC$97k · owes 9k · 176/180'],['Golden Hour','EC$121k · owes 2k · 241/242']];
  for(const [i,[a,b]] of R.entries()){await at(.12+i*.2);tbAdd(`<div class="row new"><span><b>${a}</b></span><i>${b}</i></div>`)}
  await at(.97)},
-stock: async (t,at)=>{bs('finale');tb('<div class="h">Used and left</div>');
+stock: async (t,at)=>{bs('report');tb('<div class="h">Used and left</div>');
  const S2=[['Drinks served','4,120'],['Breakfasts','598'],['Lunches','584'],['Beer left','14 cases'],['Rum punch left','22 litres']];
  for(const [i,[a,b]] of S2.entries()){await at(.08+i*.14);tbAdd(`<div class="row new"><i>${a}</i><b>${b}</b></div>`)}
  await at(.97)},
-private: async (t,at)=>{bs('finale');tb('<div class="h">Ember Mas · who can see it</div><div class="row ok new"><span><b>Band leader</b></span><i>everything</i></div><div class="row new"><span><b>Section leaders</b></span><i>own section</i></div>');
+private: async (t,at)=>{bs('report');tb('<div class="h">Ember Mas · who can see it</div><div class="row ok new"><span><b>Band leader</b></span><i>everything</i></div><div class="row new"><span><b>Section leaders</b></span><i>own section</i></div>');
  await at(.3);tbAdd('<div class="row amb new"><span><b>Other bands</b></span><i>🔒 no access</i></div><div class="row amb new"><span><b>The public</b></span><i>🔒 nothing</i></div>');
  phone(`<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;color:#ddd"><b style="font-size:26px">🔒</b><b style="font:800 10px Inter;color:#fff">Ember Mas · payments</b><span style="font:700 8px Inter">You don't have access</span></div>`,'Another band');
  await at(.97)},
