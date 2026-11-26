@@ -50,7 +50,7 @@
   {
    "id": "bars",
    "title": "The bars",
-   "text": "Every bar runs on a Restaurant Pal till. Your bars and outside bars, bottle bars and cocktail bars, all on one floor plan."
+   "text": "Every bar runs on an Event Pal till. Your bars and outside bars, bottle bars and cocktail bars, all on one floor plan."
   },
   {
    "id": "inclusive",
@@ -70,7 +70,7 @@
   {
    "id": "food",
    "title": "Food stalls",
-   "text": "Food stalls sell on the same tills, with a kitchen screen if they want one. Fans can even order through AVA, and pick up when it's ready."
+   "text": "Food stalls sell on the same tills, with a kitchen screen if they want one."
   },
   {
    "id": "nudges",
@@ -80,7 +80,7 @@
   {
    "id": "screens",
    "title": "The big screens",
-   "text": "The big screens run from the Event Pal Box, in up to 4K. The DJ, the lineup, shout-outs, and graphics made for your fete."
+   "text": "The big screens run from the Event Pal Box, in up to 4K. The DJ, the lineup, shout-outs, and graphics made for your fete. Every graphic is made from your own flyers and promo media, so it all matches your theme."
   },
   {
    "id": "sponsors",
@@ -135,7 +135,7 @@
   {
    "id": "morning",
    "title": "The morning after",
-   "text": "The morning after, your report's waiting. Tickets by tier and outlet, entries, bar and stall sales, stock, and the nudges that worked."
+   "text": "The morning after, your report's waiting. Tickets by tier and outlet, entries, bar and stall sales, stock, and the nudges that worked. And a crowd energy report, hour by hour, from the shakes, votes and reactions."
   },
   {
    "id": "nextyear",
