@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event Pal for national sport</title>
+<meta name="description" content="One system for national sport: tournaments, tickets and gates, 4K scoreboards, fans, food and drink, all watched over by AVA.">
+<meta property="og:title" content="Event Pal for national sport · powered by AVA">
+<meta property="og:description" content="One system for national sport: tournaments, tickets and gates, 4K scoreboards, fans, food and drink, all watched over by AVA.">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--y:#FFE000;--c:#3FD0FF;--bg:#0b0b10;--card:#15151c;--ink:#f4f4f6;--mut:#a3a3ad;--ok:#4be38a;--amb:#ffb020;--ev1:#ff3d8b;--ev2:#ff9a3d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:24px 16px 40px}
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:1px;font-size:clamp(28px,4vw,46px);margin:0;color:var(--y)}
+h1 span{color:var(--c)}
+.lead{color:var(--mut);margin:6px 0 16px;font-size:16px}
+.big{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.5px}
+.vp{position:relative;width:100%;aspect-ratio:16/9;background:radial-gradient(ellipse at 50% 60%,#16161f,#07070b 75%);border:1px solid #23232c;border-radius:18px;overflow:hidden}
+.st{position:absolute;left:0;top:0;width:1280px;height:720px;transform-origin:0 0}
+.lbl{position:absolute;font-size:13px;font-weight:800;letter-spacing:2px;color:var(--mut);text-transform:uppercase}
+@keyframes pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pulse{50%{opacity:.55}}
+/* promoter tablet */
+.tab{position:absolute;left:36px;top:150px;width:330px;height:430px;background:#121218;border:10px solid #2a2a33;border-radius:22px;overflow:hidden}
+.tab .hd{display:flex;justify-content:space-between;align-items:center;padding:12px 14px 8px}
+.pill{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;background:#0d3b1e;color:var(--ok)}
+.pill.warn{background:#3b2e05;color:var(--amb)}
+.sts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:0 12px}
+.sts div{background:#1c1c24;border-radius:10px;padding:8px}
+.sts span{display:block;font-size:10px;color:var(--mut)}
+.sts b{font-size:18px}
+.tb{position:absolute;left:12px;right:12px;top:114px;bottom:10px;display:flex;flex-direction:column;gap:5px;font-size:12px}
+.tb .h{font-size:10px;font-weight:800;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase;margin-top:2px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#1c1c24;border-radius:9px;padding:6px 10px}
+.row b{font-size:13px}.row i{font-style:normal;color:var(--mut);font-size:11px}
+.row.on{outline:2px solid var(--y)}.row.ok{outline:2px solid var(--ok)}.row.amb{outline:2px solid var(--amb)}
+.row.new{animation:pop .35s both}
+.bar{height:8px;border-radius:4px;background:#26262f;overflow:hidden}.bar i{display:block;height:100%;background:var(--y);transition:width .8s}
+.btnr{display:flex;gap:6px}.btnr div{flex:1;text-align:center;padding:8px 4px;border-radius:9px;background:#22222c;border:1px solid #33333d;font-weight:800;font-size:12px;transition:background .25s,color .25s}
+.btnr div.on{background:var(--y);color:#111}
+.ck{color:var(--ok);font-weight:800}
+.ava-msg{background:#0c2733;border:1px solid #1d5a73;color:#cdeefa;border-radius:10px;padding:8px 10px;font-size:11.5px;line-height:1.35;animation:pop .35s both}
+.ava-msg b{color:var(--c)}
+.bub{max-width:88%;padding:7px 10px;border-radius:12px;font-size:11.5px;line-height:1.35;animation:pop .3s both}
+.bub.me{align-self:flex-end;background:#2b2b36}.bub.ava{align-self:flex-start;background:#0c2733;border:1px solid #1d5a73;color:#d7f3ff}
+.kp{display:grid;grid-template-columns:1fr 1fr;gap:6px}.kp div{background:#f7f7f2;color:#15151c;border-radius:9px;padding:7px}.kp b{display:block;font-size:17px}.kp span{font-size:10px;color:#55555c}
+.proto{display:flex;flex-direction:column;gap:5px}
+.proto div{display:flex;gap:8px;align-items:center;padding:6px 9px;border-radius:9px;background:#1c1c24;opacity:.35;transition:opacity .4s,background .4s}
+.proto div.lit{opacity:1;background:#2a2610}.proto div b{width:20px;height:20px;border-radius:50%;background:var(--y);color:#111;display:flex;align-items:center;justify-content:center;font-size:11px;flex:none}
+.proto div span{font-weight:800}.proto div i{font-style:normal;color:var(--mut);font-size:10.5px;margin-left:auto;text-align:right}
+/* AVA core */
+.ava{position:absolute;left:540px;top:300px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#1d6e8f,#0a2433 70%);border:3px solid #3fb6e0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ava.hot{animation:avah 1.2s ease-in-out infinite}
+@keyframes avah{50%{box-shadow:0 0 44px 8px rgba(63,208,255,.4)}}
+.ava b{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:34px;letter-spacing:2px;color:#fff;line-height:1}.ava span{font-size:10.5px;color:#bfefff;margin-top:4px;line-height:1.25}
+.think{position:absolute;left:520px;top:458px;width:190px;text-align:center;font-size:11.5px;font-weight:700;color:#bfefff;opacity:0;transition:opacity .3s}
+.think.show{opacity:1}
+/* big screen */
+.bs{position:absolute;left:770px;top:40px;width:480px;height:277px;background:#000;border:8px solid #2a2a33;border-radius:10px;overflow:hidden}
+.legs{position:absolute;left:990px;top:325px;width:40px;height:16px;background:#2a2a33}
+.sc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:fade .4s both;overflow:hidden}
+.evbg{background:radial-gradient(ellipse at 30% 20%,#3a0d2a,#0a0410 70%)}
+.evt{font-family:Anton,Impact,sans-serif;font-size:50px;line-height:.95;background:linear-gradient(90deg,var(--ev1),var(--ev2));-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:1px}
+.evs{font-weight:800;font-size:12px;letter-spacing:4px;color:#ffd7e8;margin-top:6px}
+.wipe{position:absolute;inset:0;z-index:5;background:linear-gradient(100deg,var(--ev1),var(--ev2));transform:translateX(-110%) skewX(-12deg);animation:wipe .9s cubic-bezier(.7,0,.3,1) forwards}
+@keyframes wipe{50%{transform:translateX(0) skewX(-12deg)}100%{transform:translateX(110%) skewX(-12deg)}}
+.l3{position:absolute;left:4%;bottom:8%;display:flex;align-items:stretch;animation:l3in .6s cubic-bezier(.2,.9,.3,1.1) both}
+@keyframes l3in{from{transform:translateX(-120%)}}
+.l3 i{width:8px;background:linear-gradient(var(--ev1),var(--ev2))}.l3 div{background:rgba(10,4,16,.85);padding:6px 12px;text-align:left}.l3 b{display:block;font:400 20px Anton,Impact,sans-serif;color:#fff;letter-spacing:.5px}.l3 span{font-size:10px;font-weight:800;color:#ffc2da;letter-spacing:2px}
+.stage{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,#ff3d8b55,transparent 60%),radial-gradient(ellipse at 20% 0%,#3fd0ff33,transparent 50%),#07040c}
+.beam{position:absolute;top:-20%;width:60px;height:140%;background:linear-gradient(#fff3,transparent);transform-origin:top;animation:beam 3s ease-in-out infinite alternate}
+@keyframes beam{from{transform:rotate(-25deg)}to{transform:rotate(25deg)}}
+.spb{position:absolute;right:3%;top:5%;padding:4px 9px;border-radius:6px;background:#fff;color:#111;font:800 11px Inter,sans-serif;animation:pop .4s both;z-index:6}
+.spb.wl{background:#0d47ff;color:#fff}
+.tko{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fade .4s both}
+.tko b{font:400 54px/1 Anton,Impact,sans-serif;letter-spacing:1px}.tko span{font-weight:800;font-size:13px;letter-spacing:3px;margin-top:6px}
+.pwg{position:absolute;inset:34px 14px 10px;display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-content:start}
+.pwg div{animation:pop .45s both}
+.poll{width:80%;display:flex;flex-direction:column;gap:8px;text-align:left}
+.poll div{display:flex;align-items:center;gap:8px;font-weight:800;font-size:13px}.poll span{width:110px}.poll em{flex:1;height:18px;border-radius:9px;background:#22142a;overflow:hidden}.poll em i{display:block;height:100%;background:linear-gradient(90deg,var(--ev1),var(--ev2));transition:width 1.2s}
+.meter{width:80%;height:26px;border-radius:13px;background:#22142a;overflow:hidden;border:2px solid #4a2a4a}.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ev1),var(--ev2),#fff3a0);transition:width 5s cubic-bezier(.3,.1,.2,1)}
+.bsa{position:absolute;left:3%;right:3%;bottom:3%;z-index:8;border-radius:6px;padding:7px 10px;font:800 12.5px/1.3 Inter,sans-serif;display:flex;gap:8px;align-items:center;animation:bsain .45s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes bsain{from{transform:translateY(160%);opacity:0}}
+.bsa.n{background:var(--y);color:#111}.bsa.u{background:#e8560a;color:#fff;animation:bsain .45s both,bsap 1.2s ease-in-out infinite}
+.bsa i{font-style:normal;font-family:Anton,Impact,sans-serif;font-weight:400;font-size:10px;padding:2px 6px;border-radius:3px;flex:none;background:#111;color:#fff}
+@keyframes bsap{50%{box-shadow:0 0 0 3px rgba(255,255,255,.5)}}
+.bse{position:absolute;bottom:-34px;font-size:24px;z-index:7;pointer-events:none;animation:bseu 3.4s linear forwards}
+@keyframes bseu{0%{transform:translateY(0) scale(.3)}10%{transform:translateY(-34px) scale(1)}85%{transform:translateY(-250px) scale(1)}100%{transform:translateY(-290px) scale(0)}}
+.ndi{position:absolute;left:770px;top:345px;font-size:11px;font-weight:800;color:var(--c);letter-spacing:1px;opacity:0;transition:opacity .4s}
+/* devices */
+.dev{position:absolute;top:400px;background:#0b0b0f;border:6px solid #2a2a33;overflow:hidden}
+.ph{width:126px;height:258px;border-radius:20px}
+.till{left:910px;top:420px;width:210px;height:238px;border-radius:14px}
+.dev .in{position:absolute;inset:0}
+.dlbl{position:absolute;top:664px;font-size:10.5px;font-weight:800;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase}
+.vf{position:absolute;inset:26px 14px 70px;border:2px solid #ffffff55;border-radius:12px}
+.vf:before{content:'';position:absolute;left:8%;right:8%;height:3px;background:var(--ok);box-shadow:0 0 10px var(--ok);animation:sc 1.4s ease-in-out infinite}
+@keyframes sc{0%,100%{top:10%}50%{top:85%}}
+.res{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;animation:pop .3s both}
+.res.ok{background:#0f5a2c}.res.amb{background:#6a3c00}
+.res b{font:400 30px/1 Anton,Impact,sans-serif;color:#fff}.res span{font-size:10px;font-weight:700;color:#e6ffe9;margin-top:4px;padding:0 6px}
+.gcount{position:absolute;left:8px;right:8px;bottom:10px;background:#1c1c24;border-radius:10px;padding:5px 8px;font-size:9px;color:var(--mut);display:flex;justify-content:space-between}.gcount b{color:#fff;font-size:12px}
+.offb{position:absolute;left:4px;right:4px;top:4px;z-index:9;background:#2a1f05;border:2px solid var(--amb);border-radius:8px;padding:4px 5px;font-size:8.5px;line-height:1.25;animation:pop .3s both}
+.tgrid{position:absolute;left:8px;top:28px;width:110px;display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.tgrid div{background:#1f1f29;border-radius:6px;padding:5px 4px;font-size:8.5px;font-weight:800;text-align:center;line-height:1.15}.tgrid div small{display:block;color:var(--mut);font-weight:600;font-size:7.5px}
+.tgrid div.hit{background:var(--y);color:#111}.tgrid div.hit small{color:#333}
+.cart{position:absolute;right:8px;top:28px;width:72px;bottom:44px;background:#16161d;border-radius:6px;padding:5px;font-size:8px;display:flex;flex-direction:column;gap:3px}
+.cart b{font-size:13px;margin-top:auto}
+.pays{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:3px}.pays div{flex:1;text-align:center;font-size:7.5px;font-weight:800;padding:6px 1px;border-radius:6px;background:#22222c;transition:background .25s}
+.pays div.on{background:var(--ok);color:#06270f}
+.thd{position:absolute;left:8px;right:8px;top:6px;display:flex;justify-content:space-between;font-size:9px;font-weight:800;color:var(--mut)}
+.notice{position:absolute;left:0;right:0;top:0;z-index:9;background:#2a2010;color:#fde7b0;font-size:8.5px;font-weight:700;padding:5px 6px;display:flex;gap:5px;align-items:center;animation:ndown .4s both}
+.notice i{font-style:normal;background:var(--y);color:#111;font-size:7px;padding:1px 4px;border-radius:3px}.notice em{margin-left:auto;font-style:normal;background:#3a3a44;padding:2px 6px;border-radius:5px}
+@keyframes ndown{from{transform:translateY(-100%)}}
+.wb{position:absolute;inset:26px 10px 10px;background:#16161d;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;text-align:center;padding:8px;animation:pop .3s both}
+.wb b{font:400 22px Anton,Impact,sans-serif}.wb span{font-size:9px;color:var(--mut)}.wb .go{padding:7px 14px;border-radius:8px;background:var(--ok);color:#06270f;font-weight:800;font-size:11px}
+.wb .lim{display:flex;gap:3px}.wb .lim i{width:12px;height:12px;border-radius:3px;background:#33333d}.wb .lim i.u{background:var(--y)}
+.tk{position:absolute;inset:16px 8px 8px;border-radius:12px;background:linear-gradient(160deg,var(--ev1),var(--ev2));padding:7px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.tk b{font:400 14px/1 Anton,Impact,sans-serif;color:#fff;text-align:center}.tk .q{width:74px;height:74px;background:#fff;border-radius:6px;padding:4px}.tk span{font-size:8px;font-weight:800;color:#fff}.tk em{font-style:normal;font-size:9px;font-weight:800;background:#0006;color:#fff;padding:2px 8px;border-radius:999px}
+.tk .sec{display:flex;align-items:center;gap:4px;font-size:7px;letter-spacing:.5px;background:#0008;padding:2px 6px;border-radius:999px}.tk .sec i{width:9px;height:9px;border-radius:50%;border:2px solid #fff6;border-top-color:#fff;animation:spin 2.5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tgm{position:absolute;inset:0;background:#17212b;display:flex;flex-direction:column;padding:22px 6px 6px;gap:5px}
+.tgm .tgh{position:absolute;left:0;right:0;top:0;height:20px;background:#232e3c;font-size:9px;font-weight:800;display:flex;align-items:center;padding:0 8px;color:#fff}
+.tgm .m{background:#182533;border:1px solid #2b5278;border-radius:9px;padding:6px;font-size:8px;line-height:1.3;color:#e6eef6;animation:pop .35s both}
+.tgm .m b{display:block;font-size:8.5px;margin-bottom:2px}.tgm .m .gi{margin-top:5px;text-align:center;background:#2b5278;border-radius:6px;padding:4px;font-weight:800}
+.tgm .m.me{background:#2b5278;align-self:flex-end}
+.rxrow{position:absolute;left:5px;right:5px;bottom:8px;display:flex;justify-content:space-between;background:#15151b;border:1px solid #2c2c36;border-radius:999px;padding:2px}
+.rxrow span{font-size:9px;width:14px;height:14px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#22222c}
+.fe{position:absolute;font-size:15px;pointer-events:none;z-index:6;animation:feu 1.2s ease-out forwards}
+@keyframes feu{from{transform:translateY(0) scale(.6)}to{transform:translateY(-120px) scale(1.25);opacity:0}}
+/* photo frame */
+.fr{position:relative;width:100%;aspect-ratio:4/5;background:linear-gradient(160deg,var(--ev1),var(--ev2));border-radius:4px;padding:6%}
+.fr .pin{position:relative;width:100%;height:100%;overflow:hidden;border-radius:2px}
+.fr .tt{position:absolute;left:0;right:0;bottom:2%;text-align:center;font:400 13px/1 Anton,Impact,sans-serif;color:#fff;letter-spacing:.5px;text-shadow:0 1px 3px #0008}
+.fr.sm .tt{font-size:6px}
+/* dots/wires */
+.dot{position:absolute;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;z-index:20;pointer-events:none}
+.dot.cmd{background:#fff;box-shadow:0 0 10px 3px #fff}
+.dot.up{background:var(--c);box-shadow:0 0 8px 2px var(--c);width:7px;height:7px;margin:-3.5px 0 0 -3.5px}
+.dot.y{background:var(--y);box-shadow:0 0 8px 2px var(--y);width:7px;height:7px;margin:-3.5px 0 0 -3.5px}
+.finger{position:absolute;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.25);border:2px solid rgba(255,255,255,.8);z-index:30;transition:left .5s ease,top .5s ease,opacity .3s;opacity:0;pointer-events:none}
+.cap{position:absolute;left:400px;right:520px;top:40px}
+.cap .n{font-family:Anton,Impact,sans-serif;font-size:20px;color:var(--y);letter-spacing:1px}
+.cap .t{font-family:Anton,Impact,sans-serif;font-size:32px;line-height:1.05;margin:2px 0 8px}
+.cap .d{font-size:13.5px;color:#d4d4da;line-height:1.45;max-height:176px;overflow:hidden}
+/* intro */
+#intro{position:absolute;inset:0;z-index:40;background:radial-gradient(ellipse at 50% 30%,#10293a 0%,#0b0b14 70%);padding:40px 52px;box-sizing:border-box;opacity:0;pointer-events:none;transition:opacity .5s}
+#intro.on{opacity:1;pointer-events:auto}
+#intro .ih h2{margin:0;font:400 54px/1 Anton,Impact,sans-serif;color:var(--y);letter-spacing:1px}#intro .ih h2 span{color:var(--c)}
+#intro .il{margin:8px 0 0;font:500 18px/1.4 Inter,sans-serif;color:#e8e8f0;max-width:1000px}
+#intro .ig{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:22px}
+#intro .gc{background:rgba(255,255,255,.04);border:1px solid #2c4660;border-radius:16px;padding:14px 16px}
+#intro .gc h3{margin:0 0 8px;font:400 19px Anton,Impact,sans-serif;letter-spacing:1.5px;color:var(--y)}
+#intro .fi{display:flex;gap:9px;align-items:flex-start;padding:4px 0}
+#intro .fi i{font-style:normal;font-size:20px;line-height:1;flex:none;width:26px;text-align:center}
+#intro .fi b{display:block;font:800 14px/1.2 Inter,sans-serif;color:#fff}#intro .fi span{display:block;font:500 12px/1.3 Inter,sans-serif;color:#b9c6d6;margin-top:2px}
+#intro .ip{position:absolute;left:52px;bottom:26px;font:800 16px Inter,sans-serif;color:var(--y);letter-spacing:.5px}
+#intro.anim{background:radial-gradient(ellipse at 50% 15%,#0f2c3f 0%,#090a14 65%)}
+#intro.anim>.ih,#intro.anim>.ig,#intro.anim>.ip{display:none}
+#icv{position:absolute;inset:0;width:1280px;height:720px;pointer-events:none}
+#ia{position:absolute;inset:0;pointer-events:none}
+#intro:not(.anim) #icv,#intro:not(.anim) #ia{display:none}
+.ie{position:absolute;opacity:0;transition:opacity .6s,transform .8s cubic-bezier(.2,.8,.2,1),left .8s cubic-bezier(.2,.8,.2,1),top .8s cubic-bezier(.2,.8,.2,1)}
+.ie.on{opacity:1}
+#iTitle{left:50%;top:200px;transform:translate(-50%,0) scale(.85);text-align:center;white-space:nowrap}#iTitle.on{transform:translate(-50%,0) scale(1)}
+#iTitle h2{margin:0;font:400 110px/0.95 Anton,Impact,sans-serif;color:var(--y);letter-spacing:2px;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+#iTitle p{margin:12px 0 0;font:800 20px Inter,sans-serif;letter-spacing:5px;color:#dff4ff;text-transform:uppercase}
+#iTitle.top{left:40px;top:24px;transform:scale(.36);transform-origin:0 0;text-align:left}
+.iscr{width:100%;height:100%;background:#05050a;border:10px solid #202231;border-radius:14px;overflow:hidden;box-shadow:0 0 60px rgba(63,208,255,.2)}
+.iscri{position:relative;width:100%;height:100%}
+.istand{width:90px;height:22px;margin:0 auto;background:#202231}
+#iScr{left:640px;top:110px;width:580px;height:326px;transform:translateY(30px)}#iScr.on{transform:none}
+#iPh{left:170px;top:120px;width:200px;height:400px;border:9px solid #2a2b38;border-radius:30px;background:#0b0b10;overflow:hidden;transform:translateY(30px)}#iPh.on{transform:none}
+#iPh .in{position:absolute;inset:0}
+#iBig{left:410px;top:220px;width:560px;text-align:center;transform:scale(.6)}#iBig.on{transform:none}
+#iBig b{display:block;font:400 84px/1 Anton,Impact,sans-serif;white-space:nowrap}#iBig span{font:800 18px Inter,sans-serif;letter-spacing:3px}
+#iCnt{right:70px;top:96px;text-align:right;transform:translateX(30px)}#iCnt.on{transform:none}
+#iCnt small{display:block;font:800 14px Inter,sans-serif;letter-spacing:3px;color:#aeb3d6}#iCnt b{font:400 72px/1 Anton,Impact,sans-serif;color:#fff}
+#iCards{left:90px;top:150px;width:1100px;display:flex;gap:22px}
+#iCards>div{flex:1;background:#13141e;border:2px solid #2c3260;border-radius:18px;padding:18px;opacity:0;transform:translateY(30px);transition:opacity .5s,transform .6s}
+#iCards>div.on{opacity:1;transform:none}
+#iCards b{display:block;font:400 30px/1.05 Anton,Impact,sans-serif;color:var(--y);letter-spacing:.5px}#iCards span{display:block;font:600 15px/1.4 Inter,sans-serif;color:#cfd8e6;margin-top:8px}#iCards i{font-style:normal;font-size:40px}
+#iStock{left:50%;top:150px;width:760px;transform:translate(-50%,30px);background:#12131c;border:2px solid #2c3260;border-radius:18px;padding:22px 26px}#iStock.on{transform:translate(-50%,0)}
+#iStock .sh{font:400 24px Anton,Impact,sans-serif;color:var(--y);letter-spacing:2px}
+#iStock .sr{display:flex;gap:14px;margin-top:14px}#iStock .sr div{flex:1;background:#1b1d2c;border-radius:12px;padding:12px}#iStock .sr b{display:block;font:400 42px Anton,Impact,sans-serif;color:#fff}#iStock .sr small{font:700 12px Inter,sans-serif;color:#aeb3d6;letter-spacing:1px}
+#iStock .sr div.m{background:#3a2405}#iStock .sr div.m b{color:var(--amb)}
+#iMon{left:50%;top:120px;width:880px;transform:translate(-50%,30px);display:grid;grid-template-columns:repeat(4,1fr);gap:14px}#iMon.on{transform:translate(-50%,0)}
+#iMon div{background:#13141e;border:2px solid #2c3260;border-radius:16px;padding:16px;animation:pop .5s both}#iMon small{font:800 12px Inter,sans-serif;letter-spacing:2px;color:#aeb3d6}#iMon b{display:block;font:400 46px/1.05 Anton,Impact,sans-serif;color:#fff}#iMon span{font:700 13px Inter,sans-serif;color:var(--ok)}
+#iOrb{left:50%;top:150px;width:230px;height:230px;margin-left:-115px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#1d6e8f,#0a2433 70%);border:4px solid #3fb6e0;display:flex;flex-direction:column;align-items:center;justify-content:center;animation:avah 1.4s ease-in-out infinite}
+#iOrb b{font:400 64px/1 Anton,Impact,sans-serif;color:#fff;letter-spacing:4px}#iOrb span{font:700 14px Inter,sans-serif;color:#bfefff;margin-top:4px}
+.ibub{position:absolute;max-width:360px;padding:12px 16px;border-radius:16px;font:600 17px/1.35 Inter,sans-serif;opacity:0;transform:translateY(14px);transition:opacity .4s,transform .4s}
+.ibub.on{opacity:1;transform:none}.ibub.q{background:#2b2b36;color:#fff}.ibub.a{background:#0c2733;border:2px solid #1d5a73;color:#d7f3ff}.ibub.al{background:#3a2405;border:2px solid var(--amb);color:#ffe2b0}
+#iProto{left:50%;top:180px;transform:translateX(-50%);display:flex;gap:12px}
+#iProto div{width:140px;padding:16px 10px;border-radius:16px;background:#13141e;border:2px solid #2c3260;text-align:center;opacity:.2;transform:translateY(14px);transition:opacity .4s,transform .4s,border-color .4s}
+#iProto div.lit{opacity:1;transform:none;border-color:var(--y)}#iProto b{display:block;font:400 34px Anton,Impact,sans-serif;color:var(--y)}#iProto span{font:800 16px Inter,sans-serif;color:#fff}
+#iFin{left:50%;top:190px;transform:translate(-50%,0) scale(.7);text-align:center;white-space:nowrap}#iFin.on{transform:translate(-50%,0) scale(1)}
+#iFin b{display:block;font:400 80px/1.05 Anton,Impact,sans-serif;color:#fff;text-shadow:0 6px 40px rgba(0,0,0,.7)}#iFin b.y{color:var(--y)}#iFin b.c{color:var(--c);font-size:56px;margin-top:10px}
+#iChip{left:50px;bottom:34px;padding:12px 18px;border-radius:14px;background:rgba(10,12,28,.9);border:2px solid var(--y);transform:translateY(20px)}#iChip.on{transform:none}
+#iChip b{display:block;font:800 22px Inter,sans-serif;color:#fff}#iChip span{font:600 15px Inter,sans-serif;color:#cfd3ef}
+/* controls & notes */
+.ctl{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.ctl button{font:inherit;font-size:14px;font-weight:700;padding:9px 14px;border-radius:10px;border:1px solid #33333d;background:#1c1c24;color:var(--ink);cursor:pointer}
+.ctl button.on{background:var(--y);color:#111;border-color:var(--y)}
+.ctl #pp{background:var(--y);color:#111;border-color:var(--y)}
+.sec{margin-top:28px}.sec h2{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:1px;font-size:clamp(22px,3vw,32px);color:var(--y);margin:0}.sec h2 span{color:var(--c)}.sec>p{color:var(--mut);margin:4px 0 14px;font-size:15px}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px}
+.notes div{background:var(--card);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--mut);line-height:1.45}
+.notes b{color:var(--ink);display:block;margin-bottom:4px}
+.caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,270px),1fr));gap:10px}
+.caps div{background:#0d1c24;border:1px solid #1d4a5e;border-radius:12px;padding:12px 14px;font-size:14px;color:#b9d4df;line-height:1.4}
+.caps b{display:block;color:#fff;margin-bottom:3px}.caps i{font-style:normal;margin-right:6px}
+.protl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px;counter-reset:p}
+.protl div{background:var(--card);border-top:3px solid var(--y);border-radius:10px;padding:12px 14px;font-size:13.5px;color:var(--mut);line-height:1.4}
+.protl b{display:block;color:#fff;font-size:15px;margin-bottom:4px}.protl b:before{counter-increment:p;content:counter(p) ' · ';color:var(--y)}
+.fl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}
+.fl>div{background:var(--card);border-radius:12px;padding:14px 16px}.fl h3{margin:0 0 8px;font:400 19px Anton,Impact,sans-serif;letter-spacing:1px;color:var(--y)}
+.fl ul{margin:0;padding-left:18px;color:#c9c9d1;font-size:13.5px;line-height:1.45}.fl li{margin:3px 0}
+.mcap{display:none}
+.introhtml{display:none}
+.credit{color:#6f6f78;font-size:12px;margin-top:18px}
+html.embed .wrap{padding:6px 6px 10px}html.embed h1,html.embed .lead,html.embed .sec,html.embed .credit{display:none}
+@media (max-width:700px){
+.wrap{padding:10px 8px 24px}h1{font-size:22px}.lead{font-size:13px;margin:4px 0 10px}.vp{border-radius:12px}.cap{display:none}
+.mcap{display:block;background:var(--card);border-radius:12px;padding:12px 14px;margin-top:10px;min-height:130px}
+.mcap .n{font-family:Anton,Impact,sans-serif;color:var(--y);font-size:14px;letter-spacing:1px}.mcap .t{font-family:Anton,Impact,sans-serif;font-size:22px;line-height:1.1;margin:2px 0 6px}.mcap .d{font-size:14px;line-height:1.45;color:#d4d4da}
+.ctl{margin-top:10px;gap:6px}.ctl>span[style*="flex:1"]{display:none}.ctl #pp,.ctl #nb{flex:1;font-size:14px;padding:10px}
+#stepBtns{flex-wrap:nowrap!important;overflow-x:auto;width:100%;padding-bottom:4px;scrollbar-width:none}#stepBtns::-webkit-scrollbar{display:none}#stepBtns button{flex:none;font-size:13px;padding:8px 11px}
+.introhtml{display:block;margin:14px 0 0}.introhtml h3{font:400 18px Anton,Impact,sans-serif;color:var(--y);letter-spacing:1px;margin:14px 0 6px}.introhtml li{margin:5px 0;font-size:14px;color:#dcdce4}.introhtml li b{color:#fff}.introhtml ul{padding-left:0;list-style:none;margin:0}
+}
+@media (prefers-reduced-motion:reduce){.beam,.ava.hot,#iOrb{animation:none}}
+</style>
+<script>if(/[?&]embed/.test(location.search))document.documentElement.classList.add('embed')</script>
+</head>
+<body>
+<div class="wrap">
+<h1>EVENT PAL FOR SPORT <span>· POWERED BY AVA</span></h1>
+<p class="lead">One system for national sport: the tournament plan, tickets and gates, 4K scoreboards, fans, food and drink, all watched over by AVA.</p>
+<div class="vp" id="vp"><div class="st" id="st">
+<svg id="wires" width="1280" height="720" style="position:absolute;inset:0">
+<g fill="none" stroke="#24384a" stroke-width="3" stroke-dasharray="6 6">
+<path id="w_t" d="M366 380 C 450 380, 470 375, 540 375"/>
+<path id="w_b" d="M690 350 C 740 320, 760 250, 770 200"/>
+<path id="w_g" d="M640 450 C 660 510, 760 520, 833 528"/>
+<path id="w_l" d="M615 450 C 640 560, 900 400, 1015 420"/>
+<path id="w_p" d="M690 395 C 900 370, 1120 360, 1193 400"/>
+</g></svg>
+<div class="lbl" style="left:36px;top:120px">1 · Ministry · Pal Monitor</div>
+<div class="lbl" style="left:770px;top:14px">2 · Big screens</div>
+<div class="tab"><div class="hd"><b class="big" style="font-size:20px;color:var(--y)">EVENT PAL</b><span class="pill" id="pill">● Live</span></div>
+<div class="sts"><div><span>Crowd today</span><b id="kIn">0</b></div><div><span>Tickets &amp; passes</span><b id="kSold">0</b></div><div><span>Food &amp; drink EC$</span><b id="kBar">0</b></div></div>
+<div class="tb" id="tb"></div></div>
+<div class="ava" id="ava"><b>AVA</b><span>watches · works it out<br>· tells the right person</span></div>
+<div class="think" id="think"></div>
+<div class="bs" id="bs"></div><div class="legs"></div>
+<div class="ndi" id="ndi">▶ EVENT PAL BOX · FULL NDI → LED WALLS + LIVESTREAM</div>
+<div class="dev ph" id="dg" style="left:770px"><div class="in"></div></div>
+<div class="dev till" id="dt"><div class="in"></div></div>
+<div class="dev ph" id="dp" style="left:1130px"><div class="in"></div></div>
+<div class="dlbl" style="left:776px">Gate phone</div><div class="dlbl" style="left:960px">Stall till</div><div class="dlbl" style="left:1132px" id="dpl">Fan phone</div>
+<div id="intro" class="on"><canvas id="icv" width="1280" height="720"></canvas><div id="ia"></div>
+<div class="ih"><h2>NATIONAL SPORT. <span>ONE SYSTEM.</span></h2><p class="il">From the fixture list to the trophy: Access Pal at the gates, 4K scoreboards from the scorer's pad, every food stall on one till system, Pal Monitor for the Ministry, and AVA watching every venue.</p></div>
+<div class="ig">
+<div class="gc"><h3>TOURNAMENT &amp; ACCESS</h3><div class="fi"><i>📅</i><div><b>The tournament plan</b><span>Teams, venues, dates; AVA builds the fixtures</span></div></div><div class="fi"><i>🎟️</i><div><b>Tickets &amp; season passes</b><span>Online and at outlets; activated when sold</span></div></div><div class="fi"><i>🎒</i><div><b>Schools &amp; youth days</b><span>Free passes, counted at the gate</span></div></div><div class="fi"><i>🛡️</i><div><b>Crowd safety</b><span>Live counts, capacity alerts, shared with police</span></div></div></div>
+<div class="gc"><h3>SCREENS &amp; FANS</h3><div class="fi"><i>🏏</i><div><b>4K scoreboards</b><span>Cricket, football, netball, athletics</span></div></div><div class="fi"><i>✍️</i><div><b>Scorer's pad</b><span>Every ball or goal updates the board</span></div></div><div class="fi"><i>📡</i><div><b>Streaming</b><span>To the diaspora and other islands</span></div></div><div class="fi"><i>📸</i><div><b>Fans in the show</b><span>Photo wall, games, player of the match</span></div></div></div>
+<div class="gc"><h3>GROUNDS &amp; MONEY</h3><div class="fi"><i>🍗</i><div><b>Food &amp; drink</b><span>Every stall on one till system</span></div></div><div class="fi"><i>🎯</i><div><b>Sponsors</b><span>Rotation with proof of play</span></div></div><div class="fi"><i>🧾</i><div><b>Accountability</b><span>Gate, tickets and takings line up</span></div></div><div class="fi"><i>📶</i><div><b>Bad signal</b><span>Nothing stops offline</span></div></div></div>
+<div class="gc"><h3>CONTROL &amp; AVA</h3><div class="fi"><i>📊</i><div><b>Pal Monitor</b><span>Every venue at a glance, counts only</span></div></div><div class="fi"><i>🧠</i><div><b>AVA on watch</b><span>Every venue, every two minutes</span></div></div><div class="fi"><i>💬</i><div><b>Ask AVA</b><span>Fixtures, scores, parking</span></div></div><div class="fi"><i>📈</i><div><b>Results &amp; reports</b><span>Tables, stats, morning-after report</span></div></div></div>
+</div>
+<div class="ip">▶ Press Play to see a whole tournament day, start to finish · 17 steps</div></div>
+<div class="cap" id="cap"><div class="n" id="capN"></div><div class="t" id="capT"></div><div class="d" id="capD"></div></div>
+<div class="finger" id="finger"></div>
+</div></div>
+<div class="mcap" aria-live="polite"><div class="n" id="mN"></div><div class="t" id="mT"></div><div class="d" id="mD"></div></div>
+<div class="ctl"><button id="pp">▶ Play</button><button id="nb" aria-pressed="true">🔊 Voice on</button><span style="flex:1"></span><span id="stepBtns" style="display:flex;flex-wrap:wrap;gap:8px"></span></div>
+<div class="introhtml"><p><b>National sport, one system.</b> The tournament plan, tickets and gates, 4K scoreboards, fans, food and drink, all watched over by AVA.</p></div>
+<div class="sec"><h2>EVERYTHING IN <span>EVENT PAL FOR SPORT</span></h2><p>The full list, for a national tournament.</p>
+<div class="fl">
+<div><h3>📅 Tournament</h3><ul><li>Teams, venues and dates entered once; AVA builds the fixture list</li><li>Change a date and every screen, ticket and report follows</li><li>The same set-up at every ground, on every island</li><li>Results go straight into the points table and player statistics</li><li>A record that builds season after season</li></ul></div>
+<div><h3>🎟️ Tickets &amp; gates</h3><ul><li>Day tickets, tournament passes and family days</li><li>Sold online and at outlets; a printed ticket only works once it's sold</li><li>Free school and youth passes, counted at the gate</li><li>Any phone is a gate scanner; secured codes stop fakes and screenshots</li><li>Live crowd per venue, capacity alerts from AVA, the same numbers for police and stewards</li></ul></div>
+<div><h3>🏏 Screens &amp; scoring</h3><ul><li>Scoreboards broadcast in 4K for maximum clarity at the venue</li><li>The scorer's pad: every ball, goal or point updates the board instantly</li><li>Cricket (T20, one-day, Test), football, netball and athletics</li><li>Replays, announcements and sponsor slots on the same screens</li><li>Streaming to the diaspora and other islands, free or with a paid pass</li></ul></div>
+<div><h3>🍗 Grounds &amp; money</h3><ul><li>Every food stall and bar on one till system, by stall and by match</li><li>Sponsor rotation with proof of play</li><li>Gate count, ticket sales and takings line up, by venue and by day</li><li>Reports for the Ministry and the auditors</li><li>Gates, tills and scoreboards keep working offline</li></ul></div>
+<div><h3>🧠 AVA &amp; Pal Monitor</h3><ul><li>AVA answers the public: fixtures, scores, parking</li><li>She checks every venue every two minutes and alerts the right person</li><li>Pal Monitor gives the Ministry every venue at a glance, counts only, no personal data</li><li>The morning-after report: attendance, income, sponsor plays, incidents and highlights</li></ul></div>
+</div></div>
+<p class="credit">Narration voice: LibriTTS speaker 847 via Piper TTS, licensed CC BY 4.0. The tournament, teams, players and sponsor brands in this demo are made up.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);let tok=0;const SPEED=+(new URLSearchParams(location.search).get('speed')||1);const sl=(ms,t)=>new Promise((a,b)=>setTimeout(()=>t===tok?a():b('x'),ms/SPEED));
+function fit(){const vp=$('vp'),st=$('st');st.style.transform=`scale(${vp.clientWidth/1280})`}addEventListener('resize',fit);fit();
+const TIMING={"intro": {"dur": 12312}, "steps": [{"id": "plan", "t": "The tournament plan", "d": "It starts with the plan. Teams, venues and dates go in once, and AVA builds the fixture list. Change a date, and every screen, ticket and report updates with it.", "ms": 10013}, {"id": "venues", "t": "Venue to venue", "d": "The tournament moves from ground to ground, and Event Pal moves with it. The gates, the screens and the bars are set up the same way, at every venue.", "ms": 6746}, {"id": "tickets", "t": "Tickets and season passes", "d": "Fans buy a day ticket or a pass for the whole tournament, online or at an outlet. Every ticket only works once it's sold, so a lost or stolen ticket opens nothing.", "ms": 11042}, {"id": "schools", "t": "Schools and youth days", "d": "Schools and youth groups get free passes. Each one is counted at the gate, so you know exactly how many young people came out.", "ms": 6535}, {"id": "gates", "t": "Gates and crowd safety", "d": "At the gate, every ticket is scanned. You see the crowd at each venue in real time, and AVA warns you well before a stand gets too full. The police and stewards see the same numbers.", "ms": 9727}, {"id": "screens", "t": "The big screens", "d": "On the big screens, there's a proper scoreboard for every sport. Cricket, football and netball, with the score, the clock and the run rate, plus replays and announcements.", "ms": 9114}, {"id": "sponsors", "t": "Sponsors", "d": "Sponsors get their slots in rotation, and a report afterwards showing exactly when and how often they were on screen. That makes the next sponsorship much easier to win.", "ms": 9638}, {"id": "food", "t": "Food and drink at the grounds", "d": "Food stalls and bars sell from the same system. Every sale is recorded, by stall and by match.", "ms": 5417}, {"id": "stream", "t": "Streaming to the diaspora", "d": "Matches can be streamed to fans overseas and on the other islands. It can be free, or a paid pass, and only people with access can watch.", "ms": 8258}, {"id": "fans", "t": "Fans in the stands", "d": "Fans join in from their phones. Crowd games, the photo wall, and the vote for player of the match, right there on the big screen.", "ms": 7962}, {"id": "stats", "t": "Results and statistics", "d": "Every result goes straight into the points table and the player statistics. Season after season, it builds a proper record of national sport.", "ms": 8106}, {"id": "ava", "t": "AVA", "d": "AVA answers the public. When's the next match? What's the score? Where do I park? And behind the scenes, she watches every venue, and alerts the team the moment something goes wrong.", "ms": 12207}, {"id": "monitor", "t": "Pal Monitor", "d": "With Pal Monitor, the ministry sees every venue at a glance. Crowds, gates, screens and sales, all as simple counts, with no personal data.", "ms": 8745}, {"id": "accounts", "t": "Accountability", "d": "After every match, the gate count, the ticket sales and the bar takings line up, by venue and by day. Clear reports, ready for the ministry and the auditors.", "ms": 9411}, {"id": "signal", "t": "Built for bad signal", "d": "And if the signal drops at a rural ground, nothing stops. The gates, the tills and the screens keep working, and everything syncs when the signal is back.", "ms": 8502}, {"id": "report", "t": "The morning-after report", "d": "The next morning, the report is waiting. Attendance, income, sponsor plays, incidents and highlights, for every match.", "ms": 6462}, {"id": "close", "t": "One system for national sport", "d": "Event Pal. One system for national sport, from the first fixture to the trophy. Powered by AVA.", "ms": 7139}]};
+function qr(seed){seed=seed||0;let c='';const n=21;for(let y=0;y<n;y++)for(let x=0;x<n;x++){const f=(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);const fx=x>13?x-14:x,fy=y>13?y-14:y;const v=f?([0,6].includes(fx)||[0,6].includes(fy)||(fx>1&&fx<5&&fy>1&&fy<5)):(((x*7919+y*31+seed*104729)%13)<6);if(v)c+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}return `<svg viewBox="-1 -1 23 23" style="width:100%;height:100%;background:#fff;display:block" shape-rendering="crispEdges"><g fill="#000">${c}</g></svg>`}
+const SELFIE=h=>`<svg viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;filter:hue-rotate(${h||0}deg)"><defs><radialGradient id="sbg${h||0}" cx="50%" cy="35%" r="75%"><stop offset="0" stop-color="#7a2d66"/><stop offset="1" stop-color="#120414"/></radialGradient></defs><rect width="200" height="250" fill="url(#sbg${h||0})"/><circle cx="30" cy="70" r="8" fill="#ff9a3d" opacity=".7"/><circle cx="165" cy="60" r="10" fill="#3fd0ff" opacity=".6"/><path d="M40 250 Q44 196 76 184 Q100 176 124 184 Q156 196 160 250Z" fill="#f2f2f2"/><rect x="88" y="150" width="24" height="32" rx="8" fill="#6b4a3a"/><ellipse cx="100" cy="128" rx="30" ry="36" fill="#7a5442"/><path d="M70 120 Q72 88 100 88 Q128 88 130 120 Q122 102 100 102 Q78 102 70 120Z" fill="#1a1110"/><path d="M86 140 Q100 152 114 140" fill="none" stroke="#2a1410" stroke-width="3" stroke-linecap="round"/><ellipse cx="89" cy="124" rx="3" ry="3.5" fill="#1a1110"/><ellipse cx="111" cy="124" rx="3" ry="3.5" fill="#1a1110"/></svg>`;
+const frame=(h,sm)=>`<div class="fr${sm?' sm':''}"><div class="pin">${SELFIE(h)}</div><div class="tt">ISLAND SHIELD</div></div>`;
+// ---------- big screen scenes ----------
+const BS={
+idle:()=>`<div class="sc" style="background:#05050a"><div class="big" style="font-size:40px;color:var(--y)">EVENT PAL</div><div style="font-size:11px;color:var(--mut);letter-spacing:3px;margin-top:4px">WAITING FOR THE SHOW</div></div>`,
+opener:()=>`<div class="sc evbg"><div class="evt">ISLAND<br>SHIELD</div><div class="evs">NATIONAL TOURNAMENT</div><div class="wipe"></div></div>`,
+qr:()=>`<div class="sc evbg" style="flex-direction:row;gap:24px"><div style="width:120px;height:120px;padding:6px;background:#fff;border-radius:10px">${qr()}</div><div style="text-align:left"><div class="evt" style="font-size:34px">SCAN TO<br>JOIN THE SHOW</div><div class="evs" style="letter-spacing:2px">PHOTOS · REACTIONS · GAMES</div></div></div>`,
+live:()=>`<div class="sc"><div class="stage"><i class="beam" style="left:20%"></i><i class="beam" style="left:70%;animation-delay:1s"></i></div><div class="l3"><i></i><div><b>DJ CORAL B</b><span>ON STAGE NOW · MAIN STAGE</span></div></div></div>`,
+wall:n=>`<div class="sc" style="background:#0a0410;justify-content:flex-start"><div style="margin-top:8px;font:400 15px Anton,Impact,sans-serif;letter-spacing:1px;color:#ffc2da">THE CROWD, LIVE</div><div class="pwg">${Array.from({length:n||12},(_,i)=>`<div style="animation-delay:${i*.08}s">${frame(i*37,1)}</div>`).join('')}</div></div>`,
+poll:()=>`<div class="sc evbg"><div class="big" style="font-size:24px;color:#fff;margin-bottom:10px">WHICH SONG CLOSES THE NIGHT?</div><div class="poll"><div><span>Road March</span><em><i id="pa" style="width:5%"></i></em></div><div><span>Groovy anthem</span><em><i id="pb" style="width:5%"></i></em></div><div><span>Throwback</span><em><i id="pc" style="width:5%"></i></em></div></div></div>`,
+shake:()=>`<div class="sc evbg"><div class="big" style="font-size:44px;color:#fff;animation:pulse .6s infinite">SHAKE!</div><div class="meter" style="margin-top:14px"><i id="shm"></i></div><div class="evs">THE WHOLE CROWD POWERS THE DROP</div></div>`,
+tko:(n,bg,fg)=>`<div class="tko" style="background:${bg};color:${fg}"><b>${n}</b><span>PROUD SPONSOR OF THE ISLAND SHIELD</span></div>`,
+};
+function bs(k,...a){$('bs').innerHTML=BS[k](...a)}
+function bsAdd(html){$('bs').insertAdjacentHTML('beforeend',html)}
+// ---------- devices ----------
+const GATE={
+scan:(n)=>`<div class="vf"></div><div style="position:absolute;left:0;right:0;top:8px;text-align:center;font-size:9px;font-weight:800;color:#ddd">GATE A · SCAN TICKET</div><div class="gcount"><span>Gate A</span><b>${n||0}</b></div>`,
+ok:(t,n)=>`<div class="res ok"><b>✓ IN</b><span>${t}</span></div><div class="gcount"><span>Gate A</span><b>${n}</b></div>`,
+amb:(t,s)=>`<div class="res amb"><b>✕ STOP</b><span>${t}</span><span style="opacity:.8">${s||''}</span></div>`,
+};
+const TILL={
+sell:(hit,pay,total)=>`<div class="thd"><span>BAR 2 · TILL 1</span><span>● online</span></div><div class="tgrid">${[['Beer','$8'],['Rum punch','$12'],['Water','$4'],['Soft drink','$5'],['Rum shot','$7'],['Juice','$6']].map((x,i)=>`<div class="${hit&&hit.includes(i)?'hit':''}">${x[0]}<small>${x[1]}</small></div>`).join('')}</div><div class="cart">${(hit||[]).map(i=>`<span>${['2 × Beer','Rum punch','Water','Soft drink','Rum shot','Juice'][i]}</span>`).join('')}<b>${total||'$0'}</b></div><div class="pays">${['Cash','Card','Ticket','Wristband','Tap ✓'].map(p=>`<div class="${pay===p?'on':''}">${p}</div>`).join('')}</div>`,
+};
+function gate(k,...a){$('dg').querySelector('.in').innerHTML=GATE[k](...a)}
+function till(html){$('dt').querySelector('.in').innerHTML=html}
+function phone(html,lbl){$('dp').querySelector('.in').innerHTML=html;if(lbl)$('dpl').textContent=lbl}
+const ticket=(type,col)=>`<div class="tk" style="${col?'background:'+col:''}"><b>ISLAND<br>SHIELD</b><div class="q sq">${qr(1)}</div><span class="sec">🔒 SECURED · CODE CHANGES <i></i></span><em>${type}</em><span>Sat · #ISH-30412</span></div>`;
+// secured codes refresh on the phone every few seconds
+let qseed=1;setInterval(()=>{qseed++;document.querySelectorAll('.sq').forEach(q=>{q.innerHTML=qr(qseed);q.animate([{opacity:.3},{opacity:1}],{duration:300})})},2500);
+const tgAlert=(title,body,gi)=>`<div class="tgm"><div class="tgh">🤖 Event Pal Watch</div><div class="m"><b>${title}</b>${body}${gi?'<div class="gi">👍 Got it</div>':''}</div></div>`;
+// ---------- tablet panels ----------
+function tb(html){$('tb').innerHTML=html}
+function tbAdd(html){$('tb').insertAdjacentHTML('beforeend',html)}
+// ---------- motion helpers ----------
+const st=$('st');
+function travel(pathId,cls,dur,rev){const p=$(pathId),L=p.getTotalLength(),d=document.createElement('i');d.className='dot '+cls;st.appendChild(d);const t0=performance.now();
+return new Promise(res=>{(function f(n){const k=Math.min(1,(n-t0)/dur),pt=p.getPointAtLength((rev?1-k:k)*L);d.style.left=pt.x+'px';d.style.top=pt.y+'px';if(k<1&&d.isConnected)requestAnimationFrame(f);else{d.remove();res()}})(t0)})}
+function count(id,to,ms,fmt){const e=$(id);if(!e)return;const from=parseInt((e.textContent||'0').replace(/\D/g,''))||0,t0=performance.now();(function f(n){const k=Math.min(1,(n-t0)/ms),v=Math.round(from+(to-from)*k);e.textContent=fmt?fmt(v):v.toLocaleString();if(k<1)requestAnimationFrame(f)})(t0)}
+function think(txt){const e=$('think');if(txt){e.textContent=txt;e.classList.add('show');$('ava').classList.add('hot')}else{e.classList.remove('show');$('ava').classList.remove('hot')}}
+async function tapEl(el,t){if(!el)return;const f=$('finger'),r=el.getBoundingClientRect(),s=st.getBoundingClientRect(),sc=s.width/1280;f.style.opacity=1;f.style.left=((r.left+r.width/2-s.left)/sc-23)+'px';f.style.top=((r.top+r.height/2-s.top)/sc-23)+'px';await sl(550,t);el.classList.add('on');await sl(250,t);f.style.opacity=0}
+function emojiUp(n){const E=['💛','🔥','🙌','🎉','💃','🎺','👏'];for(let i=0;i<n;i++)setTimeout(()=>{const b=document.createElement('span');b.className='bse';b.textContent=E[Math.floor(Math.random()*7)];b.style.left=(Math.random()<.5?6+Math.random()*80:480-16-34-Math.random()*80)+'px';$('bs').appendChild(b);setTimeout(()=>b.remove(),3500)},i*260)}
+function cap(n,tt,d){$('capN').textContent='STEP '+n;$('capT').textContent=tt;$('capD').textContent=d;$('mN').textContent='STEP '+n;$('mT').textContent=tt;$('mD').textContent=d}
+function reset(){introHide();document.querySelectorAll('.dot').forEach(d=>d.remove());think('');$('pill').className='pill';$('pill').textContent='● Live';$('ndi').style.opacity=0;$('finger').style.opacity=0;$('dpl').textContent='Fan phone'}
+// per-step base state: numbers so far, by step id
+const K={"plan": [0, 0, 0], "venues": [0, 0, 0], "tickets": [0, 0, 0], "schools": [1800, 5500, 0], "gates": [3091, 5500, 0], "screens": [5420, 5500, 2100], "sponsors": [5420, 5500, 3600], "food": [5420, 5500, 4200], "stream": [5420, 5500, 7430], "fans": [5420, 5500, 7430], "stats": [5420, 5500, 7430], "ava": [5420, 5500, 7430], "monitor": [5420, 5500, 7430], "accounts": [5420, 5500, 7430], "signal": [9960, 5500, 7430], "report": [9960, 5500, 7430], "close": [9960, 5500, 7430]};
+const IDLE=["plan","venues","tickets","schools","report"];
+function base(n){reset();const id=S[n].id,k=K[id]||[0,0,0];$('kIn').textContent=k[0].toLocaleString();$('kSold').textContent=k[1].toLocaleString();$('kBar').textContent=k[2].toLocaleString();
+ bs(IDLE.includes(id)?'idle':'live');gate('scan',k[0]);till(TILL.sell());phone(ticket2('DAY TICKET'),'Fan phone');tb('')}
+// ---------- the steps ----------
+const S=TIMING.steps;let narrOn=true;
+// shorter on-screen captions where the narration is long (the voice says it all)
+const SHORT={screens:"Scoreboards broadcast in 4K for maximum clarity at the venue. The scorer's pad updates the board with every ball, goal or point: cricket, football and netball, plus replays and announcements."};
+const capText=i=>SHORT[S[i].id]||S[i].d;
+const pace=(t,i)=>{const D=(narrOn?S[i].ms:Math.max(9000,S[i].ms*.75))/SPEED,t0=performance.now();return async f=>{const w=f*D-(performance.now()-t0);if(w>0)await sl(w*SPEED,t)}};
+// ---------- sports big-screen scenes ----------
+const CRK=(s,o,rr,b1,b2)=>`<div class="sc" style="background:radial-gradient(ellipse at 50% 120%,#0d5a2c,#03140a 70%)"><div style="position:absolute;right:4%;top:8%;background:#111c;color:#fff;font:800 10px Inter;padding:5px 9px;border-radius:5px">ISLAND SHIELD · T20 · LIVE</div><div style="position:absolute;left:4%;bottom:12%;display:flex;font:800 13px Inter;animation:l3in .6s both"><div style="background:#111;color:#fff;padding:7px 10px">HARBOUR HAWKS</div><div id="crs" style="background:var(--y);color:#111;padding:7px 10px;font:400 20px Anton,Impact,sans-serif">${s}</div><div id="cro" style="background:#1c1c24;color:#ddd;padding:7px 10px">${o} ov · RR ${rr}</div></div><div style="position:absolute;left:4%;bottom:3%;font:700 10px Inter;color:#cfe">${b1} · ${b2}</div></div>`;
+const FTB=(a,b,clk)=>`<div class="sc" style="background:radial-gradient(ellipse at 50% 120%,#0f5a1e,#02120a 70%)"><div style="position:absolute;left:4%;top:8%;display:flex;font:800 13px Inter;animation:l3in .6s both"><div style="background:#111;color:#fff;padding:7px 10px">VALLEY RANGERS</div><div style="background:var(--y);color:#111;padding:7px 12px;font:400 20px Anton,Impact,sans-serif">${a} – ${b}</div><div style="background:#111;color:#fff;padding:7px 10px">BAY STRIKERS</div><div style="background:#c0392b;color:#fff;padding:7px 10px">${clk}</div></div><div style="position:absolute;right:4%;bottom:8%;font:400 26px Anton,Impact,sans-serif;color:#fff">ISLAND SHIELD · FOOTBALL</div></div>`;
+const NTB=(q,a,b)=>`<div class="sc" style="background:radial-gradient(ellipse at 50% 120%,#3b1d6e,#0b0716 70%)"><div style="display:flex;align-items:center;gap:18px"><div style="text-align:center"><div style="font:800 12px Inter;color:#d9cfff">RIDGE LIONS</div><div style="font:400 54px Anton,Impact,sans-serif;color:#fff">${a}</div></div><div style="font:800 13px Inter;color:var(--y)">${q}</div><div style="text-align:center"><div style="font:800 12px Inter;color:#d9cfff">BAY STRIKERS</div><div style="font:400 54px Anton,Impact,sans-serif;color:#fff">${b}</div></div></div><div class="evs" style="margin-top:4px">NETBALL · ISLAND SHIELD</div></div>`;
+const TBL=()=>`<div class="sc" style="background:#07121c;justify-content:flex-start;padding-top:14px"><div style="font:400 22px Anton,Impact,sans-serif;color:var(--y)">ISLAND SHIELD · POINTS TABLE</div><div style="width:82%;margin-top:8px;font:700 13px Inter;color:#fff">${[['Harbour Hawks',4,3,9],['Ridge Lions',4,3,9],['Valley Rangers',4,2,6],['Bay Strikers',4,0,0]].map((r,i)=>`<div style="display:flex;justify-content:space-between;padding:5px 8px;background:${i%2?'#0d1d2b':'#12283a'};animation:fade .4s ${i*.15}s both"><span>${i+1}. ${r[0]}</span><span>P${r[1]} · W${r[2]} · <b style="color:var(--y)">${r[3]} pts</b></span></div>`).join('')}</div></div>`;
+Object.assign(BS,{idle:()=>`<div class="sc" style="background:#05050a"><div class="big" style="font-size:40px;color:var(--y)">ISLAND SHIELD</div><div style="font-size:11px;color:var(--mut);letter-spacing:3px;margin-top:4px">EVENT PAL · NATIONAL SPORT</div></div>`,
+ opener:()=>`<div class="sc" style="background:linear-gradient(135deg,#0b3d91,#0a7a4a)"><div class="evt">ISLAND<br>SHIELD</div><div class="evs">NATIONAL TOURNAMENT · 4 VENUES · 3 ISLANDS</div><div class="wipe"></div></div>`,
+ live:()=>CRK('142/3','16.2','8.7','Bennett 61*','James 22*'),
+ tko:(n,bg,fg)=>`<div class="tko" style="background:${bg};color:${fg}"><b>${n}</b><span>PROUD SPONSOR OF THE ISLAND SHIELD</span></div>`});
+// scorer's pad (on the phone slot): tap a ball, the scoreboard updates
+const PAD=(hit)=>`<div style="position:absolute;inset:14px 6px 6px;display:flex;flex-direction:column;gap:5px"><div style="font:800 9px Inter;color:#ddd;text-align:center">SCORER'S PAD · HAWKS v LIONS</div><div style="font:400 20px Anton,Impact,sans-serif;color:var(--y);text-align:center" id="pads">142/3 · 16.2</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px">${['0','1','2','3','4','6','W','Wd','NB'].map(k=>`<div id="pk${k}" style="padding:7px 0;border-radius:7px;text-align:center;font:800 12px Inter;background:${k===hit?'var(--y)':k==='W'?'#5a1a1a':'#24242e'};color:${k===hit?'#111':'#fff'}">${k}</div>`).join('')}</div><div style="font:600 8px Inter;color:var(--mut);text-align:center">Bennett on strike · Ali bowling</div></div>`;
+const ticket2=(type,col)=>`<div class="tk" style="background:${col||'linear-gradient(160deg,#0b3d91,#0a7a4a)'}"><b>ISLAND<br>SHIELD</b><div class="q sq">${qr(1)}</div><span class="sec">🔒 SECURED · CODE CHANGES <i></i></span><em>${type}</em><span>Sat · #ISH-30412</span></div>`;
+TILL.sell=(hit,pay,total)=>`<div class="thd"><span>STALL 3 · TILL 1</span><span>● online</span></div><div class="tgrid">${[['Roti','$15'],['Chicken & chips','$20'],['Water','$4'],['Soft drink','$5'],['Juice','$6'],['Corn soup','$10']].map((x,i)=>`<div class="${hit&&hit.includes(i)?'hit':''}">${x[0]}<small>${x[1]}</small></div>`).join('')}</div><div class="cart">${(hit||[]).map(i=>`<span>${['Roti','Chicken & chips','Water','Soft drink','Juice','Corn soup'][i]}</span>`).join('')}<b>${total||'$0'}</b></div><div class="pays">${['Cash','Card','Pass','Wristband','Tap ✓'].map(p=>`<div class="${pay===p?'on':''}">${p}</div>`).join('')}</div>`;
+
+const SF={
+plan: async (t,at)=>{bs('idle');phone(`<div class="wb" style="inset:18px 8px 10px"><b style="font-size:15px">TOURNAMENT PLAN</b><span>Ministry of Sport</span></div>`,'Organiser');
+ tb('<div class="h">Island Shield · set up once</div>');const F=[['Teams','16 · 3 sports'],['Venues','4 grounds · 3 islands'],['Dates','12 match days'],['Sports','cricket · football · netball']];
+ for(const [i,[a,b]] of F.entries()){tbAdd(`<div class="row new"><i>${a}</i><b>${b}</b></div>`);await at(.04+i*.05)}
+ await at(.3);think('Building the fixtures…');travel('w_t','cmd',600);await at(.42);think('');
+ tbAdd(`<div class="h">Fixtures · AVA</div><div class="row ok new"><span><b>Sat</b> <i>Hawks v Lions · Arnos Vale</i></span><i>T20</i></div><div class="row ok new"><span><b>Sun</b> <i>Rangers v Strikers · Victoria Park</i></span><i>Football</i></div>`);bs('opener');
+ await at(.68);tbAdd(`<div class="ava-msg"><b>AVA:</b> Sunday moved to Monday. Screens, tickets and reports updated.</div>`);travel('w_b','cmd',500);travel('w_g','cmd',600);travel('w_l','cmd',650);await at(.97)},
+venues: async (t,at)=>{bs('opener');
+ const V=[['Arnos Vale','cricket',22,38],['Victoria Park','football',58,30],['Bequia ground','netball',30,78],['Union Island','athletics',78,74]];
+ tb(`<div class="h">Venues · one set-up each</div><div id="vmap" style="position:relative;height:120px;border-radius:10px;background:radial-gradient(ellipse at 30% 40%,#14324a,#0a1520 70%);border:1px solid #2a2a33"></div><div id="vl" style="display:flex;flex-direction:column;gap:4px"></div>`);
+ for(const [i,v] of V.entries()){await at(.06+i*.12);$('vmap').insertAdjacentHTML('beforeend',`<div style="position:absolute;left:${v[2]}%;top:${v[3]}%;transform:translate(-50%,-50%);padding:3px 6px;border-radius:6px;font:800 8.5px Inter;white-space:nowrap;animation:pop .35s both;background:var(--y);color:#111">${v[0]}</div>`);
+  $('vl').insertAdjacentHTML('beforeend',`<div class="row ok new" style="padding:4px 9px"><span><b>${v[0]}</b> <i>${v[1]}</i></span><i>gates · screens · stalls ✓</i></div>`);travel('w_g','cmd',500)}
+ await at(.97)},
+tickets: async (t,at)=>{bs('idle');phone(ticket2('DAY TICKET'),'Fan phone');
+ const T=[['Day ticket','$20','3,410'],['Tournament pass','$120','620'],['Family day','$50','280'],['Outlets (printed)','$20','1,190']];
+ tb('<div class="h">Tickets &amp; passes · Access Pal</div>');for(const r of T){tbAdd(`<div class="row new"><span><b>${r[0]}</b> <i>${r[1]}</i></span><b>${r[2]}</b></div>`);await at(.07)}
+ count('kSold',5500,3000);for(let i=0;i<5;i++){travel('w_p','y',700,true);await sl(300,t)}
+ await at(.5);phone(ticket2('TOURNAMENT PASS','linear-gradient(160deg,#b8860b,#ffd54a)'));
+ await at(.66);gate('amb','NOT SOLD','Printed ticket never activated · see outlet');await at(.8);tbAdd(`<div class="ava-msg"><b>AVA:</b> Outlet box 4 reported stolen. None sold, so none will open a gate.</div>`);await at(.97)},
+schools: async (t,at)=>{bs('idle');tb(`<div class="h">Schools &amp; youth day</div><div class="row new"><span><b>Primary schools</b> <i>12 schools</i></span><b id="s1">0</b></div><div class="row new"><span><b>Secondary schools</b> <i>8 schools</i></span><b id="s2">0</b></div><div class="row new"><span><b>Youth clubs</b> <i>5 groups</i></span><b id="s3">0</b></div>`);
+ phone(ticket2('SCHOOL PASS · FREE','linear-gradient(160deg,#0a7a4a,#3fd08a)'),'School pass');
+ await at(.2);for(let i=0;i<4;i++){gate('ok','School pass · Kingstown Primary',1800+i);travel('w_g','y',500,true);await sl(450,t)}
+ count('s1',642,2500);count('s2',511,2500);count('s3',138,2500);count('kIn',3091,2500);
+ await at(.72);tbAdd(`<div class="ava-msg"><b>Today:</b> 1,291 young people at the ground, counted at the gate.</div>`);await at(.97)},
+gates: async (t,at)=>{bs('opener');tb(`<div class="h">Arnos Vale · live</div><div class="row"><b>North gate</b><b id="gA">0</b></div><div class="row"><b>South gate</b><b id="gB">0</b></div><div class="row"><b>Pavilion</b><b id="gV">0</b></div><div class="h">Capacity 6,000</div><div class="bar"><i id="cap" style="width:0%"></i></div>`);
+ let n=3091;for(let i=0;i<4;i++){gate('scan',n);await sl(600,t);n+=1;gate('ok',['Day ticket','Tournament pass','Family day','Day ticket'][i],n);travel('w_g','y',600,true);await sl(650,t)}
+ count('kIn',5420,3500);count('gA',2810,3500);count('gB',2190,3500);count('gV',420,3500);$('cap').style.width='90%';
+ await at(.62);think('South stand 90% full');tbAdd(`<div class="ava-msg"><b>AVA:</b> South stand at 90%. Open the east bank, and steer South gate fans there?</div>`);
+ await at(.8);tbAdd(`<div class="row ok new"><b>Police &amp; stewards</b><i>same numbers, live</i></div>`);think('');await at(.97)},
+screens: async (t,at)=>{$('ndi').style.opacity=1;$('ndi').textContent='▶ EVENT PAL BOX · SCOREBOARD IN 4K → LED WALLS + LIVESTREAM';bs('live');bsAdd('<div class="spb" style="left:3%;right:auto;top:6%;bottom:auto">4K</div>');phone(PAD(),"Scorer's pad");
+ tb(`<div class="h">Scoreboard · broadcast in 4K</div><div class="row"><b>Main LED wall</b><i>3840×2160 · NDI</i></div><div class="row on"><b>Cricket</b><i>T20 · ODI · Test</i></div><div class="row"><b>Football</b><i>score · clock · cards</i></div><div class="row"><b>Netball</b><i>quarters · goals</i></div>`);
+ await at(.1);phone(PAD('4'),"Scorer's pad");travel('w_p','cmd',500,true);await sl(450,t);$('bs').innerHTML=CRK('146/3','16.3','8.8','Bennett 65*','James 22*');bsAdd('<div class="spb" style="font-size:20px;left:50%;right:auto;transform:translateX(-50%)">FOUR!</div>');emojiUp(6);
+ await at(.26);phone(PAD('W'),"Scorer's pad");travel('w_p','cmd',500,true);await sl(450,t);$('bs').innerHTML=CRK('146/4','16.4','8.7','Bennett 65*','Charles 0*');bsAdd('<div class="spb" style="font-size:20px;left:50%;right:auto;transform:translateX(-50%);background:#c0392b;color:#fff">WICKET · JAMES c ALI 22</div>');
+ await at(.45);$('bs').innerHTML=FTB(2,1,"67:12");await at(.62);$('bs').innerHTML=NTB('Q3 · 9:40',38,35);
+ await at(.78);bs('live');$('bs').insertAdjacentHTML('beforeend','<div class="spb" style="left:3%;right:auto;top:6%;bottom:auto">REPLAY · BENNETT\'S FOUR</div>');await at(.97)},
+sponsors: async (t,at)=>{bs('live');tb(`<div class="h">Sponsor rotation</div><div class="row"><b>Coral Cola</b><i id="sp1">0 of 40 plays</i></div><div class="row"><b>Wavelink Mobile</b><i id="sp2">0 of 40 plays</i></div><div class="row"><b>Harbour Rum</b><i id="sp3">0 of 24 plays</i></div>`);
+ await at(.12);bsAdd('<div class="spb" style="font-size:18px">CORAL COLA</div>');$('sp1').textContent='22 of 40 plays';
+ await at(.32);$('bs').innerHTML=BS.tko('WAVELINK','#0d47ff','#fff');$('sp2').textContent='21 of 40 plays';
+ await at(.52);bs('live');$('sp3').textContent='13 of 24 plays';
+ await at(.66);tbAdd(`<div class="h">Proof of play · report</div><div class="row ok new"><b>Coral Cola</b><i>every slot · time · screen</i></div><div class="row ok new"><b>Wavelink Mobile</b><i>every slot · time · screen</i></div>`);await at(.97)},
+food: async (t,at)=>{bs('live');tb(`<div class="h">Food &amp; drink · Arnos Vale</div><div class="row"><b>Stall 1 · roti</b><b id="f1">0</b></div><div class="row"><b>Stall 2 · grill</b><b id="f2">0</b></div><div class="row"><b>Stall 3 · drinks</b><b id="f3">0</b></div>`);
+ await at(.1);till(TILL.sell([0,2],'Cash','$19'));await at(.3);till(TILL.sell([1,3],'Card','$25'));travel('w_l','y',600,true);
+ count('f1',2380,3000);count('f2',3110,3000);count('f3',1940,3000);count('kBar',7430,3000);
+ await at(.7);tbAdd(`<div class="row ok new"><b>Every sale</b><i>by stall · by match</i></div>`);await at(.97)},
+stream: async (t,at)=>{bs('live');$('ndi').style.opacity=1;phone(`<div style="position:absolute;inset:14px 6px 6px;border-radius:10px;overflow:hidden">${CRK('146/4','16.4','8.7','Bennett 65*','Charles 0*')}</div>`,'Fan in New York');
+ tb(`<div class="h">Livestream · Hawks v Lions</div><div class="row"><i>Watching overseas</i><b id="w1">0</b></div><div class="row"><i>Other islands</i><b id="w2">0</b></div><div class="row"><i>Paid passes</i><b id="w3">0</b></div>`);
+ count('w1',1240,3500);count('w2',860,3500);count('w3',410,3500);
+ await at(.55);tbAdd(`<div class="row ok new"><b>Only people with access</b><i>one device per pass</i></div>`);await at(.97)},
+fans: async (t,at)=>{bs('qr');phone(frame(0),'Fan phone');await at(.2);bs('wall',12);emojiUp(10);
+ await at(.5);$('bs').innerHTML=`<div class="sc" style="background:linear-gradient(135deg,#0b3d91,#0a7a4a)"><div class="big" style="font-size:24px;color:#fff;margin-bottom:10px">PLAYER OF THE MATCH?</div><div class="poll"><div><span>Bennett (Hawks)</span><em><i id="pa" style="width:5%"></i></em></div><div><span>Ali (Lions)</span><em><i id="pb" style="width:5%"></i></em></div><div><span>James (Hawks)</span><em><i id="pc" style="width:5%"></i></em></div></div></div>`;
+ setTimeout(()=>{['pa','pb','pc'].forEach((id,i)=>{const e=$(id);if(e)e.style.width=[64,27,9][i]+'%'})},200);emojiUp(8);await at(.97)},
+stats: async (t,at)=>{$('bs').innerHTML=TBL();phone(PAD(),"Scorer's pad");tb(`<div class="h">Results &amp; statistics</div><div class="row ok new"><span><b>Hawks beat Lions</b> <i>by 14 runs</i></span><i>T20</i></div>`);
+ await at(.2);tbAdd(`<div class="h">Top run scorers</div><div class="row new"><b>K. Bennett</b><b>212</b></div><div class="row new"><b>R. Ali</b><b>168</b></div>`);
+ await at(.48);tbAdd(`<div class="h">Top goal scorers</div><div class="row new"><b>D. Charles</b><b>6</b></div>`);
+ await at(.7);tbAdd(`<div class="ava-msg"><b>Record:</b> every season kept · from the scorer's pad to the table.</div>`);await at(.97)},
+ava: async (t,at)=>{bs('live');phone(`<div class="tgm" style="position:absolute;inset:14px 6px 6px"><div class="tgh">💬 Ask AVA</div><div class="m"><b>When's the next match?</b>Rangers v Strikers, Monday 4pm, Victoria Park.</div><div class="m"><b>Where do I park?</b>East lot, gate 3. It's 60% full.</div></div>`,'Fan phone');
+ tb(`<div class="h">AVA · on watch at 4 venues</div><div class="row ok"><b>Arnos Vale</b><i>all good</i></div><div class="row ok"><b>Victoria Park</b><i>all good</i></div><div class="row"><b>Bequia ground</b><i id="bq">checking…</i></div>`);
+ await at(.5);think('Bequia scoreboard quiet…');await at(.62);$('bq').textContent='screen offline';
+ tb(`<div class="h">AVA · on watch at 4 venues</div><div class="row ok"><b>Arnos Vale · Victoria Park · Union</b><i>all good</i></div>`);tbAdd(tgAlert('Bequia ground · scoreboard offline','The screen box stopped sending 2 minutes ago. The ground\'s wifi is fine, so it\'s the box. Restart it at the control desk.',1));think('');await at(.97)},
+monitor: async (t,at)=>{bs('live');tb(`<div class="h">Pal Monitor · Ministry view</div><div class="row"><b>Arnos Vale</b><i>5,420 in · gates ✓ · screens ✓</i></div><div class="row"><b>Victoria Park</b><i>3,180 in · gates ✓ · screens ✓</i></div><div class="row"><b>Bequia ground</b><i>820 in · 1 issue</i></div><div class="row"><b>Union Island</b><i>540 in · gates ✓</i></div><div class="h">Counts only · no personal data</div>`);
+ count('kIn',9960,3000);await at(.97)},
+accounts: async (t,at)=>{bs('idle');tb(`<div class="h">Match day · Arnos Vale</div><div class="row"><i>Gate count</i><b id="a1">0</b></div><div class="row"><i>Tickets &amp; passes scanned</i><b id="a2">0</b></div><div class="row"><i>Ticket income EC$</i><b id="a3">0</b></div><div class="row"><i>Food &amp; drink EC$</i><b id="a4">0</b></div><div class="row"><i>Cash counted EC$</i><b id="a5">0</b></div>`);
+ count('a1',5420,2500);count('a2',5420,2500);count('a3',81640,2500);count('a4',7430,2500);count('a5',31280,2500);
+ await at(.6);tbAdd(`<div class="row ok new"><b>Everything lines up</b><span class="ck">✓</span></div><div class="row new"><b>Report for the Ministry &amp; auditors</b><i>by venue · by day</i></div>`);await at(.97)},
+signal: async (t,at)=>{bs('live');$('pill').className='pill warn';$('pill').textContent='● Offline';tb(`<div class="h">Union Island · no signal</div><div class="row"><b>Gates</b><i>still scanning</i></div><div class="row"><b>Stall tills</b><i>still selling</i></div><div class="row"><b>Scoreboard</b><i>still updating</i></div>`);
+ gate('ok','Day ticket · saved on the phone',540);await at(.5);$('pill').className='pill';$('pill').textContent='● Live';tbAdd(`<div class="row ok new"><b>Signal back</b><i>412 scans · 96 sales synced</i></div>`);await at(.97)},
+report: async (t,at)=>{bs('idle');tb(`<div class="h">Morning-after report</div>`);const R=[['Attendance','9,960 · 4 venues'],['Income','EC$ 214,380'],['Sponsor plays','104 · proof attached'],['Incidents','1 · Bequia screen, fixed'],['Highlights','Bennett 65*, player of the match']];
+ for(const [i,[a,b]] of R.entries()){tbAdd(`<div class="row new"><i>${a}</i><b>${b}</b></div>`);await at(.08+i*.12)}await at(.97)},
+close: async (t,at)=>{$('bs').innerHTML=`<div class="sc" style="background:linear-gradient(135deg,#0b3d91,#0a7a4a)"><div class="evt" style="font-size:40px">ONE SYSTEM<br>FOR NATIONAL SPORT</div><div class="evs">EVENT PAL · POWERED BY AVA</div></div>`;emojiUp(12);tb(`<div class="h">From the first fixture to the trophy</div><div class="row ok"><b>Plan · tickets · gates</b><span class="ck">✓</span></div><div class="row ok"><b>4K scoreboards · scorer's pad · fans</b><span class="ck">✓</span></div><div class="row ok"><b>Food · money · reports</b><span class="ck">✓</span></div><div class="row ok"><b>AVA on watch</b><span class="ck">✓</span></div>`);await at(.97)}
+};
+
+const STEPS=S.map(s=>SF[s.id]);
+// ---------- narration ----------
+const NA=new Audio();NA.preload='auto';let narrEnd=null;
+function narrStop(){try{NA.pause()}catch(_){}if(narrEnd){narrEnd();narrEnd=null}}
+function narr(n){narrStop();if(!narrOn)return Promise.resolve();return new Promise(res=>{narrEnd=res;NA.src='audio/step'+n+'.mp3';NA.onended=()=>{narrEnd=null;res()};NA.onerror=()=>{narrEnd=null;res()};const p=NA.play();if(p&&p.catch)p.catch(()=>{narrEnd=null;res()})})}
+$('nb').onclick=()=>{narrOn=!narrOn;$('nb').textContent=narrOn?'🔊 Voice on':'🔇 Voice off';$('nb').setAttribute('aria-pressed',narrOn);if(!narrOn)narrStop()};
+// ---------- animated intro ----------
+function introShow(){const o=$('intro');o.className='on'}
+function introHide(){$('intro').className='';IC.run=false;$('ia').innerHTML=''}
+const IC={ph:[],pt:[],em:[],mode:'off',t0:0,dim:0,run:false};const icv=$('icv'),ig=icv.getContext('2d');
+function icInit(){IC.ph=[];for(let r=0;r<7;r++){const s=.5+r*.13,y=455+r*40,gap=30*s;for(let x=-10+Math.random()*gap;x<1300;x+=gap*(1+Math.random()*.6))IC.ph.push({x,y:y+Math.random()*8,s,l:0,ph:Math.random()*6.3,d:Math.random()})}IC.pt=[];IC.em=[]}
+function icMode(m){IC.mode=m;IC.t0=performance.now()}
+function icBurst(x,y,n){const C=['#FFE000','#ffffff','#3FD0FF','#ff3d8b','#ff9a3d'];const c=C[Math.floor(Math.random()*C.length)];for(let i=0;i<(n||80);i++){const a=Math.random()*6.283,v=60+Math.random()*220;IC.pt.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:0,L:1.2+Math.random()*.8,c})}}
+function icEmoji(n){const E=['💛','🔥','🙌','🎉','💃','🎺','👏'];for(let i=0;i<n;i++){const side=Math.random()<.5;IC.em.push({x:side?40+Math.random()*260:980+Math.random()*260,y:740+Math.random()*120,v:90+Math.random()*80,e:E[Math.floor(Math.random()*7)],s:26+Math.random()*16,ph:Math.random()*6})}}
+function icRun(){if(IC.run)return;IC.run=true;let last=performance.now();const f=now=>{if(!IC.run){ig.clearRect(0,0,1280,720);return}const dt=Math.min(.05,(now-last)/1000);last=now;const T=(now-IC.t0)/1000;ig.clearRect(0,0,1280,720);
+ for(const p of IC.ph){let tl=.05;if(IC.mode==='sparkle')tl=(Math.sin(now/300+p.ph*7)>.85)?.5:.06;else if(IC.mode==='on')tl=T*1.2>p.d?.45:.06;else if(IC.mode==='wave')tl=Math.max(.2,Math.sin(T*4-p.x/90)*.5+.5);else if(IC.mode==='all')tl=.75+.25*Math.sin(now/90+p.ph);
+  p.l+=(tl-p.l)*Math.min(1,dt*6);const w=15*p.s,h=26*p.s,x=p.x,y=p.y-h-12*p.s,a=1-IC.dim;
+  ig.globalAlpha=a;ig.fillStyle='#0d0f1c';ig.beginPath();ig.arc(p.x,p.y+14*p.s,13*p.s,0,6.283);ig.fill();
+  if(p.l>.35){ig.globalAlpha=a*(p.l-.35)*.9;ig.fillStyle=p.ph>3?'#FFE000':'#3FD0FF';ig.beginPath();ig.arc(x+w/2,y+h/2,h*.9,0,6.283);ig.fill()}
+  ig.globalAlpha=a;ig.fillStyle='#2a2e44';ig.fillRect(x-1.5*p.s,y-1.5*p.s,w+3*p.s,h+3*p.s);const l=p.l;ig.fillStyle=p.ph>3?`rgb(${Math.round(25+l*230)},${Math.round(30+l*194)},${Math.round(60-l*60)})`:`rgb(${Math.round(25+l*38)},${Math.round(30+l*178)},${Math.round(60+l*195)})`;ig.fillRect(x,y,w,h)}
+ ig.globalAlpha=1;for(let i=IC.pt.length-1;i>=0;i--){const q=IC.pt[i];q.t+=dt;if(q.t>q.L){IC.pt.splice(i,1);continue}q.vy+=90*dt;q.vx*=.985;q.vy*=.985;q.x+=q.vx*dt;q.y+=q.vy*dt;ig.globalAlpha=Math.max(0,1-q.t/q.L);ig.fillStyle=q.c;ig.fillRect(q.x-1.6,q.y-1.6,3.2,3.2)}
+ ig.globalAlpha=1;ig.textAlign='center';ig.textBaseline='middle';for(let i=IC.em.length-1;i>=0;i--){const e=IC.em[i];e.y-=e.v*dt;if(e.y<-40){IC.em.splice(i,1);continue}ig.font=e.s+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';ig.fillText(e.e,e.x+Math.sin(now/400+e.ph)*14,e.y)}
+ requestAnimationFrame(f)};requestAnimationFrame(f)}
+function iel(id,html,css){let e=document.getElementById(id);if(!e){e=document.createElement('div');e.id=id;e.className='ie';$('ia').appendChild(e)}if(html!=null)e.innerHTML=html;if(css!=null)e.style.cssText=css;return e}
+const ion=e=>{void e.offsetWidth;e.classList.add('on')};const ioff=id=>{const e=document.getElementById(id);if(e)e.classList.remove('on')};
+function ichip(name,desc){const c=iel('iChip',`<b>${name}</b><span>${desc}</span>`);c.classList.remove('on');void c.offsetWidth;c.classList.add('on')}
+function icount(el,to,ms,fmt){if(!el)return;const t0=performance.now();const f=()=>{const k=Math.min(1,(performance.now()-t0)/ms),v=Math.round(to*(1-Math.pow(1-k,3)));el.textContent=fmt?fmt(v):v.toLocaleString();if(k<1&&IC.run)requestAnimationFrame(f)};f()}
+const iscreen=inner=>`<div class="iscr"><div class="iscri">${inner}</div></div><div class="istand"></div>`;
+async function intro(t){mark(-1);introShow();$('intro').classList.add('anim');$('ia').innerHTML='';icInit();icMode('off');IC.dim=0;icRun();
+ const np=narr('intro');const t0=performance.now(),k=narrOn?1:0.8;
+ const at=async ms=>{const w=ms*k-(performance.now()-t0);if(w>0)await sl(w,t);if(t!==tok)throw 'x'};
+ try{
+ const T=iel('iTitle',`<h2>EVENT PAL</h2><p>National sport · one system</p>`);ion(T);icMode('sparkle');
+ await at(3000);T.classList.add('top');IC.dim=.4;icMode('on');
+ const SCR=iel('iScr',iscreen(BS.live()));ion(SCR);ichip('🏏 Every sport, in 4K','Cricket, football and netball scoreboards, straight from the scorer\'s pad');
+ const sc=[CRK('146/3','16.3','8.8','Bennett 65*','James 22*'),FTB(2,1,'67:12'),NTB('Q3 · 9:40',38,35)];let i=0;const iv=setInterval(()=>{if(!IC.run||!SCR.isConnected)return clearInterval(iv);SCR.querySelector('.iscri').innerHTML=sc[(i++)%3]},1500*k);
+ await at(7400);clearInterval(iv);ioff('iScr');IC.dim=.6;
+ const MO=iel('iMon',`<div><small>ARNOS VALE</small><b>5,420</b><span>cricket</span></div><div><small>VICTORIA PARK</small><b>3,180</b><span>football</span></div><div><small>BEQUIA</small><b>820</b><span>netball</span></div><div><small>UNION ISLAND</small><b>540</b><span>athletics</span></div>`);ion(MO);ichip('🏟️ Every venue, every island','One tournament, run as one');
+ await at(9600);ioff('iMon');ioff('iChip');ioff('iTitle');IC.dim=0;icMode('all');const F=iel('iFin',`<b>ONE TOURNAMENT.</b><b class="y">ONE SYSTEM.</b><b class="c">POWERED BY AVA</b>`);ion(F);
+ const fw=setInterval(()=>{if(IC.run)icBurst(150+Math.random()*980,90+Math.random()*200,100)},380);
+ await np;clearInterval(fw);if(!narrOn)await sl(2500,t);if(t!==tok)throw 'x';
+ }finally{if(t!==tok)IC.run=false}
+ $('intro').classList.remove('anim');introHide();await sl(400,t)}
+// ---------- controls ----------
+const sb=$('stepBtns');{const b=document.createElement('button');b.textContent='Intro';b.onclick=async()=>{const t=++tok;playing=false;$('pp').textContent='▶ Play all';try{await intro(t)}catch(e){}introShow()};sb.appendChild(b)}
+S.forEach((s,i)=>{const b=document.createElement('button');b.textContent=(i+1)+' '+s.t.replace(/^The /,'');b.onclick=()=>run(i,false);sb.appendChild(b)});
+function mark(i){[...sb.children].forEach((b,k)=>b.classList.toggle('on',k===i+1));const a=sb.children[i+1];if(a&&sb.scrollWidth>sb.clientWidth)sb.scrollTo({left:a.offsetLeft-sb.offsetLeft-8,behavior:'smooth'})}
+let playing=false;
+async function run(i,all){const t=++tok;playing=all;$('pp').textContent=all?'❚❚ Pause':'▶ Play all';
+ try{if(all&&i===0)await intro(t);else introHide();
+  for(let k=i;k<STEPS.length;k++){base(k);mark(k);cap(k+1,S[k].t,capText(k));const np=narr(k+1);await STEPS[k](t,pace(t,k));await np;if(t!==tok)throw 'x';if(!all)break;await sl(700,t)}}
+ catch(e){if(e!=='x')console.error(e)}if(t===tok){playing=false;$('pp').textContent='▶ Play again'}}
+$('pp').onclick=()=>{if(playing){tok++;playing=false;narrStop();$('pp').textContent='▶ Play'}else run(0,true)};
+base(0);mark(0);cap(1,S[0].t,'Press Play to watch a whole tournament day, or pick a step.');introShow();
+</script>
+</body>
+</html>
