@@ -28,7 +28,7 @@
   .vt{display:flex;flex-direction:column;gap:4px}.vt b{font-size:15px}.vt span{font-size:12px;color:var(--mut)}.vt em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--y);min-height:13px}
   @media (max-width:900px){.vids{max-width:none;flex-basis:100%}}
   iframe{display:block;width:1px;min-width:100%;aspect-ratio:7/5;min-height:520px;border:0;border-radius:14px;background:#26282D}
-  html{background:var(--bg)}
+  html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{overflow-x:hidden;max-width:100%}
   .main{touch-action:pan-y}
   .tip{display:none;margin:8px 2px 0;font-size:12px;color:var(--mut)}
@@ -54,7 +54,7 @@
   <h1>EVENT PAL <span><i class="dot">· </i>POWERED BY AVA</span></h1>
   <p class="lead">One system for fetes, national sport and mas bands, all watched over by AVA.</p>
   <div class="stage">
-  <div class="main"><iframe id="v" title="Event Pal for fetes" allow="autoplay; fullscreen" allowfullscreen src="fete/?embed"></iframe><p class="tip">Turn your phone sideways, or tap the full-screen button, for a bigger picture.</p></div>
+  <div class="main"><iframe id="v" title="Event Pal for fetes" allow="autoplay; fullscreen" allowfullscreen src="fete/?embed&r=3"></iframe><p class="tip">Turn your phone sideways, or tap the full-screen button, for a bigger picture.</p></div>
   <aside class="vids" aria-label="Videos">
     <h2>Videos</h2>
     <button class="vid" type="button" data-v="fete" aria-current="true"><span class="th">FETE<small>5:05</small></span><span class="vt"><b>Event Pal for fetes</b><span>30 steps · 6 chapters</span><em></em></span></button>
@@ -79,7 +79,7 @@ const unlock = (which) => {
 const pick = (which, play) => {
   if (play) unlock(which);
   document.querySelectorAll(".vid").forEach(b => { const on = b.dataset.v === which; b.setAttribute("aria-current", String(on)); b.querySelector("em").textContent = on && play ? "NOW PLAYING" : ""; });
-  const f = document.getElementById("v"); f.title = V[which]; f.src = which + "/?embed" + (play ? "&autoplay=1" : "");
+  const f = document.getElementById("v"); f.title = V[which]; f.src = which + "/?embed&r=3" + (play ? "&autoplay=1" : "");
 };
 // On phones, size the frame to the video page's content so nothing scrolls inside it.
 const fit = () => { const f = document.getElementById("v"); if (innerWidth > 700) { f.style.height = ""; return; }
