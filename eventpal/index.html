@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Event Pal · powered by AVA</title>
-<meta name="description" content="Event Pal explained: one system for any event, and one system for national sport, all watched over by AVA.">
+<meta name="description" content="Event Pal explained: one system for fetes, and one system for national sport, all watched over by AVA.">
 <meta property="og:title" content="Event Pal · powered by AVA">
-<meta property="og:description" content="Event Pal explained: one system for any event, and one system for national sport, all watched over by AVA.">
+<meta property="og:description" content="Event Pal explained: one system for fetes, and one system for national sport, all watched over by AVA.">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{--y:#FFE000;--c:#3FD0FF;--bg:#0b0b10;--mut:#a3a3ad}
@@ -26,21 +26,21 @@
 <body>
 <div class="wrap">
   <h1>EVENT PAL <span>· POWERED BY AVA</span></h1>
-  <p class="lead">Pick a video: Event Pal for any event, or Event Pal for national sport.</p>
+  <p class="lead">Pick a video: Event Pal for fetes, or Event Pal for national sport.</p>
   <div class="tabs" role="tablist" aria-label="Choose a video">
-    <button role="tab" id="t-generic" aria-selected="true" aria-controls="v">Generic</button>
+    <button role="tab" id="t-fete" aria-selected="true" aria-controls="v">Fete</button>
     <button role="tab" id="t-sports" aria-selected="false" aria-controls="v">Sports</button>
   </div>
-  <iframe id="v" title="Event Pal video" allow="autoplay; fullscreen" src="generic/?embed"></iframe>
+  <iframe id="v" title="Event Pal video" allow="autoplay; fullscreen" src="fete/?embed"></iframe>
 </div>
 <script>
-// One viewer, two videos. ?v=sports opens on the sports one; ?embed hides this page's heading.
+// One viewer, two videos (Fete and Sports; the older generic video stays at generic/). ?v=sports opens on the sports one; ?embed hides this page's heading.
 const pick = (which) => {
-  for (const k of ["generic", "sports"]) document.getElementById("t-" + k).setAttribute("aria-selected", String(k === which));
+  for (const k of ["fete", "sports"]) document.getElementById("t-" + k).setAttribute("aria-selected", String(k === which));
   document.getElementById("v").src = which + "/?embed";
-  document.getElementById("v").title = which === "sports" ? "Event Pal for national sport" : "Event Pal for any event";
+  document.getElementById("v").title = which === "sports" ? "Event Pal for national sport" : "Event Pal for fetes";
 };
-document.getElementById("t-generic").onclick = () => pick("generic");
+document.getElementById("t-fete").onclick = () => pick("fete");
 document.getElementById("t-sports").onclick = () => pick("sports");
 if (new URLSearchParams(location.search).get("v") === "sports") pick("sports");
 </script>
