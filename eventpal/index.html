@@ -13,7 +13,7 @@
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:#f4f4f6;font-family:Inter,system-ui,sans-serif}
   .wrap{max-width:1240px;margin:0 auto;padding:20px 16px 30px}
-  h1{font:800 clamp(26px,4vw,42px) "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.5px;margin:0;color:#F4F7FA;display:flex;align-items:center;gap:12px;flex-wrap:wrap}h1::before{content:"";width:7px;height:.85em;border-radius:3px;background:var(--y)}h1 span{color:var(--y)}
+  h1{font:800 clamp(26px,4vw,42px) "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.5px;margin:0;color:#F4F7FA;display:flex;align-items:center;gap:12px;flex-wrap:wrap}h1::before{content:"";width:7px;height:.85em;border-radius:3px;background:var(--y)}h1 span{color:var(--y)}h1 .dot{font-style:normal}
   .lead{color:var(--mut);margin:6px 0 14px}
   .stage{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
   .main{flex:999 1 640px;min-width:0}
@@ -27,7 +27,22 @@
   .th small{position:absolute;right:6px;bottom:5px;background:rgba(0,0,0,.75);border-radius:4px;padding:1px 5px;font:500 11px Inter,sans-serif;font-variant-numeric:tabular-nums}
   .vt{display:flex;flex-direction:column;gap:4px}.vt b{font-size:15px}.vt span{font-size:12px;color:var(--mut)}.vt em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--y);min-height:13px}
   @media (max-width:900px){.vids{max-width:none;flex-basis:100%}}
-  iframe{display:block;width:100%;aspect-ratio:7/5;min-height:520px;border:0;border-radius:14px;background:#26282D}
+  iframe{display:block;width:1px;min-width:100%;aspect-ratio:7/5;min-height:520px;border:0;border-radius:14px;background:#26282D}
+  html{background:var(--bg)}
+  html,body{overflow-x:hidden;max-width:100%}
+  .main{touch-action:pan-y}
+  .tip{display:none;margin:8px 2px 0;font-size:12px;color:var(--mut)}
+  @media (max-width:700px){
+    .wrap{padding:16px 12px 24px}
+    h1{font-size:28px;gap:8px}h1 span{flex-basis:100%;font-size:22px}h1 .dot{display:none}
+    .lead{font-size:14px;margin:6px 0 12px}
+    iframe{aspect-ratio:auto;min-height:0;height:640px;border-radius:12px}
+    .tip{display:block}
+    .stage{gap:14px}
+    .vids{padding:10px 6px;gap:2px}
+    .th{width:92px;height:52px;font-size:14px}.th small{font-size:10px}
+    .vt b{font-size:14px}.vt span{font-size:11px}
+  }
   html.embed .wrap{padding:6px}html.embed h1,html.embed .lead{display:none}
   body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url%28%2523g%29'/%3E%3C/svg%3E")}
   .wrap,main,body>*{position:relative}
@@ -36,10 +51,10 @@
 </head>
 <body>
 <div class="wrap">
-  <h1>EVENT PAL <span>· POWERED BY AVA</span></h1>
+  <h1>EVENT PAL <span><i class="dot">· </i>POWERED BY AVA</span></h1>
   <p class="lead">One system for fetes, national sport and mas bands, all watched over by AVA.</p>
   <div class="stage">
-  <div class="main"><iframe id="v" title="Event Pal for fetes" allow="autoplay; fullscreen" allowfullscreen src="fete/?embed"></iframe></div>
+  <div class="main"><iframe id="v" title="Event Pal for fetes" allow="autoplay; fullscreen" allowfullscreen src="fete/?embed"></iframe><p class="tip">Turn your phone sideways, or tap the full-screen button, for a bigger picture.</p></div>
   <aside class="vids" aria-label="Videos">
     <h2>Videos</h2>
     <button class="vid" type="button" data-v="fete" aria-current="true"><span class="th">FETE<small>5:05</small></span><span class="vt"><b>Event Pal for fetes</b><span>30 steps · 6 chapters</span><em></em></span></button>
@@ -66,6 +81,11 @@ const pick = (which, play) => {
   document.querySelectorAll(".vid").forEach(b => { const on = b.dataset.v === which; b.setAttribute("aria-current", String(on)); b.querySelector("em").textContent = on && play ? "NOW PLAYING" : ""; });
   const f = document.getElementById("v"); f.title = V[which]; f.src = which + "/?embed" + (play ? "&autoplay=1" : "");
 };
+// On phones, size the frame to the video page's content so nothing scrolls inside it.
+const fit = () => { const f = document.getElementById("v"); if (innerWidth > 700) { f.style.height = ""; return; }
+  try { const d = f.contentDocument, w = d.querySelector(".wrap") || d.body; const h = Math.ceil(w.getBoundingClientRect().bottom + 4); if (h > 100 && Math.abs(h - f.clientHeight) > 2) f.style.height = h + "px"; } catch (_) {} };
+document.getElementById("v").addEventListener("load", () => { fit(); setTimeout(fit, 600); });
+addEventListener("resize", fit); setInterval(fit, 1500);
 document.querySelectorAll(".vid").forEach(b => b.onclick = () => pick(b.dataset.v, true));
 if (new URLSearchParams(location.search).get("v") === "sports") pick("sports", false);
 </script>
