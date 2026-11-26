@@ -15,10 +15,19 @@
   .wrap{max-width:1240px;margin:0 auto;padding:20px 16px 30px}
   h1{font:800 clamp(26px,4vw,42px) "Bricolage Grotesque",Inter,sans-serif;letter-spacing:-.5px;margin:0;color:#F4F7FA;display:flex;align-items:center;gap:12px;flex-wrap:wrap}h1::before{content:"";width:7px;height:.85em;border-radius:3px;background:var(--y)}h1 span{color:var(--y)}
   .lead{color:var(--mut);margin:6px 0 14px}
-  .tabs{display:flex;gap:8px;margin:0 0 12px}
-  .tabs button{font:800 15px Inter,sans-serif;letter-spacing:.5px;padding:10px 22px;min-height:44px;border-radius:999px;border:1px solid #3A3D44;background:#1C1D21;color:#F4F7FA;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
-  .tabs button[aria-selected="true"]{background:var(--y);color:#1A1B1F;border-color:var(--y);box-shadow:0 3px 0 #8F6510,inset 0 1px 0 rgba(255,255,255,.45)}
-  iframe{display:block;width:100%;aspect-ratio:16/12;min-height:600px;border:0;border-radius:14px;background:#26282D}
+  .stage{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+  .main{flex:999 1 640px;min-width:0}
+  .vids{flex:1 1 280px;max-width:340px;background:#1C1D21;border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;gap:8px;box-shadow:inset 0 2px 7px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.06)}
+  .vids h2{font:700 16px Inter,sans-serif;margin:0;padding:0 8px 4px}
+  .vid{display:flex;gap:12px;align-items:center;width:100%;padding:8px;border-radius:12px;border:0;background:transparent;color:#F4F7FA;cursor:pointer;text-align:left;font:inherit}
+  .vid:hover{background:#26282D}
+  .vid[aria-current="true"]{background:#33363C;box-shadow:inset 0 0 0 2px var(--y)}
+  .vid:focus-visible{outline:2px solid #F4F7FA;outline-offset:2px}
+  .th{position:relative;flex:none;width:128px;height:72px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:radial-gradient(90% 90% at 40% 30%,#3A3D44,#16171A);box-shadow:inset 0 0 0 1px #3A3D44;font:800 17px "Bricolage Grotesque",Inter,sans-serif}
+  .th small{position:absolute;right:6px;bottom:5px;background:rgba(0,0,0,.75);border-radius:4px;padding:1px 5px;font:500 11px Inter,sans-serif;font-variant-numeric:tabular-nums}
+  .vt{display:flex;flex-direction:column;gap:4px}.vt b{font-size:15px}.vt span{font-size:12px;color:var(--mut)}.vt em{font-style:normal;font-size:11px;font-weight:700;letter-spacing:1.2px;color:var(--y);min-height:13px}
+  @media (max-width:900px){.vids{max-width:none;flex-basis:100%}}
+  iframe{display:block;width:100%;aspect-ratio:7/5;min-height:520px;border:0;border-radius:14px;background:#26282D}
   html.embed .wrap{padding:6px}html.embed h1,html.embed .lead{display:none}
   body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url%28%2523g%29'/%3E%3C/svg%3E")}
   .wrap,main,body>*{position:relative}
@@ -28,23 +37,26 @@
 <body>
 <div class="wrap">
   <h1>EVENT PAL <span>· POWERED BY AVA</span></h1>
-  <p class="lead">Pick a video: Event Pal for fetes, or Event Pal for national sport.</p>
-  <div class="tabs" role="tablist" aria-label="Choose a video">
-    <button role="tab" id="t-fete" aria-selected="true" aria-controls="v">Fete</button>
-    <button role="tab" id="t-sports" aria-selected="false" aria-controls="v">Sports</button>
+  <p class="lead">One system for fetes, and one for national sport, all watched over by AVA.</p>
+  <div class="stage">
+  <div class="main"><iframe id="v" title="Event Pal for fetes" allow="autoplay; fullscreen" allowfullscreen src="fete/?embed"></iframe></div>
+  <aside class="vids" aria-label="Videos">
+    <h2>Videos</h2>
+    <button class="vid" type="button" data-v="fete" aria-current="true"><span class="th">FETE<small>5:05</small></span><span class="vt"><b>Event Pal for fetes</b><span>30 steps · 6 chapters</span><em></em></span></button>
+    <button class="vid" type="button" data-v="sports" aria-current="false"><span class="th">SPORT<small>3:15</small></span><span class="vt"><b>Event Pal for sport</b><span>19 steps · 6 chapters</span><em></em></span></button>
+  </aside>
   </div>
-  <iframe id="v" title="Event Pal video" allow="autoplay; fullscreen" src="fete/?embed"></iframe>
 </div>
 <script>
-// One viewer, two videos (Fete and Sports; generic/ now also shows the fete video; the older one is at generic-old/). ?v=sports opens on the sports one; ?embed hides this page's heading.
-const pick = (which) => {
-  for (const k of ["fete", "sports"]) document.getElementById("t-" + k).setAttribute("aria-selected", String(k === which));
-  document.getElementById("v").src = which + "/?embed";
-  document.getElementById("v").title = which === "sports" ? "Event Pal for national sport" : "Event Pal for fetes";
+// One viewer, two videos. Picking one in the list plays it straight away (the click lets the browser play sound).
+// ?v=sports opens on the sports video; ?embed hides this page's heading. generic/ also shows the fete video; the old one is at generic-old/.
+const V = { fete: "Event Pal for fetes", sports: "Event Pal for sport" };
+const pick = (which, play) => {
+  document.querySelectorAll(".vid").forEach(b => { const on = b.dataset.v === which; b.setAttribute("aria-current", String(on)); b.querySelector("em").textContent = on && play ? "NOW PLAYING" : ""; });
+  const f = document.getElementById("v"); f.title = V[which]; f.src = which + "/?embed" + (play ? "&autoplay=1" : "");
 };
-document.getElementById("t-fete").onclick = () => pick("fete");
-document.getElementById("t-sports").onclick = () => pick("sports");
-if (new URLSearchParams(location.search).get("v") === "sports") pick("sports");
+document.querySelectorAll(".vid").forEach(b => b.onclick = () => pick(b.dataset.v, true));
+if (new URLSearchParams(location.search).get("v") === "sports") pick("sports", false);
 </script>
 </body>
 </html>
