@@ -34,7 +34,7 @@
   <iframe id="v" title="Event Pal video" allow="autoplay; fullscreen" src="fete/?embed"></iframe>
 </div>
 <script>
-// One viewer, two videos (Fete and Sports; the older generic video stays at generic/). ?v=sports opens on the sports one; ?embed hides this page's heading.
+// One viewer, two videos (Fete and Sports; generic/ now also shows the fete video; the older one is at generic-old/). ?v=sports opens on the sports one; ?embed hides this page's heading.
 const pick = (which) => {
   for (const k of ["fete", "sports"]) document.getElementById("t-" + k).setAttribute("aria-selected", String(k === which));
   document.getElementById("v").src = which + "/?embed";
