@@ -30,7 +30,7 @@
   {
    "id": "tiers",
    "title": "Tiers and wristbands",
-   "text": "General, VIP and all-inclusive. Each tier gets its own colour, its own wristband, and its own lane at the gate."
+   "text": "General, VIP and all-inclusive. Each tier gets its own colour, and its own lane at the gate. And its own wristband, if wristbands are used."
   },
   {
    "id": "outlets",
@@ -60,7 +60,7 @@
   {
    "id": "inclusive",
    "title": "All-inclusive",
-   "text": "All-inclusive guests tap their wristband to be served. No cash, no tokens, and the limits you set, per night or per hour."
+   "text": "All-inclusive guests tap their wristband to be served, if wristbands are used. No cash, no tokens, and the limits you set, per night or per hour."
   },
   {
    "id": "barsales",
@@ -70,7 +70,7 @@
   {
    "id": "restock",
    "title": "Restocking",
-   "text": "Stock is issued to each bar, and confirmed with a PIN. When a bar runs low, a runner gets the alert. At close, you see what's missing, bar by bar."
+   "text": "Stock is issued to each bar, and confirmed with a PIN. When a bar runs low, a runner gets the alert. The runner collects the drinks, each case tagged with a QR code, and scans them in at the bar. At close, you see what's missing, bar by bar."
   },
   {
    "id": "food",
@@ -121,6 +121,11 @@
    "id": "monitor",
    "title": "Pal Monitor",
    "text": "Run the whole fete from your phone. Gates, bars, stock, sales, and alerts, on Pal Monitor."
+  },
+  {
+   "id": "assist",
+   "title": "Your assistant, your eyes",
+   "text": "Think of AVA as your personal assistant, and your eyes at the event. She watches every gate, every bar and every screen, all night, all at once. She spots a problem before you do, works out why, and tells the right person. And when you need to know something, just ask her. How many are in, which bar's busiest, what's running low. She answers in seconds, so you can enjoy your own fete."
   },
   {
    "id": "watch",
