@@ -34,6 +34,7 @@
   #avaIntro{position:fixed;inset:0;z-index:50;background:#000;color:#F4F7FA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px 20px 28px;font-family:Inter,system-ui,sans-serif;transition:opacity .6s}
   #avaIntro.gone{opacity:0;pointer-events:none}
   #avaIntro[hidden]{display:none}
+  #aiSkip[hidden]{display:none}
   #aiSkip{position:absolute;top:max(14px,env(safe-area-inset-top));right:16px;height:38px;padding:0 16px;border-radius:19px;border:1px solid #3A3D44;background:#111214;color:#C7CACF;font:700 13px Inter,sans-serif;cursor:pointer}
   .orbw{position:relative;width:min(230px,52vw);aspect-ratio:1;flex:none}
   .orbw i{position:absolute;inset:0;border-radius:50%;border:2px solid #F5B82E;opacity:0;transform:scale(1)}
@@ -76,7 +77,7 @@
 </head>
 <body>
 <div id="avaIntro" role="dialog" aria-label="AVA introduces Event Pal">
-  <button id="aiSkip" type="button">Skip to the videos</button>
+  <button id="aiSkip" type="button" hidden>Skip</button>
   <div class="orbw" id="aiOrbW"><i></i><i></i><i></i><div id="aiOrb"><b>AVA</b></div></div>
   <div class="aiText" id="aiText" aria-live="polite"></div>
   <div class="aiBtns" id="aiBtns"></div>
@@ -150,7 +151,7 @@ const loadPlayer = () => { if (document.getElementById("v").getAttribute("src") 
   const close = () => { if (done) return; done = true; try { A.pause(); } catch (_) {} A.onended = null; box.classList.add("gone"); setTimeout(() => { box.hidden = true; cancelAnimationFrame(raf); }, 650);
     try { localStorage.setItem("ep-intro-seen", "1"); } catch (_) {} loadPlayer(); };
   const next = () => { cur++; if (cur >= SEGS.length) return close(); const s = SEGS[cur]; say(s.h, s.p); play("s" + cur, next); };
-  const start = () => { btns.innerHTML = ""; skip.textContent = "Skip intro"; say("", "Hi, I am AVA. I look after events with Event Pal."); glow(); play("greet", next); };
+  const start = () => { btns.innerHTML = ""; say("", "Hi, I am AVA. I look after events with Event Pal."); glow(); play("greet", next); };
   const open = () => { done = false; cur = -1; box.hidden = false; box.classList.remove("gone"); orb.style.setProperty("--lv", 0); start(); };
   skip.onclick = close;
   addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) close(); });
