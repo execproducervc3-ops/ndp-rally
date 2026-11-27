@@ -7,7 +7,7 @@
 <meta name="description" content="Event Pal explained: one system for fetes, and one system for national sport, all watched over by AVA.">
 <meta property="og:title" content="Event Pal · powered by AVA">
 <meta property="og:description" content="Event Pal explained: one system for fetes, and one system for national sport, all watched over by AVA.">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{--y:#F5B82E;--c:#F5B82E;--bg:#26282D;--mut:#A3A7AE}
   *{box-sizing:border-box}
@@ -30,6 +30,29 @@
   iframe{display:block;width:1px;min-width:100%;aspect-ratio:7/5;min-height:520px;border:0;border-radius:14px;background:#26282D}
   html{background:var(--bg);-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{overflow-x:hidden;max-width:100%}
+  /* AVA's intro: black screen, her disc lights up with her voice; skippable at every step */
+  #avaIntro{position:fixed;inset:0;z-index:50;background:#000;color:#F4F7FA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px 20px 28px;font-family:Inter,system-ui,sans-serif;transition:opacity .6s}
+  #avaIntro.gone{opacity:0;pointer-events:none}
+  #aiSkip{position:absolute;top:max(14px,env(safe-area-inset-top));right:16px;height:38px;padding:0 16px;border-radius:19px;border:1px solid #3A3D44;background:#111214;color:#C7CACF;font:700 13px Inter,sans-serif;cursor:pointer}
+  .orbw{position:relative;width:min(230px,52vw);aspect-ratio:1;flex:none}
+  .orbw i{position:absolute;inset:0;border-radius:50%;border:2px solid #F5B82E;opacity:0;transform:scale(1)}
+  .orbw.talk i{animation:aiRing 1.8s ease-out infinite}.orbw.talk i:nth-child(2){animation-delay:.6s}.orbw.talk i:nth-child(3){animation-delay:1.2s}
+  @keyframes aiRing{0%{opacity:.5;transform:scale(1)}100%{opacity:0;transform:scale(1.45)}}
+  #aiOrb{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 40% 35%,#3A3D44,#1C1D21 70%);border:4px solid #F5B82E;display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 calc(10px + var(--lv,0)*90px) calc(var(--lv,0)*18px) rgba(245,184,46,calc(.15 + var(--lv,0)*.6)),inset 0 0 calc(var(--lv,0)*60px) rgba(245,184,46,calc(var(--lv,0)*.5));transform:scale(calc(1 + var(--lv,0)*.04))}
+  #aiOrb b{font:400 clamp(46px,13vw,64px)/1 Anton,Impact,sans-serif;letter-spacing:4px;color:#fff;text-shadow:0 0 calc(var(--lv,0)*24px) rgba(255,214,120,.9)}
+  .aiText{max-width:720px;min-height:7.5em;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
+  .aiText h2{margin:0;font:800 clamp(22px,4.6vw,34px)/1.15 "Bricolage Grotesque",Inter,sans-serif;color:#F5B82E}
+  .aiText p{margin:0;font-size:clamp(15px,2.6vw,19px);line-height:1.5;color:#D9DCE0}
+  .aiText .fade{animation:aiIn .5s both}@keyframes aiIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .aiBtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .aiBtns button,.aiBtns a{height:52px;padding:0 24px;border-radius:14px;font:800 16px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
+  .aiGo{border:0;background:#F5B82E;color:#1A1B1F;box-shadow:0 3px 0 #8F6510,inset 0 1px 0 rgba(255,255,255,.45)}
+  .aiAlt{border:1px solid #3A3D44;background:#111214;color:#F4F7FA}
+  #aiSkip:focus-visible,.aiBtns button:focus-visible,.aiBtns a:focus-visible{outline:2px solid #fff;outline-offset:3px}
+  .replay{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:none;border:0;color:#F5B82E;font:700 13px Inter,sans-serif;cursor:pointer;padding:0}
+  html.embed .replay{display:none}
+
   .main{touch-action:pan-y}
   .tip{display:none;margin:8px 2px 0;font-size:12px;color:var(--mut)}
   @media (max-width:700px){
@@ -50,11 +73,18 @@
 <script>if(/embed/.test(location.search))document.documentElement.classList.add('embed')</script>
 </head>
 <body>
+<div id="avaIntro" role="dialog" aria-label="AVA introduces Event Pal">
+  <button id="aiSkip" type="button">Skip to the videos</button>
+  <div class="orbw" id="aiOrbW"><i></i><i></i><i></i><div id="aiOrb"><b>AVA</b></div></div>
+  <div class="aiText" id="aiText" aria-live="polite"></div>
+  <div class="aiBtns" id="aiBtns"></div>
+</div>
 <div class="wrap">
   <h1>EVENT PAL <span><i class="dot">· </i>POWERED BY AVA</span></h1>
   <p class="lead">One system for fetes, national sport and mas bands, all watched over by AVA.</p>
+  <button class="replay" id="replayIntro" type="button">▶ Hear AVA's introduction</button>
   <div class="stage">
-  <div class="main"><iframe id="v" title="Event Pal for fetes" allow="autoplay; fullscreen" allowfullscreen src="fete/?embed&r=3"></iframe><p class="tip">Turn your phone sideways, or tap the full-screen button, for a bigger picture.</p></div>
+  <div class="main"><iframe id="v" title="Event Pal for fetes" allow="autoplay; fullscreen" allowfullscreen src="about:blank"></iframe><p class="tip">Turn your phone sideways, or tap the full-screen button, for a bigger picture.</p></div>
   <aside class="vids" aria-label="Videos">
     <h2>Videos</h2>
     <button class="vid" type="button" data-v="fete" aria-current="true"><span class="th">FETE<small>5:05</small></span><span class="vt"><b>Event Pal for fetes</b><span>30 steps · 6 chapters</span><em></em></span></button>
@@ -66,7 +96,7 @@
 <script>
 // One viewer, two videos. Picking one in the list plays it straight away (the click lets the browser play sound).
 // ?v=sports opens on the sports video; ?embed hides this page's heading. generic/ also shows the fete video; the old one is at generic-old/.
-const V = { fete: "Event Pal for fetes", sports: "Event Pal for sport" };
+const V = { fete: "Event Pal for fetes", sports: "Event Pal for sport", mas: "Event Pal for mas bands" };
 // One audio player, owned by this page: the click on a video card unlocks it, and the video in the frame plays its voice through it.
 window.EP_AUDIO = new Audio(); EP_AUDIO.preload = "auto";
 const unlock = (which) => {
@@ -87,7 +117,42 @@ const fit = () => { const f = document.getElementById("v"); if (innerWidth > 700
 document.getElementById("v").addEventListener("load", () => { fit(); setTimeout(fit, 600); });
 addEventListener("resize", fit); setInterval(fit, 1500);
 document.querySelectorAll(".vid").forEach(b => b.onclick = () => pick(b.dataset.v, true));
-if (new URLSearchParams(location.search).get("v") === "sports") pick("sports", false);
+const START = ["sports", "mas"].includes(new URLSearchParams(location.search).get("v")) ? new URLSearchParams(location.search).get("v") : "fete";
+const loadPlayer = () => { if (document.getElementById("v").getAttribute("src") === "about:blank") pick(START, false); };
+
+// ---------- AVA's intro ----------
+// Black screen, AVA's disc. One tap to meet her (browsers need a tap before sound), she introduces herself and offers to
+// tell the visitor about Event Pal. "Skip to the videos" works at every step. The player only loads when the intro ends.
+(() => {
+  const box = document.getElementById("avaIntro"), txt = document.getElementById("aiText"), btns = document.getElementById("aiBtns"),
+        orb = document.getElementById("aiOrb"), orbw = document.getElementById("aiOrbW"), skip = document.getElementById("aiSkip");
+  const CONTACT = "";   // where "Talk to us about your next event" goes (WhatsApp, email or a contact page)
+  const SEGS = [{"h": "What is Event Pal?", "p": "Event Pal is an all-in-one event management system that runs your whole event from one place. Tickets and the gate, the big screens, the bars and food, and a live view of everything as it happens all work together as one system. Watching over it is AVA, your personal assistant and your eyes at the event."}, {"h": "", "p": "No more juggling a ticket company, a screen crew, a bar spreadsheet and a dozen WhatsApp groups. Event Pal ties every part together, so what happens at the gate shows up in your numbers, what sells at the bar shows up on your screen, and you know what&#x27;s going on without having to be everywhere at once."}, {"h": "One system, every part of your event", "p": ""}, {"h": "Access Pal: tickets and the gate", "p": "Secure tickets with proprietary QR codes that can&#x27;t be copied, edited or passed off as screenshots. Sell through your ticket outlets: each ticket only comes alive when an outlet scans it at the point of sale, so unsold or stolen tickets are turned away at the gate. Track early bird, general and VIP sales by outlet and by ticket type, and see what every outlet owes you."}, {"h": "Big screens", "p": "Event graphics, announcements and live scoreboards, built for your event and sent straight to your screen provider in whatever format they need, up to 4K. Your sponsors&#x27; slides rotate on a schedule you control, and your MC can play any of them on demand."}, {"h": "Event Pal tills: bars and food", "p": "Fast tills for every bar and food station, with stock issued to each bar, restocks scanned in, and a count at close showing exactly what went where. Running all-inclusive? Staff tap to serve and every drink is still counted, with limits per guest if wristbands are used."}, {"h": "Pal Monitor: your live view", "p": "Ticket sales, gate numbers, bar takings and stock levels, live on your phone or computer, from anywhere."}, {"h": "AVA: your assistant at the event", "p": "I keep watch over the whole system. I spot problems, alert you on Telegram, answer your guests&#x27; questions (like where to buy tickets or how to get there), and keep the crowd involved through the big screen and their phones."}, {"h": "Built for every kind of event", "p": "Fetes, concerts, sports tournaments, carnival mas bands, awards ceremonies, graduations, weddings, funerals and more. Each starts from its own ready-made setup, and anything else can be set up from scratch."}, {"h": "Your event stays yours", "p": "Your ticket sales, takings and event information belong to you. No one else sees them. Event Pal is built with security at every step, from the codes on your tickets to who can open and close a cash drawer."}, {"h": "", "p": "Event Pal. Powered by AVA."}];
+  const A = new Audio(); A.preload = "auto"; let ctx = null, an = null, buf = null, raf = 0, cur = -1, done = false;
+  const say = (h, p) => { txt.innerHTML = (h ? `<h2 class="fade">${h}</h2>` : "") + (p ? `<p class="fade">${p}</p>` : ""); };
+  const buttons = list => { btns.innerHTML = ""; list.forEach(([label, fn, alt, href]) => { const b = document.createElement(href ? "a" : "button");
+    b.className = alt ? "aiAlt" : "aiGo"; b.textContent = label; if (href) { b.href = href; b.target = "_blank"; b.rel = "noopener"; } else { b.type = "button"; b.onclick = fn; } btns.appendChild(b); }); };
+  const glow = () => { let lv = 0; if (an && !A.paused) { an.getByteTimeDomainData(buf); let s = 0; for (const v of buf) { const x = (v - 128) / 128; s += x * x; } lv = Math.min(1, Math.sqrt(s / buf.length) * 4.2); }
+    const prev = +orb.style.getPropertyValue("--lv") || 0; orb.style.setProperty("--lv", (prev * .55 + lv * .45).toFixed(3)); orbw.classList.toggle("talk", !A.paused); raf = requestAnimationFrame(glow); };
+  const audioOn = () => { try { if (!ctx) { ctx = new (window.AudioContext || window.webkitAudioContext)(); const src = ctx.createMediaElementSource(A); an = ctx.createAnalyser(); an.fftSize = 512;
+      buf = new Uint8Array(an.fftSize); src.connect(an); an.connect(ctx.destination); } ctx.resume && ctx.resume(); } catch (_) {} };
+  const play = (f, then) => { A.onended = () => setTimeout(then, 450); A.src = new URL("intro/audio/" + f + ".mp3", location.href).href; const p = A.play(); if (p && p.catch) p.catch(() => buttons([["Tap to hear AVA", () => { audioOn(); btns.innerHTML = ""; A.play().catch(then); }], ["Skip to the videos", close, true]])); };
+  const close = () => { if (done) return; done = true; try { A.pause(); } catch (_) {} A.onended = null; box.classList.add("gone"); setTimeout(() => { box.hidden = true; cancelAnimationFrame(raf); }, 650);
+    try { localStorage.setItem("ep-intro-seen", "1"); } catch (_) {} loadPlayer(); };
+  const next = () => { cur++; if (cur >= SEGS.length) return finish(); const s = SEGS[cur]; say(s.h, s.p); play("s" + cur, next); };
+  const finish = () => { say("", "Event Pal. Powered by AVA."); skip.textContent = "Close";
+    buttons([...(CONTACT ? [["Talk to us about your next event", null, false, CONTACT]] : []), ["Watch the videos", close, !!CONTACT]]); setTimeout(() => { if (!done && !CONTACT) close(); }, 6000); };
+  const offer = () => { say("", "Would you like me to tell you about Event Pal? It takes about three minutes.");
+    buttons([["Yes, tell me", () => { btns.innerHTML = ""; skip.textContent = "Skip intro"; next(); }], ["Skip to the videos", close, true]]); };
+  const start = () => { audioOn(); btns.innerHTML = ""; say("", "Hi, I am AVA. I look after events with Event Pal."); glow(); play("greet", offer); };
+  const open = () => { done = false; cur = -1; box.hidden = false; box.classList.remove("gone"); skip.textContent = "Skip to the videos"; orb.style.setProperty("--lv", 0);
+    say("", ""); buttons([["Meet AVA", start], ["Skip to the videos", close, true]]); };
+  skip.onclick = close;
+  addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) close(); });
+  const embedded = document.documentElement.classList.contains("embed") && !/[?&]intro\b/.test(location.search);
+  if (embedded || /[?&]nointro\b/.test(location.search)) { box.hidden = true; loadPlayer(); } else open();
+  const r = document.getElementById("replayIntro"); if (r) r.onclick = () => { try { EP_AUDIO.pause(); } catch (_) {} open(); };
+})();
 </script>
 </body>
 </html>
