@@ -49,6 +49,7 @@
   .aiBtns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
   .aiBtns button,.aiBtns a{height:52px;padding:0 24px;border-radius:14px;font:800 16px Inter,sans-serif;cursor:pointer;display:inline-flex;align-items:center;text-decoration:none}
   .aiGo{border:0;background:#F5B82E;color:#1A1B1F;box-shadow:0 3px 0 #8F6510,inset 0 1px 0 rgba(255,255,255,.45)}
+  .aiHint{margin:0;color:#F5B82E;font:700 15px Inter,sans-serif;animation:aiPulse 1.6s ease-in-out infinite}@keyframes aiPulse{50%{opacity:.45}}
   .aiAlt{border:1px solid #3A3D44;background:#111214;color:#F4F7FA}
   #aiSkip:focus-visible,.aiBtns button:focus-visible,.aiBtns a:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .replay{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:none;border:0;color:#F5B82E;font:700 13px Inter,sans-serif;cursor:pointer;padding:0}
@@ -79,6 +80,7 @@
   <div class="orbw" id="aiOrbW"><i></i><i></i><i></i><div id="aiOrb"><b>AVA</b></div></div>
   <div class="aiText" id="aiText" aria-live="polite"></div>
   <div class="aiBtns" id="aiBtns"></div>
+  <p class="aiHint" id="aiHint" hidden>Tap anywhere to hear AVA</p>
 </div>
 <div class="wrap">
   <h1>EVENT PAL <span><i class="dot">· </i>POWERED BY AVA</span></h1>
@@ -126,7 +128,7 @@ const loadPlayer = () => { if (document.getElementById("v").getAttribute("src") 
 // tell the visitor about Event Pal. "Skip to the videos" works at every step. The player only loads when the intro ends.
 (() => {
   const box = document.getElementById("avaIntro"), txt = document.getElementById("aiText"), btns = document.getElementById("aiBtns"),
-        orb = document.getElementById("aiOrb"), orbw = document.getElementById("aiOrbW"), skip = document.getElementById("aiSkip");
+        orb = document.getElementById("aiOrb"), orbw = document.getElementById("aiOrbW"), skip = document.getElementById("aiSkip"), hint = document.getElementById("aiHint");
   const CONTACT = "tel:+17844985056";   // where "Talk to us about your next event" goes (WhatsApp, email or a contact page)
   const SEGS = [{"h": "What is Event Pal?", "p": "Event Pal is an all-in-one event management system that runs your whole event from one place. Tickets and the gate, the big screens, the bars and food, and a view of everything in real time as it happens all work together as one system. Watching over it is AVA, your personal assistant and your eyes at the event."}, {"h": "", "p": "No more juggling a ticket company, a screen crew, a bar spreadsheet and a dozen WhatsApp groups. Event Pal ties every part together, so what happens at the gate shows up in your numbers, what sells at the bar shows up on your screen, and you know what&#x27;s going on without having to be everywhere at once."}, {"h": "One system, every part of your event", "p": ""}];
   const A = new Audio(); A.preload = "auto"; let raf = 0, cur = -1, done = false;
@@ -135,21 +137,21 @@ const loadPlayer = () => { if (document.getElementById("v").getAttribute("src") 
     b.className = alt ? "aiAlt" : "aiGo"; b.textContent = label; if (href) { b.href = href; if (!href.startsWith("tel:")) { b.target = "_blank"; b.rel = "noopener"; } } else { b.type = "button"; b.onclick = fn; } btns.appendChild(b); }); };
   // The glow follows a volume map of each recording (intro/audio/env.json), not live audio processing:
   // routing the voice through Web Audio can leave it silent on iPhones, especially inside an embed.
-  let ENV = {}, curF = ""; fetch(new URL("intro/audio/env.json?v=4", location.href)).then(r => r.json()).then(j => ENV = j).catch(() => {});
+  let ENV = {}, curF = ""; fetch(new URL("intro/audio/env.json?v=5", location.href)).then(r => r.json()).then(j => ENV = j).catch(() => {});
   const glow = () => { let lv = 0; const e = ENV[curF]; if (!A.paused && e) lv = e[Math.min(e.length - 1, Math.floor(A.currentTime * 30))] || 0; else if (!A.paused) lv = .35 + .25 * Math.sin(performance.now() / 140);
     const prev = +orb.style.getPropertyValue("--lv") || 0; orb.style.setProperty("--lv", (prev * .55 + lv * .45).toFixed(3)); orbw.classList.toggle("talk", !A.paused); raf = requestAnimationFrame(glow); };
   const audioOn = () => {};
-  const play = (f, then) => { curF = f; A.onended = () => setTimeout(then, 450); A.muted = false; A.volume = 1; A.src = new URL("intro/audio/" + f + ".mp3?v=4", location.href).href; const p = A.play(); if (p && p.catch) p.catch(() => buttons([["Tap to hear AVA", () => { audioOn(); btns.innerHTML = ""; A.play().catch(then); }], ["Skip to the videos", close, true]])); };
+  // Browsers (iPhones especially) won't play sound before the visitor touches the page. If AVA is blocked,
+  // the whole screen becomes the "start" control: one tap anywhere and she carries on. No buttons.
+  let waitTap = null;
+  const play = (f, then) => { curF = f; A.onended = () => setTimeout(then, 450); A.muted = false; A.volume = 1; A.src = new URL("intro/audio/" + f + ".mp3?v=5", location.href).href;
+    const p = A.play(); if (p && p.catch) p.catch(() => { hint.hidden = false; waitTap = () => { hint.hidden = true; waitTap = null; A.play().catch(then); }; }); };
+  box.addEventListener("pointerdown", e => { if (waitTap && e.target !== skip) waitTap(); });
   const close = () => { if (done) return; done = true; try { A.pause(); } catch (_) {} A.onended = null; box.classList.add("gone"); setTimeout(() => { box.hidden = true; cancelAnimationFrame(raf); }, 650);
     try { localStorage.setItem("ep-intro-seen", "1"); } catch (_) {} loadPlayer(); };
   const next = () => { cur++; if (cur >= SEGS.length) return close(); const s = SEGS[cur]; say(s.h, s.p); play("s" + cur, next); };
-  const finish = () => { say("", "Event Pal. Powered by AVA." + (CONTACT ? "<br><span style=\"color:#A3A7AE;font-size:.85em\">Call us on 784 498 5056</span>" : "")); skip.textContent = "Close";
-    buttons([...(CONTACT ? [["Talk to us about your next event", null, false, CONTACT]] : []), ["Watch the videos", close, !!CONTACT]]); setTimeout(() => { if (!done && !CONTACT) close(); }, 6000); };
-  const offer = () => { say("", "Would you like me to tell you about Event Pal? It takes less than a minute.");
-    buttons([["Yes, tell me", () => { btns.innerHTML = ""; skip.textContent = "Skip intro"; next(); }], ["Skip to the videos", close, true]]); };
-  const start = () => { audioOn(); btns.innerHTML = ""; say("", "Hi, I am AVA. I look after events with Event Pal."); glow(); play("greet", offer); };
-  const open = () => { done = false; cur = -1; box.hidden = false; box.classList.remove("gone"); skip.textContent = "Skip to the videos"; orb.style.setProperty("--lv", 0);
-    say("", ""); buttons([["Meet AVA", start], ["Skip to the videos", close, true]]); };
+  const start = () => { btns.innerHTML = ""; skip.textContent = "Skip intro"; say("", "Hi, I am AVA. I look after events with Event Pal."); glow(); play("greet", next); };
+  const open = () => { done = false; cur = -1; box.hidden = false; box.classList.remove("gone"); orb.style.setProperty("--lv", 0); start(); };
   skip.onclick = close;
   addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) close(); });
   // The intro runs inside the Wix embed too (that is where visitors meet it); ?nointro turns it off.
