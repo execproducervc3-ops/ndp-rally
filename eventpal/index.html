@@ -107,13 +107,13 @@ const unlock = (which) => {
   const A = EP_AUDIO; A.onended = A.onerror = null; try { A.pause(); } catch (_) {}
   // Safari only counts an unmuted play started inside the click, so start the intro voice right here;
   // the video picks it up from where it is when it loads.
-  const u = new URL(which + "/audio/stepintro.mp3", location.href).href; A.muted = false; A.src = u;
+  const u = new URL(which + "/audio/stepintro.mp3?a=2", location.href).href; A.muted = false; A.src = u;
   try { const p = A.play(); if (p && p.catch) p.catch(() => {}); } catch (_) {}
 };
 const pick = (which, play) => {
   if (play) unlock(which);
   document.querySelectorAll(".vid").forEach(b => { const on = b.dataset.v === which; b.setAttribute("aria-current", String(on)); b.querySelector("em").textContent = on && play ? "NOW PLAYING" : ""; });
-  const f = document.getElementById("v"); f.title = V[which]; f.src = which + "/?embed&r=3" + (play ? "&autoplay=1" : "");
+  const f = document.getElementById("v"); f.title = V[which]; f.src = which + "/?embed&r=4" + (play ? "&autoplay=1" : "");
 };
 // On phones, size the frame to the video page's content so nothing scrolls inside it.
 const fit = () => { const f = document.getElementById("v"); if (innerWidth > 700) { f.style.height = ""; return; }

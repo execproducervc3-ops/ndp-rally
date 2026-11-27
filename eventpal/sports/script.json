@@ -1,11 +1,11 @@
 {
  "title": "Event Pal for national sport · powered by AVA",
- "intro": "Alright, this is Event Pal for national sport. One system that runs a whole tournament, from the first fixture to the last ball, at every venue, on every island. And it's all powered by AVA.",
+ "intro": "Alright, this is Event Pal for national sport. One system that runs a whole tournament, from the first fixture to the last ball, at every venue, on every island. And it's all powered by me, AVA.",
  "steps": [
   {
    "id": "plan",
    "title": "The tournament plan",
-   "text": "It starts with the plan. Teams, venues and dates go in once, and AVA builds the fixture list. Change a date, and every screen, ticket and report updates with it."
+   "text": "It starts with the plan. Teams, venues and dates go in once, and I build the fixture list. Change a date, and every screen, ticket and report updates with it."
   },
   {
    "id": "venues",
@@ -25,7 +25,7 @@
   {
    "id": "gates",
    "title": "Gates and crowd safety",
-   "text": "At the gate, every ticket is scanned. You see the crowd at each venue in real time, and AVA warns you well before a stand gets too full. The police and stewards see the same numbers."
+   "text": "At the gate, every ticket is scanned. You see the crowd at each venue in real time, and I warn you well before a stand gets too full. The police and stewards see the same numbers."
   },
   {
    "id": "screens",
@@ -70,7 +70,7 @@
   {
    "id": "ava",
    "title": "AVA",
-   "text": "AVA answers the public. When's the next match? What's the score? Where do I park? And behind the scenes, she watches every venue, and alerts the team the moment something goes wrong."
+   "text": "I answer the public. When's the next match? What's the score? Where do I park? And behind the scenes, I watch every venue, and alert the team the moment something goes wrong."
   },
   {
    "id": "monitor",

@@ -5,12 +5,12 @@
   {
    "id": "brief",
    "title": "The brief",
-   "text": "It starts with the brief. Fill it in, or send the PDF to AVA on Telegram, and she sets up a draft of your fete for you to check."
+   "text": "It starts with the brief. Fill it in, or send the PDF to me on Telegram, and I'll set up a draft of your fete for you to check."
   },
   {
    "id": "knows",
    "title": "AVA knows you",
-   "text": "Your Telegram's linked to your account, so AVA knows who you are. She only shows you your own fetes, and she checks with you before anything goes public."
+   "text": "Your Telegram's linked to your account, so I know who you are. I only show you your own fetes, and I check with you before anything goes public."
   },
   {
    "id": "secure",
@@ -20,7 +20,7 @@
   {
    "id": "drop",
    "title": "The drop",
-   "text": "Approve it, and the fete goes live. The flyer, the tiers and the countdown are listed on AVA, and shared to your socials in one tap."
+   "text": "Approve it, and the fete goes live. The flyer, the tiers and the countdown are listed with me, and shared to your socials in one tap."
   },
   {
    "id": "early",
@@ -45,7 +45,7 @@
   {
    "id": "avafans",
    "title": "AVA before the fete",
-   "text": "Fans ask AVA anything. What time it starts, which outlets still have tickets, and what's in the all-inclusive."
+   "text": "Fans ask me anything. What time it starts, which outlets still have tickets, and what's in the all-inclusive."
   },
   {
    "id": "gates",
@@ -95,7 +95,7 @@
   {
    "id": "battles",
    "title": "Crowd battles",
-   "text": "Then the crowd takes over. Shake to win, left side against right side, VIP against general, with AVA calling it, and the scores on the big screen."
+   "text": "Then the crowd takes over. Shake to win, left side against right side, VIP against general, with me calling it, and the scores on the big screen."
   },
   {
    "id": "lights",
@@ -115,7 +115,7 @@
   {
    "id": "help",
    "title": "Help button",
-   "text": "If someone needs help, one tap sends their spot to security. And at closing, AVA points everyone to a taxi, the last bus, or lost and found."
+   "text": "If someone needs help, one tap sends their spot to security. And at closing, I point everyone to a taxi, the last bus, or lost and found."
   },
   {
    "id": "monitor",
@@ -125,12 +125,12 @@
   {
    "id": "assist",
    "title": "Your assistant, your eyes",
-   "text": "Think of AVA as your personal assistant, and your eyes at the event. She watches every gate, every bar and every screen, all night, all at once. She spots a problem before you do, works out why, and tells the right person. And when you need to know something, just ask her. How many are in, which bar's busiest, what's running low. She answers in seconds, so you can enjoy your own fete."
+   "text": "Think of me as your personal assistant, and your eyes at the event. I watch every gate, every bar and every screen, all night, all at once. I spot a problem before you do, work out why, and tell the right person. And when you need to know something, just ask me. How many are in, which bar's busiest, what's running low. I answer in seconds, so you can enjoy your own fete."
   },
   {
    "id": "watch",
    "title": "AVA watching",
-   "text": "AVA watches every part of it. If a gate goes offline or a bar runs dry, she looks into it, and messages you on Telegram. Need something done? Just tell her, or have her contact admin."
+   "text": "I watch every part of it. If a gate goes offline or a bar runs dry, I look into it, and message you on Telegram. Need something done? Just tell me, or have me contact admin."
   },
   {
    "id": "cash",
@@ -145,7 +145,7 @@
   {
    "id": "nextyear",
    "title": "Next year",
-   "text": "And AVA keeps your crowd. Everyone who asked about this fete gets the alert when the next one drops."
+   "text": "And I keep your crowd. Everyone who asked about this fete gets the alert when the next one drops."
   },
   {
    "id": "yourway",
