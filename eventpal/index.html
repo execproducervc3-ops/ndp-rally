@@ -33,6 +33,7 @@
   /* AVA's intro: black screen, her disc lights up with her voice; skippable at every step */
   #avaIntro{position:fixed;inset:0;z-index:50;background:#000;color:#F4F7FA;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px 20px 28px;font-family:Inter,system-ui,sans-serif;transition:opacity .6s}
   #avaIntro.gone{opacity:0;pointer-events:none}
+  #avaIntro[hidden]{display:none}
   #aiSkip{position:absolute;top:max(14px,env(safe-area-inset-top));right:16px;height:38px;padding:0 16px;border-radius:19px;border:1px solid #3A3D44;background:#111214;color:#C7CACF;font:700 13px Inter,sans-serif;cursor:pointer}
   .orbw{position:relative;width:min(230px,52vw);aspect-ratio:1;flex:none}
   .orbw i{position:absolute;inset:0;border-radius:50%;border:2px solid #F5B82E;opacity:0;transform:scale(1)}
@@ -51,7 +52,7 @@
   .aiAlt{border:1px solid #3A3D44;background:#111214;color:#F4F7FA}
   #aiSkip:focus-visible,.aiBtns button:focus-visible,.aiBtns a:focus-visible{outline:2px solid #fff;outline-offset:3px}
   .replay{display:inline-flex;align-items:center;gap:8px;margin-top:8px;background:none;border:0;color:#F5B82E;font:700 13px Inter,sans-serif;cursor:pointer;padding:0}
-  html.embed .replay{display:none}
+  html.embed .replay{margin:2px 0 6px}
 
   .main{touch-action:pan-y}
   .tip{display:none;margin:8px 2px 0;font-size:12px;color:var(--mut)}
@@ -66,7 +67,7 @@
     .th{width:92px;height:52px;font-size:14px}.th small{font-size:10px}
     .vt b{font-size:14px}.vt span{font-size:11px}
   }
-  html.embed .wrap{padding:6px}html.embed h1,html.embed .lead{display:none}
+  html.embed .wrap{padding:6px}html.embed h1,html.embed .lead{display:none}html.embed .wrap>.replay{display:inline-flex}
   body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='240' height='240' filter='url%28%2523g%29'/%3E%3C/svg%3E")}
   .wrap,main,body>*{position:relative}
 </style>
@@ -151,8 +152,8 @@ const loadPlayer = () => { if (document.getElementById("v").getAttribute("src") 
     say("", ""); buttons([["Meet AVA", start], ["Skip to the videos", close, true]]); };
   skip.onclick = close;
   addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) close(); });
-  const embedded = document.documentElement.classList.contains("embed") && !/[?&]intro\b/.test(location.search);
-  if (embedded || /[?&]nointro\b/.test(location.search)) { box.hidden = true; loadPlayer(); } else open();
+  // The intro runs inside the Wix embed too (that is where visitors meet it); ?nointro turns it off.
+  if (/[?&]nointro\b/.test(location.search)) { box.hidden = true; loadPlayer(); } else open();
   const r = document.getElementById("replayIntro"); if (r) r.onclick = () => { try { EP_AUDIO.pause(); } catch (_) {} open(); };
 })();
 </script>
