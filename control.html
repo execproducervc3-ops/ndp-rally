@@ -236,7 +236,7 @@ document.addEventListener('dblclick',function(e){e.preventDefault()},{passive:fa
   <p class="mut" id="lerr" style="color:#ff9a9a"></p>
 </div>
 <div class="wrap" id="ui" hidden>
-  <div class="top"><b class="big" style="font-size:26px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="conn">● Connected</span><nav class="tabs"><button data-tab="tabShow" class="on">Show</button><button data-tab="tabSetup">Setup &amp; reports</button></nav><div class="me"><span id="who"></span><button class="lo" id="logout">Log out</button></div></div>
+  <div class="top"><b class="big" style="font-size:26px;color:var(--y)">RALLY CONTROL</b><span class="pill" id="conn">● Connected</span><nav class="tabs"><button data-tab="tabShow" class="on">Show</button><button data-tab="tabSetup">Setup &amp; reports</button></nav><div class="me"><span id="who"></span><button class="lo" id="cadm" title="Send the administrator a message or voice note">Contact admin</button><button class="lo" id="logout">Log out</button></div></div>
   <div class="bar" id="bar"></div>
   <div class="tab" id="tabShow">
     <div class="sg">
@@ -464,6 +464,9 @@ $('autoStop').onclick=()=>autoStop('Sequence stopped. Screens stay on the curren
 // ---------- who's signed in, log out, team ----------
 const ROLE={owner:'Owner',operator:'Full operator',assistant:'Photo assistant'};
 async function whoami(){try{const w=await call({a:'whoami'});document.body.dataset.role=w.role;$('who').innerHTML=w.role==='owner'?'<b>Owner</b>':`<b>${esc(w.name)}</b> · ${ROLE[w.role]||w.role}`;if(w.role==='owner')teamLoad();if(w.role!=='assistant')annList();photoReport();if(w.role!=='owner'&&AUTO&&w.role==='assistant'){autoStop('')}fitPv()}catch(e){}}
+// Contact admin: a message or voice note to the administrator's Telegram (promoter and team, checked by PIN)
+$('cadm').onclick=async()=>{try{const{contactAdmin}=await import('./contact-admin.js');const tab=document.querySelector('.tabs .on');
+  contactAdmin({app:'Event Pal',screen:'Control'+(tab?' › '+tab.textContent:''),send:async p=>{const r=await fetch(CFG.supabaseUrl+'/functions/v1/contact-admin',{method:'POST',headers:{'content-type':'application/json','x-pin':PIN},body:JSON.stringify(p)});return r.json().catch(()=>({ok:false,error:'It didn\'t go through.'}))}})}catch(e){alertBar('Couldn\'t open Contact admin.')}};
 let loT=null;$('logout').onclick=()=>{const b=$('logout');if(!b.classList.contains('arm')){b.classList.add('arm');b.textContent=AUTO?'Sequence running! Tap to log out':'Tap to log out';clearTimeout(loT);loT=setTimeout(()=>{b.classList.remove('arm');b.textContent='Log out'},3000);return}
   clearTimeout(loT);b.classList.remove('arm');b.textContent='Log out';if(AUTO)autoStop('');hidePin();lock('Logged out.')};
 let pinFor=null;function hidePin(){pinFor=null;$('np').classList.remove('show');$('np').innerHTML=''}
